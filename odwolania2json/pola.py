@@ -36,8 +36,12 @@ def _bez_spacji(ust: dict, s: str) -> str:
 FORMATY = {"cyfry": _cyfry, "liczba": _liczba, "data": _data, "tekst": _tekst, "bez_spacji": _bez_spacji}
 
 
+def fraza(s: str) -> str:
+    return r"\s+".join(map(re.escape, s.split()))
+
+
 def _etykiety(etykiety: list[str]) -> str:
-    return r"(?i:(?<!\w)(?:" + "|".join(r"\s+".join(map(re.escape, e.split())) for e in etykiety) + r")(?!\w))"
+    return r"(?i:(?<!\w)(?:" + "|".join(map(fraza, etykiety)) + r")(?!\w))"
 
 
 def _rozwin(wzorzec: str, fragmenty: dict, warianty: dict) -> re.Pattern:

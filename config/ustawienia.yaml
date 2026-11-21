@@ -69,6 +69,8 @@ narzedzia:
     NAJGORSZE: 20
     # Czym zastępujemy brakującą wartość: nic, albo zapisy spotykane w pismach przy pustym polu.
     braki: ['', 'brak', 'nie dotyczy', '-']
+    # Rodzina „nazwy” miesza litery w wartościach pól o tej nazwie (ostatni klucz ścieżki JSON).
+    pole_nazwy: nazwa
     # Inne zapisy etykiet niż w danych UZP: wzorzec (Python re, MULTILINE) -> zamiany.
     etykiety:
       '\bNIP:': ['NIP', 'Nr NIP:', 'NIP nr', 'Numer NIP:', 'NIP -']

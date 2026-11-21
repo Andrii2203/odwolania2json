@@ -1,7 +1,7 @@
 import re
 from collections.abc import Iterator
 
-from .pola import pusty, wez
+from .pola import fraza, pusty, wez
 
 
 def _sloty(obiekt, sciezka: str, droga: str = "") -> Iterator[tuple[dict, str, str]]:
@@ -28,7 +28,7 @@ def _w_tekscie(wartosc, tekst: str, rozdzielnik: str) -> re.Match | None:
     s = str(wartosc)
     if s.isdigit():
         return cyfry_w_tekscie(s, rozdzielnik).search(tekst)
-    return re.search(r"\s+".join(map(re.escape, s.split())), tekst)
+    return re.search(fraza(s), tekst)
 
 
 def _kandydaci(dokumenty: list[dict], cel: dict, zrodla: dict) -> list[tuple[object, str]]:

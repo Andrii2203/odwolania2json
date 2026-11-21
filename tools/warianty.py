@@ -65,7 +65,7 @@ def braki(tekst, wzor, rng, w, ust):
 
 def nazwy(tekst, wzor, rng, w, ust):
     znane = set(re.findall(r"\w+", w["konfiguracja"]))
-    slowa = {s for sciezka, v in _napisy(wzor) if sciezka.endswith("nazwa") for s in re.findall(r"\w+", v)
+    slowa = {s for sciezka, v in _napisy(wzor) if sciezka.endswith(w["pole_nazwy"]) for s in re.findall(r"\w+", v)
              if s.isalpha() and s[0].isupper() and s.lower() not in znane}
     zamiana = {}
     for s in sorted(slowa):

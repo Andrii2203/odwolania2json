@@ -29,6 +29,23 @@ input/negatywne/2025_S 112-383751.pdf (ogłoszenie TED)                -> brak J
 - Sprawdza: obcy dokument nie dostaje typu, więc nie daje pliku pełnego wymyślonych wartości (FP).
 - Test: `tests/test_e2e.py::test_t2_obcy_dokument`
 
+## T3. Przelew: wszystkie pola jak we wzorcu
+
+```
+przyklad_42 (etykieta w jednej linii, wartość w następnej):
+  "Rachunek zleceniodawcy  PL55 9947 7458 …" -> "z_rachunku": "55994774587693681405727867"
+  "Kwota  34,00 PLN"                        -> "kwota": 34.0
+  "Data operacji  2026-06-30"                -> "data_operacji": "2026-06-30"
+  tytuł w dwóch liniach                      -> jedna linia, jak we wzorcu
+przyklad_17 (etykieta i wartość w jednej linii, kropki):
+  "WARTOŚĆ ........ 200,00 zł"               -> "kwota": 200.0
+  "DATA TRANSAKCJI ........ 11-10-2026"      -> "data_operacji": "2026-10-11"
+```
+
+- Dane: `data/uzp/dane/przyklad_17` i `przyklad_42`, cały JSON musi być równy wzorcowi `przelew.json`.
+- Sprawdza: etykiety i formaty pól z `config/typy/przelew.yaml`.
+- Test: `tests/test_pola.py::test_t3_przelew`
+
 ## Pomiar jakości (to nie jest test)
 
 `tools/ocena_f1.py` przepuszcza wszystkie 60 spraw treningowych przez CLI i liczy F1 według ADR-0003. Przykładowy wynik:

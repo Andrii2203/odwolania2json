@@ -215,6 +215,17 @@ pelnomocnictwo.pdf:  "Belmoria Rozwiązania S.A., numer identyfikacji podatkowej
 - Skąd brać kandydatów: klucz `kontekst` w pliku typu.
 - Test: `tests/test_pola.py::test_t14_kontekst_sprawy`
 
+## T15. Rachunek z dowolnym kodem kraju (IBAN), bez spacji
+
+```
+"Z rachunku: DE89 3704 0044 0532 0130 00 Kwota: 10,00 EUR"  -> z_rachunku  = "DE89370400440532013000"
+"Na rachunek: PL61 1090 1014 0000 0712 1981 2874"            -> na_rachunek = "PL61109010140000071219812874"
+```
+
+- Źródło: UZP na Discordzie (22.11 w nocy): bez spacji, z „PL”, jeśli jest w dokumencie, „może być też kod innego kraju”. Długość IBAN według ISO 13616: kod kraju, 2 cyfry kontrolne, do 30 znaków (litery wielkie i cyfry), drukowany w grupach po 4.
+- Słowo za numerem („Kwota”) nie jest częścią numeru.
+- Test: `tests/test_pola.py::test_t15_rachunek_iban`
+
 ## Pomiar jakości (to nie jest test)
 
 `tools/ocena_f1.py` przepuszcza wszystkie 60 spraw treningowych przez CLI i liczy F1 według ADR-0003. Przykładowy wynik:

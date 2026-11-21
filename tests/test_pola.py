@@ -49,6 +49,15 @@ def test_t11_rachunek_z_pl():
         "PL62217000089152501756617062", "68438223049992295262834736")
 
 
+def test_t15_rachunek_iban():
+    typ = next(t for t in wczytaj_typy() if t["typ"] == "przelew")
+
+    dane = wyciagnij("Z rachunku: DE89 3704 0044 0532 0130 00 Kwota: 10,00 EUR\nNa rachunek: PL61 1090 1014 0000 0712 1981 2874\n", typ)
+
+    assert (dane["przelew_bankowy"]["z_rachunku"], dane["przelew_bankowy"]["na_rachunek"]) == (
+        "DE89370400440532013000", "PL61109010140000071219812874")
+
+
 def test_t13_bramka_utnij():
     typ = next(t for t in wczytaj_typy() if t["typ"] == "odwolanie")
     dziennik = []

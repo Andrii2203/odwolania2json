@@ -35,7 +35,17 @@ Obcy dokument (np. ogłoszenie TED) nie daje pliku.
 5. Oszczędzamy tokeny: czytamy tylko potrzebne pliki i fragmenty, bez subagentów, krótkie odpowiedzi.
 6. Na koniec sesji aktualizujemy `docs/STAN.md` (zrobione, dalej, pytania).
 7. W kodzie bez komentarzy; jeśli komentarz jest konieczny, po polsku. Komunikaty CLI po polsku.
-8. Małe commity z krótkim opisem po polsku, push po każdym.
+8. Małe commity z krótkim opisem po polsku: `sh tools/zapisz.sh "opis" pliki...` (commit i push).
+9. Liczby do strojenia (progi, limity, czasy, DPI) tylko w `config/`: wspólne w `config/ustawienia.yaml`, dotyczące jednego typu w `config/typy/<typ>.yaml`. W kodzie takich liczb nie ma.
+
+## Automatyczne straże
+
+| Kiedy | Co sprawdza | Gdzie |
+|---|---|---|
+| każdy commit (każdy wykonawca) | testy zielone; brak cyrylicy | `.githooks/pre-commit` |
+| Claude edytuje `tests/` | czy najpierw zmieniono `docs/testy.md` | `tools/hooks/straz_testow.py` |
+| Claude kończy turę | testy zielone przy zmianach w kodzie; wysyła zaległe commity | `tools/hooks/stop.py` |
+| push na GitHub | testy i F1 na czystym Windows z Pythonem 3.13 | `.github/workflows/testy.yml` |
 
 ## Mapa
 

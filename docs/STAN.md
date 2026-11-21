@@ -3,16 +3,30 @@
 Оновлено: 2026-11-21, Claude.
 
 ## Зроблено
-- Репо, `AGENTS.md` (+ `CLAUDE.md`, `GEMINI.md`), ADR-0001…0004, `docs/testy.md`.
-- Walking skeleton: CLI `input/ → output/`, класифікація з YAML. Тести T1, T2 зелені.
-- Компас: `tools/ocena_f1.py` → тип правильний 180/180, **F1 = 0.000** (поля ще порожні).
+- Репо (приватне): https://github.com/Andrii2203/odwolania2json. Python 3.13.
+- `AGENTS.md` (+ `CLAUDE.md`, `GEMINI.md`), ADR-0001…0006, `docs/testy.md`.
+- Walking skeleton: CLI `input/ → output/`, класифікація з YAML, `process()` — спільна для CLI і GUI. Тести T1, T2 зелені.
+- Компас `tools/ocena_f1.py`: тип правильний 180/180, **F1 = 0.000** (поля ще порожні).
 
-## Далі
-1. [Claude] Поля `przelew` (6 полів) правилами → F1 вгору. Потім `pelnomocnictwo`, `odwolanie`.
-2. [Argon] Порівняти EU-постачальників LLM для ADR-0004: Mistral, Scaleway, OVHcloud, IONOS. Для кожного: які open-weight моделі, ціна, безкоштовний ліміт, чи сервер в ЄС, OpenAI-сумісний API. З посиланнями. Результат → `docs/badania/llm-ue.md`.
-3. [Argon] OCR для сканів на CPU, що ставиться через `pip`: RapidOCR, Tesseract (`pytesseract`), docTR. Для кожного: ліцензія, розмір встановлення, якість для польської. Результат → `docs/badania/ocr.md`.
-4. [Користувач] Python 3.13+; ключ API в ЄС; чернетка в HackTribe до 20:00.
+## План
+| Коли | Хто | Що |
+|---|---|---|
+| сб до 20:00 | Користувач | Чернетка в HackTribe (посилання на репо вище) |
+| сб вечір | Claude | Поля правилами: `przelew` → `pelnomocnictwo` → `odwolanie` |
+| сб вечір | [Argon] | Дослідження LLM в ЄС → `docs/badania/llm-ue.md` (див. нижче) |
+| сб вечір | [Argon] | Дослідження OCR → `docs/badania/ocr.md` (див. нижче) |
+| сб ніч | [Argon] | GUI за ADR-0006: `gui.bat`, `requirements-gui.txt`, `odwolania2json/gui.py`, лише виклик `process()` |
+| сб ніч | Claude | LLM для полів, яких не беруть правила (ADR-0004); OCR (ADR після дослідження) |
+| нд 7:00–9:30 | [Argon] | Презентація PDF ≤ 10 МБ за ADR-0006; `README.md` польською |
+| нд 9:30–10:30 | Claude + Користувач | Фінальний прогін F1, перевірка `start.bat` на чистій папці, здача |
+| нд 11:00 | — | Дедлайн |
+
+### [Argon] Дослідження LLM в ЄС
+Mistral, Scaleway, OVHcloud, IONOS. Для кожного: які моделі з відкритими вагами **і ліцензією без обмежень** (Apache 2.0 / MIT), ціна за 1 млн токенів, безкоштовний ліміт, чи сервер і компанія в ЄС, чи безкоштовний план використовує дані для навчання, OpenAI-сумісний API. З посиланнями.
+
+### [Argon] Дослідження OCR
+Для сканів на CPU, ставиться через `pip`, без окремих програм: RapidOCR, docTR, Tesseract (`pytesseract` — потребує програми), рендер сторінок через `pypdfium2`. Для кожного: ліцензія, розмір встановлення, якість для польської. З посиланнями.
 
 ## Відкриті питання
-- Як UZP рахує F1: точний збіг? Порядок у списках (кілька Odwołujących)?
-- OCR — яке рішення (ADR після п. 3).
+- Як UZP рахує F1 — не блокує (ADR-0005).
+- Локальна модель на RTX 5060 (8 ГБ) для безкоштовних прогонів під час розробки — вирішимо після дослідження LLM.

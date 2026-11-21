@@ -5,12 +5,12 @@ Aktualizacja: 2026-11-21 wieczór, Claude (OCR, T9).
 ## Zrobione
 
 - Repozytorium (prywatne): https://github.com/Andrii2203/odwolania2json. Python 3.13.
-- `AGENTS.md` (+ `CLAUDE.md`, `GEMINI.md`), ADR-0001..0010, `docs/testy.md` (T1–T8).
+- `AGENTS.md` (+ `CLAUDE.md`, `GEMINI.md`), ADR-0001..0010, `docs/testy.md` (T1–T9).
 - Potok: CLI `input/ -> output/`, klasyfikacja z YAML (`znaczniki`, `wykluczenia`), pola z YAML (`etykiety`, `wzorce`, `format`, `sekcja`, `slownik`, `podzial`), `przetworz_wszystkie()` wspólne dla CLI, GUI i `tools/ocena_f1.py`.
 - Klasyfikacja: 180/180 dokumentów treningowych poprawnie, 13/13 obcych dokumentów UZP bez JSON.
 - Pola `przelew` regułami: 4 błędy na ok. 360 pól.
 - Pola `pelnomocnictwo` wzorcami regex i listami (ADR-0008): 1 błąd (PESEL w jednej sprawie).
-- Pola `odwolanie` wzorcami, sekcjami i słownikami (ADR-0010, test T6): 0 błędów na 60 sprawach. Łączny **F1 = 0.9983** (TP 2027, FP 2, FN 5; wcześniej 0.5711).
+- Pola `odwolanie` wzorcami, sekcjami i słownikami (ADR-0010, test T6): 0 błędów na 60 sprawach. Łączny F1 wtedy 0.9983 (wcześniej 0.5711); teraz **0.9990** (po regułach dla skanów).
 - Zgłoszenie w HackTribe: szkic zapisany.
 - ADR-0009 (też `tools/` i `tests/`, sekcja `narzedzia`; hooki Claude blokują przez JSON, nie kod 2): jeden mechanizm pól (`wzorce`, `etykiety` to skrót), formaty wartości w YAML. Wszystkie liczby w `config/ustawienia.yaml` z pochodzeniem (pomiar `tools/przeglad.py`); pilnuje test T5. Wynik 180 JSON bajt w bajt bez zmian.
 - OCR (ADR-0007, test T9): strona z tekstem krótszym niż `MIN_ZNAKOW_STRONY` idzie przez `pypdfium2` i RapidOCR (modele w wheel, bez sieci). Skany UZP: F1 0 -> **0.8696** (30 dokumentów, 30/30 typów, 150 DPI), ok. 3,5 s na stronę. Nowe reguły (układ skanów, `warianty_liter`, `poprawki_ocr`, `sekcja` przy wzorcu, PESEL) podniosły też dane treningowe do **0.9990**.

@@ -1,36 +1,45 @@
-# ADR-0004: LLM — модель з відкритими вагами в ЄС
+# ADR-0004: LLM – model z otwartymi wagami w UE
 
-Статус: **запропоновано** (потрібен ключ і перевірка умов)
+Status: zaproponowane (potrzebny klucz; rejestracja w Scaleway 21.11 zwraca HTTP 500)
 
-## Контекст
-FAQ UZP: тільки open-source моделі, які можна встановити й локально; API — у постачальника, де і компанія, і сервер в ЄС; дані не виходять за ЄС. Тестовий ПК без GPU → велика локальна модель не підходить. Ключ API здаємо разом із рішенням.
+## Kontekst
 
-## Рішення (пропозиція, за `docs/badania/llm-ue.md`)
-- **Постачальник: Scaleway** (Франція). Запити не зберігаються і не йдуть на навчання; 1 млн токенів безкоштовно (потрібна картка).
-- **Модель: `mistral-small-3.2-24b-instruct`** (Apache 2.0). Є також в OVHcloud і IONOS → запасні постачальники з тією ж моделлю.
-- **Mistral Free — ні:** за замовчуванням навчається на запитах. Mistral — лише платний план.
-- Адреса API, модель і ключ — у `.env`. Зміна постачальника = 3 рядки, код той самий.
-- **Заміри F1 — через той самий API, що й у журі:** прогін 60 справ ≈ €0.05, зате наш F1 = їхній F1. Локальний Qwen3.5-4B — лише для швидких проб промптів.
-- **Перевірка даних дослідження — скриптом, не руками:** з ключем запит `GET /v1/models` покаже, які моделі справді є.
-- LLM викликаємо лише для полів, які не беруть правила (ADR-0002).
+FAQ UZP: tylko modele open source, które można też zainstalować lokalnie; API u dostawcy, którego firma i serwer są w UE; dane nie opuszczają UE. Komputer testowy jest bez GPU, więc duży model lokalny odpada. Klucz API oddajemy razem z rozwiązaniem.
 
-## Розробка — локально, безкоштовно
-У `E:\call to ai` вже є `tools\llama.cpp\llama-server.exe` (CUDA) і моделі `models\brain\*.gguf`. На RTX 5060 (8 ГБ) запускаємо:
+## Decyzja (propozycja, według `docs/badania/llm-ue.md`)
+
+- Dostawca: Scaleway (Francja). Zapytania nie są przechowywane ani używane do trenowania; 1 mln tokenów za darmo (wymagana karta).
+- Model: `mistral-small-3.2-24b-instruct` (Apache 2.0). Jest też w OVHcloud i IONOS; to dostawcy zapasowi z tym samym modelem.
+- Mistral Free odpada: domyślnie trenuje na zapytaniach. Mistral tylko w planie płatnym.
+- Adres API, model i klucz w `.env`. Zmiana dostawcy to 3 linie, kod ten sam.
+- F1 mierzymy przez to samo API co u jury: przebieg 60 spraw kosztuje ok. 0,05 EUR, a nasz F1 jest wtedy równy ich F1.
+- Dane z badania sprawdzamy skryptem: z kluczem zapytanie `GET /v1/models` pokaże, jakie modele są dostępne.
+- LLM wywołujemy tylko dla pól, których nie wyciągną reguły (ADR-0002).
+
+## Do sprawdzenia przed przyjęciem
+
+- Czy model ma otwarte wagi i jest obsługiwany w UE.
+- Osobny klucz z limitem wydatków (klucz trafia do jury).
+
+## Rozwój lokalnie
+
+W `E:\call to ai` jest `tools\llama.cpp\llama-server.exe` (CUDA) i modele `models\brain\*.gguf`. Na RTX 5060 (8 GB):
+
 ```
-llama-server.exe -m Qwen3.5-4B-Q8_0.gguf -ngl 99 --port 8080   →   http://localhost:8080/v1
+llama-server.exe -m Qwen3.5-4B-Q8_0.gguf -ngl 99 --port 8080   ->   http://localhost:8080/v1
 ```
-Це той самий OpenAI-сумісний API, що й у постачальника в ЄС. Різниця — лише рядки в `.env`:
-```
-LLM_BASE_URL=http://localhost:8080/v1        # розробка
-LLM_BASE_URL=https://api.<постачальник-ЄС>/v1  # для журі
-```
-- Клієнт — свій, ~20 рядків на `urllib` (як `E:\call to ai\app\brain.py`): з бібліотеки `openai` нам треба один запит.
-- Найкраще — **та сама модель** локально і в API, тоді наш F1 = F1 у журі. Перевірити: чи хостить постачальник з ЄС Qwen3.5 / Gemma 4; ліцензії Qwen3.5-4B і Gemma 4.
-- Вбудувати модель у рішення для ПК журі (CPU) — **ні**: 4.5 ГБ і хвилини на документ; FAQ попереджає про це.
 
-## Що перевірити перед «прийнято»
-- Що обрана модель справді open-weight і обслуговується в ЄС.
-- Ціни / безкоштовний ліміт; окремий ключ із жорстким лімітом витрат (ключ віддаємо журі).
+To samo API zgodne z OpenAI co u dostawcy. Różnica jest tylko w `.env`:
 
-## Наслідки
-- Без ключа програма працює (лише правила) — LLM тільки покращує F1.
+```
+LLM_BASE_URL=http://localhost:8080/v1          (rozwój)
+LLM_BASE_URL=https://api.<dostawca-UE>/v1      (jury)
+```
+
+- Klient własny, ok. 20 linii na `urllib`: z biblioteki `openai` potrzebne jest jedno zapytanie.
+- Lokalny Qwen3.5-4B tylko do szybkich prób promptów; F1 mierzymy modelem z API.
+- Wbudowanie modelu w rozwiązanie dla komputera jury (CPU) odpada: 4,5 GB i minuty na dokument.
+
+## Konsekwencje
+
+- Bez klucza program działa (tylko reguły); LLM tylko podnosi F1.

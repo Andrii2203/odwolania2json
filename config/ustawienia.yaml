@@ -19,6 +19,12 @@ liczby:
   # Wcięcie JSON: 2 spacje, jak w przykładach UZP (data/uzp/dane/*/przelew.json).
   WCIECIE_JSON: 2
 
+# Liczby narzędzi (tools/), nie programu.
+narzedzia:
+  # Miejsca po przecinku w F1 (tools/ocena_f1.py). Jedno pole zmienia F1 o ok. 0.0005: 2TP+FP+FN = 2847 na 60 sprawach (2026-11-21).
+  # 3 miejsca chowają część zmian o jedno pole, 4 pokazują każdą.
+  MIEJSCA_F1: 4
+
 # Słowa, po których dokument nie jest żadnym z typów (wyrok KIO, ogłoszenie TED). ADR-0002.
 wykluczenia: [orzeka, oficjalna nazwa, see the notice]
 

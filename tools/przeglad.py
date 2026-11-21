@@ -26,8 +26,8 @@ def main() -> int:
             ust["liczby"][args.liczba] = int(wartosc) if wartosc.is_integer() else wartosc
             plik.write_text(yaml.safe_dump(ust, allow_unicode=True), encoding="utf-8")
             wynik = subprocess.run([sys.executable, str(ROOT / "tools" / "ocena_f1.py"), "--config", str(config),
-                                    "--top", "0"], capture_output=True, text=True, encoding="utf-8").stdout
-            print(f"{args.liczba} = {ust['liczby'][args.liczba]}: " + " | ".join(wynik.splitlines()[:-1]))
+                                    "--bez-pol"], capture_output=True, text=True, encoding="utf-8").stdout
+            print(f"{args.liczba} = {ust['liczby'][args.liczba]}: " + " | ".join(wynik.splitlines()))
     return 0
 
 

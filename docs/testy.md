@@ -73,13 +73,16 @@ przyklad_44 (osoba fizyczna):
 config/typy/przelew.yaml:      wzorce: ['({RACHUNEK})']           -> dobrze, bez cyfr
 config/typy/przelew.yaml:      wzorce: ['\d{2}(?:\s?\d{4}){6}']   -> błąd: cyfry w pliku typu
 odwolania2json/pola.py:        okno = tekst[start:start + 120]     -> błąd: liczba w kodzie (wolno tylko 0 i 1)
+odwolania2json/pola.py:        re.compile(r"\d{4}")                -> błąd: liczba we wzorcu w kodzie
+tools/ocena_f1.py:             print(f"F1 = {f1:.3f}")             -> błąd: liczba w formacie f-stringu
+tools/hooks/stop.py:           return 2                           -> błąd: kod protokołu; zamiast niego {"decision": "block"}
 config/ustawienia.yaml:        # 26 cyfr: standard NRB
                                RACHUNEK: '\d{2}(?:\s?\d{4}){6}'   -> dobrze, komentarz nad linią
 config/ustawienia.yaml:        OKNO_TEKSTU: 400                   -> błąd: brak komentarza, skąd 400
 ```
 
-- Dane: pliki `config/typy/*.yaml`, `config/ustawienia.yaml`, `odwolania2json/*.py`.
-- Sprawdza: nowy typ to sam YAML bez liczb; liczby nie są rozsiane po kodzie; każda liczba ma zapisane pochodzenie (komentarz w tej samej linii albo w linii nad nią).
+- Dane: pliki `config/typy/*.yaml`, `config/ustawienia.yaml`, każdy plik `.py` w `odwolania2json/`, `tools/`, `tests/`.
+- Sprawdza: nowy typ to sam YAML bez liczb; liczby nie są rozsiane po kodzie, także w formatach f-stringów i we wzorcach regex w kodzie; każda liczba ma zapisane pochodzenie (komentarz w tej samej linii albo w linii nad nią).
 - Test: `tests/test_konfiguracja.py::test_t5_liczby_w_jednym_pliku`
 
 ## Pomiar jakości (to nie jest test)

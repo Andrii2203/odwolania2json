@@ -23,6 +23,7 @@ Pola były wyciągane na dwa sposoby: `etykiety` + `format` (wyrażenia regularn
 4. `{STOP}` to etykiety pozostałych pól typu i lista `stop`. Tekst kończy się przed linią, która zaczyna się taką etykietą.
 5. Wszystkie liczby są w `config/ustawienia.yaml`: sekcja `liczby` i fragmenty `wzorce`. Przy każdej jest komentarz: standard (NRB: 26 cyfr) albo pomiar `tools/przeglad.py`. `prog` i wspólne `wykluczenia` są jedne dla wszystkich typów.
 6. Test T5 pilnuje: w `config/typy/` nie ma cyfr, w kodzie są tylko 0 i 1, każda liczba w `ustawienia.yaml` ma komentarz.
+7. To samo dotyczy `tools/` i `tests/` (2026-11-21). Liczby narzędzi są w sekcji `narzedzia`. Liczby z protokołów i wzorów zastępuje nazwa z API: `{"decision": "block"}` zamiast kodu wyjścia 2 w hookach Claude, `harmonic_mean` zamiast wzoru F1, `git rev-parse --show-toplevel` zamiast `parents[2]`, `unicodedata` zamiast zakresu kodów cyrylicy. T5 łapie też liczby w formatach f-stringów (`{f1:.3f}`) i we wzorcach regex w kodzie (`\d{4}`).
 
 ## Konsekwencje
 

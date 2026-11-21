@@ -42,6 +42,50 @@ narzedzia:
   # Najniższe F1 na 3 skanach testu T9 (skany/<typ>/0001): tuż poniżej obecnego F1, więc utrata jednego pola
   # zaczerwienia test.
   MIN_F1_SKANY: 0.96
+  # Obce dokumenty do pomiaru klasyfikacji (tools/pobierz_obce.py, ADR-0011): polskie ogłoszenia TED z API TED.
+  obce_ted:
+    # Zamawiający z Polski, ogłoszenia z bieżącego roku (składnia wyszukiwania eksperckiego TED).
+    zapytanie: buyer-country=POL AND publication-date>=20260101
+    # Ile ogłoszeń: maksimum na jedną stronę wyników API TED (dokumentacja API v3: limit do 250).
+    ILE: 250
+    # Kod języka PDF w odpowiedzi API (ISO 639-2/B, jak w polu links.pdf).
+    jezyk: POL
+  # Warianty dokumentów treningowych (tools/warianty.py, ADR-0011). Poprawny JSON znamy, bo wiemy, co zmieniliśmy.
+  warianty:
+    # Losowań na dokument dla każdej losowej rodziny: kilka tysięcy wariantów na 180 dokumentach w kilka minut.
+    WARIANTY: 3
+    # Podmieniamy ciągi cyfr dłuższe niż rok (4 cyfry): NIP, KRS, REGON, PESEL, rachunek, numery BZP i TED.
+    MIN_CYFR: 5
+    # Przesunięcie wszystkich dat dokumentu o tyle samo dni, do roku w obie strony: zmienia dzień, miesiąc, często rok.
+    ZAKRES_DNI: 365
+    # Rzut monetą dla każdego końca linii: bez założeń, jak często inny PDF łamie linie.
+    P_LACZENIA: 0.5
+    # Zawijanie do połowy najdłuższej linii dokumentu: układ dwóch kolumn (np. dane stron obok siebie).
+    CZESC_SZEROKOSCI: 0.5
+    # Ile najgorszych pól wypisać: mieści się na jednym ekranie terminala.
+    NAJGORSZE: 20
+    # Czym zastępujemy brakującą wartość: nic, albo zapisy spotykane w pismach przy pustym polu.
+    braki: ['', 'brak', 'nie dotyczy', '-']
+    # Inne zapisy etykiet niż w danych UZP: wzorzec (Python re, MULTILINE) -> zamiany.
+    etykiety:
+      '\bNIP:': ['NIP', 'Nr NIP:', 'NIP nr', 'Numer NIP:', 'NIP -']
+      '\bREGON:': ['REGON', 'Nr REGON:', 'Numer REGON:']
+      '\bKRS:': ['KRS', 'Nr KRS:', 'Numer KRS:', 'KRS nr']
+      '^Zamawiający:': ['ZAMAWIAJĄCY:', 'Zamawiający', 'Zamawiający -']
+      '^Odwołujący:': ['ODWOŁUJĄCY:', 'Odwołujący', 'Odwołujący się:', 'Wykonawca (Odwołujący):']
+      'reprezentowan[ay] przez:': ['reprezentowany przez pełnomocnika:', 'działający przez:']
+      'nr referencyjny sprawy:': ['znak sprawy:', 'numer sprawy:', 'nr postępowania:', 'sygn.:']
+      'numer ogłoszenia TED:': ['nr ogłoszenia w Dz.U. UE:', 'ogłoszenie w Dzienniku Urzędowym UE nr']
+      '^Mocodawca:': ['MOCODAWCA:', 'Mocodawca', 'Udzielający pełnomocnictwa:']
+      '^Płatnik': ['Nadawca', 'Zleceniodawca', 'Dane nadawcy']
+      '^Beneficjent': ['Odbiorca', 'Dane odbiorcy', 'Nazwa odbiorcy']
+      '^Kwota operacji': ['Kwota', 'Kwota przelewu', 'Kwota transakcji']
+      '^Data operacji': ['Data', 'Data wykonania', 'Data księgowania', 'Data transakcji']
+      '^Tytuł przelewu': ['Tytuł', 'Tytuł operacji', 'Opis transakcji', 'Tytułem']
+    # Bloki zamieniane miejscami: nagłówki po kolei, ostatni tylko zamyka.
+    bloki:
+      - ['^Zamawiający:', '^Odwołujący:', '^dotyczy:']
+      - ['^Płatnik', '^Beneficjent', '^Kwota operacji']
 
 # Słowa, po których dokument nie jest żadnym z typów (wyrok KIO, ogłoszenie TED). ADR-0002.
 wykluczenia: [orzeka, oficjalna nazwa, see the notice]

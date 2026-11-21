@@ -57,6 +57,7 @@ Obcy dokument (np. ogłoszenie TED) nie daje pliku.
 | `odwolania2json/ocr.py` | strona bez tekstu: render (`pypdfium2`), RapidOCR, ramki w wiersze (ADR-0007) |
 | `tests/` | testy z `docs/testy.md` |
 | `tools/ocena_f1.py` | F1 na 60 sprawach treningowych (ADR-0003) |
+| `tools/warianty.py`, `tools/pobierz_obce.py` | F1 na wariantach dokumentów; obce PDF z TED do `data/obce` (ADR-0011) |
 | `tools/przeglad.py` | F1 dla kilku wartości jednej liczby z `config/ustawienia.yaml` (pochodzenie liczb) |
 | `data/uzp/` | klon https://github.com/Urzad-Zamowien-Publicznych/hacknation-2026 (poza git) |
 | `docs/adr/`, `docs/badania/`, `docs/testy.md`, `docs/STAN.md`, `docs/kryteria.md` | decyzje, badania, testy, stan, za co punkty UZP i co mamy |
@@ -70,6 +71,8 @@ start.bat                                  # input\ -> output\
 .venv\Scripts\python -m pytest -q          # testy
 .venv\Scripts\python tools\ocena_f1.py     # F1 i najgorsze pola
 .venv\Scripts\python tools\ocena_f1.py --dane data\uzp\dane\skany\potwierdzenia data\uzp\dane\skany\pelnomocnictwa data\uzp\dane\skany\odwolania   # skany, ok. 4 min
+.venv\Scripts\python tools\warianty.py --przyklady   # F1 na wariantach, ok. 40 s
+.venv\Scripts\python tools\pobierz_obce.py && .venv\Scripts\python tools\ocena_f1.py --dane data\obce   # obce: ma być 0 z JSON
 .venv\Scripts\python tools\przeglad.py OKNO_WARTOSCI 60 120 240   # F1 dla kilku wartości
 ```
 

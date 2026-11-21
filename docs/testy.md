@@ -173,3 +173,24 @@ Najgorsze pola (FN+FP):
 ```
 
 To kompas: każda zmiana ekstrakcji powinna podnosić F1. Dolną granicę pilnuje test T8.
+
+### Pomiar na wariantach i obcych dokumentach (ADR-0011)
+
+`tools/warianty.py` zmienia tekst dokumentów treningowych i od razu zmienia wzorzec JSON, bo wiemy, co wstawiliśmy. Każda rodzina zmian ma osobne F1:
+
+```
+przed:  "Odwołujący:\nBelmoria Rozwiązania S.A.\n... NIP: 9999284065"
+wartosci:        NIP: 9999284065 -> NIP: 4170385529, w JSON też 4170385529
+braki:           NIP: 9999284065 -> NIP: brak, w JSON null
+nazwy:           Belmoria -> Rlaombie (litery w innej kolejności), w JSON też
+daty:            wszystkie daty z JSON przesunięte o tyle samo dni, w tekście w tym samym zapisie
+etykieta:        "Odwołujący:" -> "ODWOŁUJĄCY:", JSON bez zmian
+bloki:           blok Odwołującego przed blokiem Zamawiającego, JSON bez zmian
+laczenie_linii:  część końców linii -> spacja, JSON bez zmian
+lamanie_linii:   linie zawinięte do połowy najdłuższej, JSON bez zmian
+
+Warianty: 4673 | F1 razem = 0.9559
+  F1 0.7550  warianty 60  zły typ 0  etykieta ^Odwołujący: -> ODWOŁUJĄCY:
+```
+
+`tools/pobierz_obce.py` pobiera polskie ogłoszenia TED do `data/obce/ted`; `tools/ocena_f1.py --dane data/obce` liczy, ile z nich dostało JSON (ma być 0).

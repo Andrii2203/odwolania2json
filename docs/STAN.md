@@ -18,6 +18,7 @@ Aktualizacja: 2026-11-21 noc, Claude (skany, porządki liczb, kryteria). Następ
 - Straże: pre-commit (testy, język polski), hooki Claude (TDD, stop), CI na Windows. Opis w `AGENTS.md`.
 - Klucz OVHcloud działa (`chat/completions`). LLM w programie nie jest używany.
 - Badania: `docs/badania/` (`llm-ue.md`, `ocr.md`, `ovh-limity.md`, `podobne-rozwiazania.md`); kryteria oceny i nasz stan: `docs/kryteria.md`.
+- Pomiar na nowych dokumentach (ADR-0011, 21.11 noc): `tools/warianty.py` 4673 warianty dokumentów treningowych, **F1 0.9559**; najsłabsze: etykieta „Odwołujący:” zapisana inaczej (0.755, także „ODWOŁUJĄCY:”), `laczenie_linii` (0.834), „Tytuł przelewu” -> „Tytuł operacji” (0.833), „Zamawiający:” inaczej (0.890), „Data operacji” -> „Data” (0.902). Obce: `tools/pobierz_obce.py` 160 ogłoszeń TED, **0/160 z JSON**.
 - GUI (ADR-0006): `odwolania2json/gui.py`, `gui.bat` (Streamlit, PDF obok JSON).
 
 ## Nowe od UZP (2026-11-21)
@@ -34,7 +35,7 @@ Kolejność według użytkownika: najpierw pomiar na dużej liczbie plików, pot
 
 | # | Kto | Co |
 |---|---|---|
-| 1 | Claude | **Pomiar na dużej liczbie plików** (narzędzie w `tools/`, ADR, opis w `docs/testy.md` jako pomiar). (a) Warianty dokumentów treningowych: podmiana wartości (nazwy, NIP, daty, kwoty), etykiet („NIP:” -> „NIP Odwołującego:”), kolejności bloków, podziału linii; poprawny JSON znany, bo wiemy, co wstawiliśmy. Setki–tysiące wariantów, na poziomie tekstu (szybko) i kilka jako PDF. (b) Kilkaset publicznych obcych PDF (wyroki KIO, TED, BZP, faktury): żaden nie dostaje typu. (c) Pusty PDF, PDF bez tekstu i obrazu, PDF uszkodzony. Wynik: F1 na wariantach i lista najsłabszych reguł |
+| 1 | Claude | **Zrobione (a), (b) TED; zostaje (b) faktury/wyroki KIO/BZP i (c) pusty/uszkodzony PDF.** Pomiar na dużej liczbie plików (narzędzie w `tools/`, ADR, opis w `docs/testy.md` jako pomiar). (a) Warianty dokumentów treningowych: podmiana wartości (nazwy, NIP, daty, kwoty), etykiet („NIP:” -> „NIP Odwołującego:”), kolejności bloków, podziału linii; poprawny JSON znany, bo wiemy, co wstawiliśmy. Setki–tysiące wariantów, na poziomie tekstu (szybko) i kilka jako PDF. (b) Kilkaset publicznych obcych PDF (wyroki KIO, TED, BZP, faktury): żaden nie dostaje typu. (c) Pusty PDF, PDF bez tekstu i obrazu, PDF uszkodzony. Wynik: F1 na wariantach i lista najsłabszych reguł |
 | 2 | Claude + Użytkownik | Decyzja o LLM po wynikach z 1: jeśli F1 na wariantach dużo niższe niż 0.999, LLM jeden model <=8B (np. `ministral-8b-2512` Mistral AI albo `Olala-v1.0-mini-7A1B` OVH) tylko dla pól `null`, wartość przyjęta tylko gdy jest dosłownie w tekście |
 | 3 | Claude | Pusty JSON dla obcego i pustego dokumentu (format z pytania 1 niżej); zmiana T2, ADR |
 | 4 | Claude | `README.md` po polsku: instalacja, `start.bat`, GUI, pomiar jakości, opis rozwiązania (bez LLM / z LLM) |

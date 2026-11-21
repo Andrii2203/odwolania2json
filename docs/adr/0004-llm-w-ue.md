@@ -1,16 +1,19 @@
 # ADR-0004: LLM – model z otwartymi wagami w UE
 
-Status: zaproponowane (potrzebny klucz; rejestracja w Scaleway 21.11 zwraca HTTP 500)
+Status: zaproponowane (potrzebny klucz OVHcloud)
 
 ## Kontekst
 
 FAQ UZP: tylko modele open source, które można też zainstalować lokalnie; API u dostawcy, którego firma i serwer są w UE; dane nie opuszczają UE. Komputer testowy jest bez GPU, więc duży model lokalny odpada. Klucz API oddajemy razem z rozwiązaniem.
 
-## Decyzja (propozycja, według `docs/badania/llm-ue.md`)
+## Decyzja (propozycja, według `docs/badania/llm-ue.md`, aktualizacja 21.11)
 
-- Dostawca: Scaleway (Francja). Zapytania nie są przechowywane ani używane do trenowania; 1 mln tokenów za darmo (wymagana karta).
-- Model: `mistral-small-3.2-24b-instruct` (Apache 2.0). Jest też w OVHcloud i IONOS; to dostawcy zapasowi z tym samym modelem.
-- Mistral Free odpada: domyślnie trenuje na zapytaniach. Mistral tylko w planie płatnym.
+- Dostawca: OVHcloud AI Endpoints (Francja). Zero data retention, 400 zapytań na minutę, structured output, 200 USD kredytu na start (wymagana metoda płatności). Scaleway odpada: rejestracja 21.11 zwraca HTTP 500.
+- Model: wybieramy pomiarem F1 spośród dwóch (Apache 2.0, oba w OVHcloud):
+  - `Mistral-Small-3.2-24B-Instruct-2506` (0,10 / 0,31 USD za 1 mln tokenów),
+  - `Qwen3.5-9B` (0,12 / 0,18 USD), ta sama rodzina co lokalny Qwen3.5-4B.
+- Dostawca zapasowy: IONOS (Niemcy, te same dwa modele).
+- Mistral odpada w planie Free (domyślnie trenuje na zapytaniach) i nie ma już w API Mistral Small 3.2.
 - Adres API, model i klucz w `.env`. Zmiana dostawcy to 3 linie, kod ten sam.
 - F1 mierzymy przez to samo API co u jury: przebieg 60 spraw kosztuje ok. 0,05 EUR, a nasz F1 jest wtedy równy ich F1.
 - Dane z badania sprawdzamy skryptem: z kluczem zapytanie `GET /v1/models` pokaże, jakie modele są dostępne.

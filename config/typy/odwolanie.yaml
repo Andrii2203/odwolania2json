@@ -26,16 +26,18 @@ wzorce:
   KONIEC_SEKCJI: '(?={POCZATEK_LINII}(?:{NAGLOWEK_ODWOLUJACEGO}|{NAGLOWEK_ZAMAWIAJACEGO}|Wykonawca|dotyczy|ODWOŁANIE|Działając)|\Z)'
   ODWOLUJACY: '{POCZATEK_LINII}{NAGLOWEK_ODWOLUJACEGO}[\s\S]*?{KONIEC_SEKCJI}'
   # Konsorcjum: dane Odwołującego to dane lidera, do nagłówka „Partner Konsorcjum:”.
-  LIDER: '{POCZATEK_LINII}{NAGLOWEK_ODWOLUJACEGO}[\s\S]*?(?:(?={POCZATEK_LINII}\d+\)\s*Partner)|{KONIEC_SEKCJI})'
+  # Partner bywa przed nazwą („<nr>) Partner Konsorcjum:”) albo za nią („<nr>) Lumidor sp. z o.o. (Partner Konsorcjum)”, skany UZP).
+  LIDER: '{POCZATEK_LINII}{NAGLOWEK_ODWOLUJACEGO}[\s\S]*?(?:(?={POCZATEK_LINII}\d+\)[^\n]*Partner)|{KONIEC_SEKCJI})'
   ZAMAWIAJACY: '{POCZATEK_LINII}{NAGLOWEK_ZAMAWIAJACEGO}[\s\S]*?{KONIEC_SEKCJI}'
   # Reszta linii za dwukropkiem nagłówka („Odwołujący: Asterion sp. k.”, skany UZP) albo następny wiersz.
   # Nie „Konsorcjum wykonawców …” ani „Zamawiający wspólnie …”: wtedy nazwy są w punktach niżej.
-  WIERSZ_ZA_NAGLOWKIEM: ':[ \t]*(?:\n[ \t]*)?(?!\s|Konsorcj|Zamawiaj)([^\n]+)'
+  # Nazwa przechodzi do następnej linii po przyimku („… Straży Pożarnej w” / „Jarzębinie”, skany UZP).
+  WIERSZ_ZA_NAGLOWKIEM: ':[ \t]*(?:\n[ \t]*)?(?!\s|Konsorcj|Zamawiaj)((?:[^\n]*[ \t](?:w|we|i)[ \t]*\n[ \t]*)?[^\n]+)'
   # Pierwsza zaskarżona czynność: „Zamawiający w dniu … roku <czynność>”, pierwszy punkt listy po „polegających na:”
   # albo po „wnoszę odwołanie wobec:” („<nr>. czynności Zamawiającego polegającej na odrzuceniu …”, skany UZP).
   PIERWSZY_PUNKT: 'polegając\w*\s+na:?(?:\s+Strona[^\n]*)?\s+\d+\)'
-  # Między „wobec:” a punktem bywa stopka strony.
-  WOBEC: 'wobec:{PO_ETYKIECIE}{POCZATEK_LINII}\d+\.(?:\s+czynności(?:\s+Zamawiającego\s+polegając\w*\s+na)?)?'
+  # Między „wobec:” a punktem bywa stopka strony i pieczęć dowolnej długości; punkt listy kończy się „;”.
+  WOBEC: 'wobec:[^;]*?{POCZATEK_LINII}\d+\.(?:\s+czynności(?:\s+Zamawiającego\s+polegając\w*\s+na)?)?'
   CZYNNOSC: '(?:Zamawiający\s+w\s+dniu\s+{DATA}\s+(?:roku|r\.)|{PIERWSZY_PUNKT}|{WOBEC})\s+'
   # Nagłówek pisma w jednej linii: „Kraków, dnia <data>”, „Kraków <data>”.
   PRZED_DATA: ',?[ \t]+(?:dnia[ \t]+)?'
@@ -49,7 +51,7 @@ pola:
   OdwolanieKIO.miejscowosc:
     wzorce: ['{POCZATEK_LINII}({MIEJSCOWOSC}){PRZED_DATA}{DATA}']
   OdwolanieKIO.czynnosc_dzien:
-    wzorce: ['Zamawiający\s+w\s+dniu\s+({DATA})', '{PIERWSZY_PUNKT}[^;]*?({DATA})', 'wobec:[^;]*?({DATA})',
+    wzorce: ['Zamawiający\s+w\s+dniu\s+({DATA})', '{PIERWSZY_PUNKT}[^;]*?({DATA})', '{WOBEC}[^;]*?({DATA})', 'wobec:[^;]*?({DATA})',
              'czynności\s+został\w*\s+[^.;]*?w\s+dniu\s+({DATA})']
     format: data
   OdwolanieKIO.czynnosc_opis:
@@ -59,12 +61,12 @@ pola:
     - {wzorzec: '{CZYNNOSC}(?:poinformował\w*\s+o\s+)?wykluczeni', wartosc: Decyzja o wykluczeniu wykonawcy}
     - {wzorzec: '{CZYNNOSC}(?:opublikował\w*|ustaleniu\s+treści|treści)\s+Specyfikacj', wartosc: Publikacja specyfikacji warunków zamówienia (SWZ)}
     - {wzorzec: '{CZYNNOSC}(?:zmodyfikował\w*|modyfikacji)\s+treś', wartosc: Modyfikacja treści SWZ}
-    - {wzorzec: '{CZYNNOSC}(?:przekazał\w*\s+wykonawcom\s+)?(?:odpowiedzi|udzieleniu)', wartosc: Odpowiedzi/wyjaśnienia do SWZ}
+    - {wzorzec: '{CZYNNOSC}(?:przekazał\w*\s+wykonawcom\s+)?(?:odpowiedzi|udzieleniu|treści\s+wyjaśnień)', wartosc: Odpowiedzi/wyjaśnienia do SWZ}
     - {wzorzec: '{CZYNNOSC}(?:nie\s+odrzucił|zaniechani\w*\s+odrzucenia)', wartosc: Zaniechanie odrzucenia oferty}
     - {wzorzec: '{CZYNNOSC}(?:nie\s+wykluczył|zaniechani\w*\s+wykluczenia)', wartosc: Zaniechanie wykluczenia wykonawcy}
     - {wzorzec: '{CZYNNOSC}unieważni', wartosc: Decyzja o unieważnieniu postępowania}
     - {wzorzec: '{CZYNNOSC}zaniecha\w*\s+unieważnienia', wartosc: Zaniechanie unieważnienia postępowania}
-    - {wzorzec: '{CZYNNOSC}(?:udostępnił\w*\s+Opis|opisaniu|opisu)\s+[Pp]rzedmiotu', wartosc: Opis przedmiotu zamówienia (OPZ)}
+    - {wzorzec: '{CZYNNOSC}(?:udostępnił\w*\s+Opis|opisaniu|opisu|postanowień\s+Opisu)\s+[Pp]rzedmiotu', wartosc: Opis przedmiotu zamówienia (OPZ)}
     - {wzorzec: '{CZYNNOSC}[^;.]*?projektowan\w*\s+postanowie', wartosc: Projektowane postanowienia umowy}
   OdwolanieKIO.czynnosc_powod_id:
     wzorce: *czynnosci
@@ -72,7 +74,10 @@ pola:
 
   Odwolujacy[].nazwa:
     sekcja: &lider '{LIDER}'
-    wzorce: ['{POCZATEK_LINII}(?:Odwołujący|\d+\)\s*Lider\s+Konsorcjum)\s*{WIERSZ_ZA_NAGLOWKIEM}']
+    # Osoba fizyczna: nazwa to firma za „pod firmą” („Jan Nowak prowadzący działalność gospodarczą pod firmą” / „<firma>”).
+    wzorce: ['{POCZATEK_LINII}(?:Odwołujący|\d+\)\s*Lider\s+Konsorcjum)\s*(?![^\n]*prowadząc){WIERSZ_ZA_NAGLOWKIEM}',
+             '{POCZATEK_LINII}{NAGLOWEK_ODWOLUJACEGO}[^\n]*pod\s+firmą[ \t]*(?:\n[ \t]*)?([^\n]+)',
+             '{POCZATEK_LINII}\d+\)[ \t]*([^\n(]+?)[ \t]*\(Lider']
   Odwolujacy[].krs:
     sekcja: *lider
     wzorce: ['{KRS_Z_ETYKIETA}']
@@ -85,17 +90,19 @@ pola:
     wzorce: ['{REGON_Z_ETYKIETA}']
   Odwolujacy[].przez-pelnomocnika:
     sekcja: &odwolujacy '{ODWOLUJACY}'
-    wzorce: [{wzorzec: 'reprezentowan\w*\s+przez', wartosc: tak}]
+    wzorce:
+    - {wzorzec: 'reprezentowan\w*\s+przez', wartosc: tak}
+    - {wzorzec: 'Działając\s+w\s+imieniu\s+własnym', wartosc: nie, sekcja: '[\s\S]+'}
     slownik: tak_nie
   Odwolujacy[].pelnomocnik.imie_nazwisko:
     sekcja: *odwolujacy
     wzorce: ['{PRAWNIK}']
   Odwolujacy[].pelnomocnik.nazwa:
     sekcja: *odwolujacy
-    wzorce: ['korespondencji\s*:\s*([^,]+?)(?=\s*,|\s*\n\s*(?:ul|al|pl|os)\.)']
+    wzorce: ['korespondenc\w*\s*:\s*([^,]+?)(?=\s*,|\s*\n\s*(?:ul|al|pl|os)\.)']
   Odwolujacy[].pelnomocnik.mail:
     sekcja: *odwolujacy
-    wzorce: ['korespondencji[\s\S]*?({EMAIL})']
+    wzorce: ['korespondenc\w*[\s\S]*?({EMAIL})']
 
   Zamawiajacy[].nazwa:
     sekcja: &zamawiajacy '{ZAMAWIAJACY}'
@@ -123,7 +130,8 @@ pola:
     slownik: tak_nie
 
   ZamowieniePubliczne.tytul:
-    wzorce: ['pn\.\s*„?([^”"]+)[”"]']
+    # OCR czyta „ jako przecinek („pn. , Budowa sali …”, skany UZP).
+    wzorce: ['pn\.\s*[„,]?\s*([^”"]+)[”"]']
   ZamowieniePubliczne.numer_postepowania:
     wzorce: ['(?i:nr|numer)\s+referencyjn\w*(?:\s+sprawy)?\s*:?\s*({SYGNATURA})']
   ZamowieniePubliczne.numer_bzp:

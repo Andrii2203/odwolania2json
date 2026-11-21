@@ -41,14 +41,17 @@ def main() -> None:
             sciezka.write_bytes(plik.getvalue())
 
             st.subheader(plik.name)
+            with st.spinner(f"Przetwarzanie pliku {plik.name}..."):
+                obrazy = render_pages(sciezka)
+                wynik = process(sciezka, typy)
+
             lewa, prawa = st.columns(2)
 
             with lewa:
-                for idx, obraz in enumerate(render_pages(sciezka), start=1):
+                for idx, obraz in enumerate(obrazy, start=1):
                     st.image(obraz, caption=f"Strona {idx}", use_container_width=True)
 
             with prawa:
-                wynik = process(sciezka, typy)
                 if wynik is None:
                     st.warning("Nieznany typ dokumentu")
                 else:

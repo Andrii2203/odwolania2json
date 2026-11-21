@@ -1,6 +1,7 @@
 # Materiały zadań i dane treningowe tylko lokalnie (ADR-0001)
 /docs/*/
 !/docs/adr/
+!/docs/badania/
 /data/
 /input/*
 !/input/.gitkeep

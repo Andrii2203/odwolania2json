@@ -1,27 +1,30 @@
-# ADR-0003: Як ми рахуємо F1
+# ADR-0003: Jak liczymy F1
 
-Статус: прийнято, 2026-11-21 (уточнити в UZP, як рахують вони)
+Status: przyjęte, 2026-11-21
 
-## Контекст
-Відбір у фінал — 100% F1 на прихованих справах. Як саме UZP рахує F1, невідомо. Нам потрібне власне число, щоб бачити, чи зміна допомогла.
+## Kontekst
 
-## Рішення
-Порівнюємо кожне поле-«листок» еталонного і нашого JSON за шляхом (`Odwolujacy[0].nip`). Списки — за індексом.
+O awansie do finału w 100% decyduje F1 na ukrytych sprawach. Nie wiadomo, jak dokładnie UZP liczy F1 (ADR-0005). Potrzebujemy własnej liczby, żeby widzieć, czy zmiana pomogła.
 
-| Еталон | Наш | Результат |
+## Decyzja
+
+Porównujemy każde pole-liść wzorcowego i naszego JSON po ścieżce (`Odwolujacy[0].nip`). Listy porównujemy po indeksie.
+
+| Wzorzec | Nasz | Wynik |
 |---|---|---|
-| `200.0` | `200.0` | TP (влучили) |
-| `"Wpis"` | `null` | FN (пропустили) |
-| `null` | `"X1"` | FP (вигадали) |
-| `"A"` | `"B"` | FP + FN (помилились) |
-| `null` | `null` | не рахується |
+| `200.0` | `200.0` | TP (trafienie) |
+| `"Wpis"` | `null` | FN (pominięte) |
+| `null` | `"X1"` | FP (wymyślone) |
+| `"A"` | `"B"` | FP i FN (błąd) |
+| `null` | `null` | nie liczy się |
 
 `F1 = 2·TP / (2·TP + FP + FN)`
 
-Приклад: еталон `{"kwota": 200.0, "numer_transakcji": null, "tytul": "Wpis"}`, наш `{"kwota": 200.0, "numer_transakcji": "X1", "tytul": null}` → TP 1, FP 1, FN 1 → F1 = 2/(2+1+1) = **0.5**.
+Przykład: wzorzec `{"kwota": 200.0, "numer_transakcji": null, "tytul": "Wpis"}`, nasz `{"kwota": 200.0, "numer_transakcji": "X1", "tytul": null}`. Wynik: TP 1, FP 1, FN 1, więc F1 = 2/(2+1+1) = 0,5.
 
-Порівняння **суворе**: значення і тип мають збігатися точно (`200` ≠ `200.0`, `"200"` ≠ `200.0`). Якщо офіційна метрика м'якша — реальний результат буде не гіршим.
+Porównanie jest ścisłe: wartość i typ muszą się zgadzać (`200` to nie `200.0`, `"200"` to nie `200.0`). Jeśli oficjalna metryka jest łagodniejsza, prawdziwy wynik nie będzie gorszy.
 
-## Наслідки
-- `tools/ocena_f1.py` показує загальний F1 і найгірші поля → видно, що робити далі.
-- Ризик: якщо UZP зіставляє списки не за індексом (напр. кілька Odwołujących в іншому порядку), наш F1 відрізнятиметься. Питання до стенду UZP.
+## Konsekwencje
+
+- `tools/ocena_f1.py` pokazuje łączny F1 i najgorsze pola.
+- Ryzyko: jeśli UZP dopasowuje listy inaczej niż po indeksie, nasz F1 będzie się różnił (ADR-0005).

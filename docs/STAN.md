@@ -1,20 +1,22 @@
 # Стан
 
-Оновлено: 2026-11-21, Claude.
+Оновлено: 2026-11-21, Argon.
 
 ## Зроблено
 - Репо (приватне): https://github.com/Andrii2203/odwolania2json. Python 3.13.
 - `AGENTS.md` (+ `CLAUDE.md`, `GEMINI.md`), ADR-0001…0006, `docs/testy.md`.
 - Walking skeleton: CLI `input/ → output/`, класифікація з YAML, `process()` — спільна для CLI і GUI. Тести T1, T2 зелені.
 - Компас `tools/ocena_f1.py`: тип правильний 180/180, **F1 = 0.000** (поля ще порожні).
+- Дослідження LLM в ЄС (`docs/badania/llm-ue.md`): порівняно Mistral AI, Scaleway, OVHcloud, IONOS (рекомендовано `Mistral Small 3.1/3.2 24B`, Apache 2.0; для локальної розробки на RTX 5060 8 ГБ — `ministral-3:8b` або `qwen2.5:7b-instruct` у Q4_K_M через Ollama).
+- Дослідження OCR на CPU (`docs/badania/ocr.md`): порівняно RapidOCR, docTR, Tesseract + `pypdfium2` (рекомендовано `pypdfium2` + `rapidocr` з `onnxruntime` і моделлю PP-OCRv5 `LangRec.LATIN`, Apache 2.0, ставиться суто через `pip`).
 
 ## План
 | Коли | Хто | Що |
 |---|---|---|
 | сб до 20:00 | Користувач | Чернетка в HackTribe (посилання на репо вище) |
 | сб вечір | Claude | Поля правилами: `przelew` → `pelnomocnictwo` → `odwolanie` |
-| сб вечір | [Argon] | Дослідження LLM в ЄС → `docs/badania/llm-ue.md` (див. нижче) |
-| сб вечір | [Argon] | Дослідження OCR → `docs/badania/ocr.md` (див. нижче) |
+| сб вечір | [Argon] | ~~Дослідження LLM в ЄС → `docs/badania/llm-ue.md`~~ (готово) |
+| сб вечір | [Argon] | ~~Дослідження OCR → `docs/badania/ocr.md`~~ (готово) |
 | сб ніч | [Argon] | GUI за ADR-0006: `gui.bat`, `requirements-gui.txt`, `odwolania2json/gui.py`, лише виклик `process()` |
 | сб ніч | Claude | LLM для полів, яких не беруть правила (ADR-0004); OCR (ADR після дослідження) |
 | нд 7:00–9:30 | [Argon] | Презентація PDF ≤ 10 МБ за ADR-0006; `README.md` польською |

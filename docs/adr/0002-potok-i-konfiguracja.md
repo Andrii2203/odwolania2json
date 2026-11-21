@@ -1,27 +1,32 @@
-# ADR-0002: Конвеєр і типи документів у конфігу
+# ADR-0002: Potok przetwarzania i typy dokumentów w konfiguracji
 
-Статус: прийнято, 2026-11-21
+Status: przyjęte, 2026-11-21
 
-## Контекст
-Треба: класифікувати PDF, витягти поля, видати JSON. У фіналі 50% оцінки — чи можна додати новий тип документа без зміни коду.
+## Kontekst
 
-## Рішення
+Trzeba sklasyfikować PDF, wyodrębnić pola i zapisać JSON. W finale 50% oceny to możliwość dodania nowego typu dokumentu bez zmiany kodu.
+
+## Decyzja
+
 ```
-PDF → текст → тип → поля → JSON
+PDF -> tekst -> typ -> pola -> JSON
 ```
-Приклад: `potwierdzenie_przelewu.pdf` → текст «POLECENIE PRZELEWU … Kwota 200,00 zł» → тип `przelew` (знайдено 4 з 4 знаків) → `kwota: 200.0` → `output/case1/potwierdzenie_przelewu.json`.
 
-1. **Текст:** `pypdf` (BSD, легка, без моделей). Скани → OCR — окремий ADR.
-2. **Тип:** у `config/typy/<typ>.yaml` список `znaczniki`. Текст і знаки порівнюємо без регістру й пробілів (тоді «P E Ł N O M O C N I C T W O» теж знаходиться). Оцінка = частка знайдених знаків. Беремо тип з найбільшою часткою, якщо вона ≥ `prog`; інакше документ чужий → файлу немає.
-3. **Поля:** спершу правила (regex + перевірка формату), LLM — лише для того, що правила не беруть (ADR-0004). *Ще не зроблено.*
-4. **JSON:** форма з `szablon` того ж YAML; чого не знайшли — `null`, списки порожні.
+Przykład: `potwierdzenie_przelewu.pdf` -> tekst „POLECENIE PRZELEWU … Kwota 200,00 zł” -> typ `przelew` (znalezione 2 z 2 znaczników) -> `kwota: 200.0` -> `output/case1/potwierdzenie_przelewu.json`.
 
-Новий тип документа = новий файл `config/typy/<typ>.yaml`. Код не змінюється.
+1. Tekst: `pypdf` (BSD, lekka, bez modeli). Skany: ADR-0007.
+2. Typ: `config/typy/<typ>.yaml` zawiera listę `znaczniki`. Znacznik to słowo albo lista synonimów (wystarczy jeden z nich). Tekst i znaczniki porównujemy bez wielkości liter i spacji, więc „P E Ł N O M O C N I C T W O” też jest znajdowane. Wynik to odsetek znalezionych znaczników. Wybieramy typ z najwyższym wynikiem, jeśli jest co najmniej równy `prog`; w przeciwnym razie dokument jest obcy i plik nie powstaje.
+3. Pola: najpierw reguły (regex i sprawdzenie formatu), LLM tylko dla tego, czego reguły nie wyciągną (ADR-0004). Jeszcze nie zrobione.
+4. JSON: kształt z `szablon` w tym samym pliku YAML; czego nie znaleziono, to `null`, listy są puste.
 
-## Розглянуті варіанти
-- **Docling** (MIT): сильний розбір PDF і OCR, але тягне PyTorch і моделі (гігабайти) — ризиковано на офісному ПК. Повернемось, якщо OCR сканів буде слабким.
-- **Все через LLM:** дорожче, повільніше, недетерміновано, і лише постачальник з ЄС.
+Nowy typ dokumentu to nowy plik `config/typy/<typ>.yaml`. Kod się nie zmienia.
 
-## Наслідки
-- Більшість полів (NIP, KRS, рахунки, дати) беремо детерміновано і безкоштовно.
-- Класифікацію і форму JSON налаштовуємо в YAML; якість класифікації показує `tools/ocena_f1.py`.
+## Rozważane warianty
+
+- Docling (MIT): dobry rozbiór PDF i OCR, ale ciągnie PyTorch i modele (gigabajty); ryzykowne na komputerze biurowym.
+- Wszystko przez LLM: drożej, wolniej, niedeterministycznie, tylko dostawca z UE.
+
+## Konsekwencje
+
+- Większość pól (NIP, KRS, rachunki, daty) wyciągamy deterministycznie i bez kosztów.
+- Klasyfikację i kształt JSON ustawiamy w YAML; jakość klasyfikacji pokazuje `tools/ocena_f1.py`.

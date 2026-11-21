@@ -30,4 +30,4 @@ pola:
     etykiety: [tytuł przelewu, tytułem, tytuł, opis]
     wzorce: ['({TEKST})']
     format: tekst
-    stop: [status, waluta, opłata/prowizja, prowizja, nadawca, adresat, odbiorca, zleceniodawca, płatnik]
+    stop: [status, waluta, opłata/prowizja, prowizja]

@@ -38,7 +38,9 @@ wzorce:
   # Od 0 do ODSTEP_ETYKIETY znaków nie-liter.
   ODSTEP: '\W{0,{ODSTEP_ETYKIETY}}'
   # Od 1 do OKNO_TEKSTU znaków, do pierwszej linii zaczynającej się etykietą z {STOP}.
-  TEKST: '(?:(?!^[ \t]*{STOP})[\s\S]){1,{OKNO_TEKSTU}}'
+  TEKST: '(?:(?!{POCZATEK_LINII}{STOP})[\s\S]){1,{OKNO_TEKSTU}}'
+  # Początek linii i spacje lub tabulatory przed tekstem.
+  POCZATEK_LINII: '^[ \t]*'
   # Numer rachunku NRB: 26 cyfr (2 cyfry kontrolne + 24), drukowany w grupach po 4.
   RACHUNEK: '\d{2}(?:\s?\d{4}){6}(?!\d)'
   # Kwota: tysiące w grupach po 3 cyfry (spacja, twarda spacja albo kropka), zawsze 2 cyfry groszy.
@@ -51,7 +53,13 @@ wzorce:
   NIP: '(?:\d[ -]?){9}\d(?!\d)'
   # KRS: 10 cyfr.
   KRS: '\d{10}(?!\d)'
-  OSOBA: '[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]+(?:-[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]+)?\s+[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]+(?:-[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]+)?'
-  SLOWO_FIRMY: '(?<![\w-])(?!(?i:pełnomocnictw|mocodawc|wykonawc|zamawiając|odwołując))[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż][\w&-]*'
+  # Wielka i mała litera polskiego alfabetu.
+  WIELKA: '[A-ZĄĆĘŁŃÓŚŹŻ]'
+  MALA: '[a-ząćęłńóśźż]'
+  # Imię albo nazwisko, także dwuczłonowe z myślnikiem (Kowalska-Nowak).
+  IMIE: '{WIELKA}{MALA}+(?:-{WIELKA}{MALA}+)?'
+  # Imię i nazwisko.
+  OSOBA: '{IMIE}\s+{IMIE}'
+  SLOWO_FIRMY: '(?<![\w-])(?!(?i:pełnomocnictw|mocodawc|wykonawc|zamawiając|odwołując)){WIELKA}{MALA}[\w&-]*'
   FORMA_PRAWNA: '(?i:S\.\s?A\.|sp\.\s?z\s?o\.\s?o\.|sp\.\s?k\.|sp\.\s?j\.|sp\.\s?p\.|S\.K\.A\.|spółka z ograniczoną odpowiedzialnością|spółka akcyjna|spółka jawna|spółka komandytowa)'
   FIRMA: '(?:{SLOWO_FIRMY}\s+)+{FORMA_PRAWNA}(?:\s+{FORMA_PRAWNA})?'

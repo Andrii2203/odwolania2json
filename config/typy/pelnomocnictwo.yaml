@@ -15,19 +15,19 @@ pola:
     format: cyfry
     wzorce: ['NIP{ODSTEP}({NIP})']
   mocodawca[].data.krs:
-    wzorce: ['KRS{ODSTEP}({KRS})']
+    wzorce: [&krs 'KRS{ODSTEP}({KRS})']
   mocodawca[].data.nazwa:
     wzorce: ['({FIRMA})', 'pod\s+firmą\s+([^,]+?)\s*,']
   mocodawca[].data.typ:
     wzorce:
-    - {wzorzec: 'KRS{ODSTEP}{KRS}', wartosc: osoba_prawna}
+    - {wzorzec: *krs, wartosc: osoba_prawna}
     - {wzorzec: 'prowadząc\w*\s+działalność\s+gospodarczą', wartosc: osoba_fizyczna}
   mocodawca[].data.imie_nazwisko:
-    wzorce: ['niżej\s+podpisan\w*\s+({OSOBA})']
+    wzorce: [&podpisany 'niżej\s+podpisan\w*\s+({OSOBA})']
   mocodawca[].podpisujacy[].imie_nazwisko:
-    podzial: '^[ \t]*W imieniu'
+    podzial: '{POCZATEK_LINII}W imieniu'
     wzorce:
-    - '^[ \t]*({OSOBA})[ \t]*\n[ \t]*(?:Prezes|Wiceprezes|Członek|Prokurent|Dyrektor|Wspólnik|Właściciel)'
-    - 'niżej\s+podpisan\w*\s+({OSOBA})'
+    - '{POCZATEK_LINII}({OSOBA})[ \t]*\n[ \t]*(?:Prezes|Wiceprezes|Członek|Prokurent|Dyrektor|Wspólnik|Właściciel)'
+    - *podpisany
   pelnomocnicy[].imie_nazwisko:
     wzorce: ['(?:r\.\s?pr\.|adw\.|apl\.\s?adw\.|apl\.\s?radc\.|radca\s+prawny|radcy\s+prawnego|adwokat|adwokata)\s+({OSOBA})']

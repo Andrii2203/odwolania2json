@@ -13,6 +13,8 @@ def main() -> int:
     dane = json.loads(sys.stdin.read() or "{}")
     if dane.get("stop_hook_active"):
         return 0
+    if subprocess.run(["git", "rev-list", "--count", "@{u}..HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip() not in ("", "0"):
+        subprocess.run(["git", "push", "-q"], cwd=ROOT, capture_output=True)
     status = subprocess.run(["git", "status", "--porcelain", "-uall"], cwd=ROOT, capture_output=True, text=True).stdout
     kod = [linia[3:] for linia in status.splitlines() if linia[3:].endswith(KOD) and not linia[3:].startswith("docs/")]
     if not kod:

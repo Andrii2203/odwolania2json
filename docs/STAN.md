@@ -21,11 +21,28 @@ Aktualizacja: 2026-11-21, Argon.
 | sb wieczor | Claude | Ekstrakcja pol regulami: `przelew` -> `pelnomocnictwo` -> `odwolanie` |
 | sb wieczor | [Argon] | ~~Badanie LLM w UE -> `docs/badania/llm-ue.md`~~ (gotowe) |
 | sb wieczor | [Argon] | ~~Badanie OCR -> `docs/badania/ocr.md`~~ (gotowe) |
-| sb noc | [Argon] | GUI wg ADR-0006: `gui.bat`, `requirements-gui.txt`, `odwolania2json/gui.py`, tylko wywolanie `process()` |
+| sb teraz | [Argon] | Limity wydatków OVH -> `docs/badania/ovh-limity.md` (opis niżej) |
+| sb teraz | [Argon] | GUI wg ADR-0006 (opis niżej) |
 | sb noc | Claude | LLM dla pol, ktorych nie biora reguly (ADR-0004); OCR (ADR-0007) |
 | nd 7:00-9:30 | [Argon] | Prezentacja PDF <= 10 MB wg ADR-0006; `README.md` po polsku |
 | nd 9:30-10:30 | Claude + Uzytkownik | Finalny pomiar F1, sprawdzenie `start.bat` na czystym katalogu, oddanie |
 | nd 11:00 | — | Deadline |
+
+### [Argon] Limity wydatków OVH
+Użytkownik podpiął kartę i nie chce żadnych opłat z karty. Sprawdź w oficjalnej dokumentacji OVHcloud:
+1. Czy da się ustawić twardy limit wydatków albo alert dla projektu Public Cloud i AI Endpoints. Kroki w panelu.
+2. Gdzie widać zużycie i pozostały kredyt startowy.
+3. Jak unieważnić klucz API po hackathonie.
+
+Z linkami do źródeł. Wynik: `docs/badania/ovh-limity.md`.
+
+### [Argon] GUI (ADR-0006)
+- Pliki: `odwolania2json/gui.py`, `gui.bat`, `requirements-gui.txt`. Innych plików nie zmieniaj.
+- `gui.bat`: jak `start.bat` (tworzy `.venv`, jeśli nie ma), instaluje `requirements.txt` i `requirements-gui.txt`, uruchamia `streamlit run odwolania2json/gui.py`.
+- Ekran: wgranie jednego lub kilku PDF. Po lewej strony PDF jako obrazy (`pypdfium2`), po prawej typ dokumentu i JSON (`st.json`). Dla obcego dokumentu komunikat „Nieznany typ dokumentu”.
+- Logika tylko przez `load_types()` i `process()` z `odwolania2json/pipeline.py`. Bez własnej ekstrakcji.
+- Teksty w GUI po polsku, w kodzie bez komentarzy.
+- Commit: `git add` wskazanych plików, `git commit -m "krótki opis po polsku"`, `git push`. Hook pre-commit sprawdzi testy i język.
 
 ## Otwarte pytania
 - Jak UZP liczy F1 — nie blokuje pracy (ADR-0005).

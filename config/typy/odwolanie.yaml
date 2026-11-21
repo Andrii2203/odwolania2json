@@ -1,6 +1,7 @@
 typ: odwolanie
 opis: Odwołanie do KIO
 znaczniki: [odwołujący, zarzut, wnoszę, zamawiający]
+wykluczenia: [orzeka, przewodniczący, oficjalna nazwa, see the notice]
 prog: 0.6
 szablon:
   OdwolanieKIO: {data: null, czynnosc_dzien: null, czynnosc_powod_id: null, czynnosc_opis: null,

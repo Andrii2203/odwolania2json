@@ -30,6 +30,8 @@ def classify(text: str, types: list[dict]) -> dict | None:
     flat = _squash(text)
     best, best_score = None, 0.0
     for t in types:
+        if any(_found(w, flat) for w in t.get("wykluczenia", [])):
+            continue
         marks = t["znaczniki"]
         score = sum(_found(m, flat) for m in marks) / len(marks)
         if score > best_score:

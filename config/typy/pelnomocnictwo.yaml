@@ -3,6 +3,7 @@ opis: Pełnomocnictwo
 znaczniki:
 - pełnomocnictw
 - [mocodawc, reprezentowani, ustanawiam, udzielam, upoważniam, izbą odwoławczą]
+wykluczenia: [orzeka, oficjalna nazwa, see the notice]
 prog: 0.6
 szablon:
   mocodawca:

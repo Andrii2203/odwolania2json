@@ -1,0 +1,5 @@
+#!/bin/sh
+ROOT=$(git rev-parse --show-toplevel)
+PY="$ROOT/.venv/Scripts/python.exe"
+[ -x "$PY" ] || PY=python
+exec "$PY" "$ROOT/tools/hooks/pre_commit.py"

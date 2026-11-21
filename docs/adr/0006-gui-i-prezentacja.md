@@ -1,20 +1,24 @@
-# ADR-0006: GUI «PDF і JSON поруч» і презентація — у плані, не «якщо встигнемо»
+# ADR-0006: GUI „PDF i JSON obok siebie” oraz prezentacja
 
-Статус: прийнято, 2026-11-21 (вибір бібліотеки GUI — після перевірки)
+Status: przyjęte, 2026-11-21 (wybór biblioteki GUI po sprawdzeniu)
 
-## Контекст
-- FAQ UZP: GUI не обов'язковий, але **дає бали**. Ідеал: завантажити PDF → запустити аналіз → бачити JSON; бажано **документ і дані поруч**.
-- Фінальна здача в HackTribe вимагає **презентацію (PDF ≤ 10 МБ)**. Фінал (топ-3) — показ рішення журі.
-- UZP окремо цінує **прозорість екстракції** (видно, звідки взялося значення).
+## Kontekst
 
-## Рішення
-1. **GUI** — окремо від CLI: `gui.bat` + `requirements-gui.txt`, щоб CLI на ПК журі лишився легким.
-   - Кандидат: **Streamlit** (Apache 2.0): завантаження файлу, дві колонки, перегляд JSON — готове. Сторінки PDF показуємо картинками.
-   - GUI кличе ту саму функцію `process()` з `odwolania2json/pipeline.py`, що й CLI — логіка одна.
-   - Приклад екрана: зліва сторінка `pelnomocnictwo.pdf`, справа `{"pelnomocnicy": [{"imie_nazwisko": "Krystyna Mazowiecka", …}]}`.
-   - Згодом: біля кожного поля — фрагмент тексту, звідки воно взяте (прозорість).
-2. **Презентація** — PDF ≤ 10 МБ: проблема → як працює (з прикладом) → F1 на тренувальних даних → як додати новий тип через YAML → технології.
+- FAQ UZP: GUI nie jest obowiązkowe, ale daje punkty. Ideał: wgranie PDF, uruchomienie analizy, podgląd JSON; najlepiej dokument i dane obok siebie.
+- Końcowe zgłoszenie w HackTribe wymaga prezentacji (PDF do 10 MB). Finał (top 3) to pokaz przed jury.
+- UZP premiuje przejrzystość ekstrakcji (widać, skąd pochodzi wartość).
 
-## Наслідки
-- Обидва пункти мають виконавця й час у `docs/STAN.md`.
-- Streamlit важкий (~100+ МБ залежностей) — тому окремий `requirements-gui.txt`.
+## Decyzja
+
+Oba punkty są w planie z wykonawcą i terminem (`docs/STAN.md`), a nie „jeśli zdążymy”.
+
+1. GUI osobno od CLI: `gui.bat` i `requirements-gui.txt`, żeby CLI na komputerze jury pozostało lekkie.
+   - Kandydat: Streamlit (Apache 2.0): wgrywanie pliku, dwie kolumny, podgląd JSON. Strony PDF pokazujemy jako obrazy.
+   - GUI wywołuje tę samą funkcję `process()` z `odwolania2json/pipeline.py` co CLI; logika jest jedna.
+   - Przykład ekranu: po lewej strona `pelnomocnictwo.pdf`, po prawej `{"pelnomocnicy": [{"imie_nazwisko": "Krystyna Mazowiecka", …}]}`.
+   - Później: przy każdym polu fragment tekstu, z którego pochodzi wartość.
+2. Prezentacja (PDF do 10 MB): problem, jak działa (na przykładzie), F1 na danych treningowych, jak dodać nowy typ przez YAML, technologie.
+
+## Konsekwencje
+
+- Streamlit jest ciężki (ponad 100 MB zależności), dlatego osobny `requirements-gui.txt`.

@@ -71,6 +71,7 @@ def przygotuj(pola: dict, ust: dict, fragmenty_typu: dict) -> None:
                             _rozwin(w["sekcja"], fragmenty, warianty) if "sekcja" in w else sekcja)
                            for p in przedrostki for w in wzorce]
         spec["_podzial"] = _rozwin(spec["podzial"], fragmenty, warianty) if "podzial" in spec else None
+        spec["_utnij"] = _rozwin("|".join(f"(?:{w})" for w in spec["utnij"]), fragmenty, warianty) if "utnij" in spec else None
         format_ = partial(FORMATY[spec["format"]], ust) if "format" in spec else str
         spec["_wartosc"] = partial(_wartosc, format_, ust["slowniki"][spec["slownik"]] if "slownik" in spec else None)
 
@@ -110,6 +111,9 @@ def trafienia(tekst: str, spec: dict) -> list[tuple[int, object, str, str]]:
         if surowe in widziane:
             continue
         widziane.add(surowe)
+        if spec["_utnij"] and (stop := spec["_utnij"].search(surowe)):
+            surowe = surowe[:stop.start()].rstrip(" ,;")
+            opis = f"{opis}; bramka: ucięte przed „{stop[0].strip()}”"
         wartosc = spec["_wartosc"](m, surowe, stala)
         if wartosc not in (None, "") and str(wartosc).lower() not in spec["_stopy"]:
             wyniki.append((m.start(), wartosc, opis, " ".join(m[0].split())))

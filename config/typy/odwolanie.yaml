@@ -76,6 +76,7 @@ pola:
     slownik: czynnosc_powod
 
   Odwolujacy[].nazwa:
+    utnij: ['{KONIEC_NAZWY}']
     sekcja: &lider '{LIDER}'
     # Osoba fizyczna: nazwa to firma za „pod firmą” („Jan Nowak prowadzący działalność gospodarczą pod firmą” / „<firma>”).
     wzorce: ['{POCZATEK_LINII}(?:(?i:Odwołujący)(?:\s+się)?|\d+\)\s*Lider\s+Konsorcjum)\s*(?![^\n]*prowadząc){WIERSZ_ZA_NAGLOWKIEM}',
@@ -101,6 +102,7 @@ pola:
     sekcja: *odwolujacy
     wzorce: ['{PRAWNIK}']
   Odwolujacy[].pelnomocnik.nazwa:
+    utnij: ['{KONIEC_NAZWY}']
     sekcja: *odwolujacy
     wzorce: ['korespondenc\w*\s*:\s*([^,]+?)(?=\s*,|\s*\n\s*(?:ul|al|pl|os)\.)']
   Odwolujacy[].pelnomocnik.mail:
@@ -108,6 +110,7 @@ pola:
     wzorce: ['korespondenc\w*[\s\S]*?({EMAIL})']
 
   Zamawiajacy[].nazwa:
+    utnij: ['{KONIEC_NAZWY}']
     sekcja: &zamawiajacy '{ZAMAWIAJACY}'
     podzial: &zamawiajacy_podzial '{PUNKT_ZAMAWIAJACEGO}:[ \t]*\n'
     wzorce: ['{PUNKT_ZAMAWIAJACEGO}{WIERSZ_ZA_NAGLOWKIEM}']

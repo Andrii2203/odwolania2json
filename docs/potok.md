@@ -57,7 +57,7 @@ Odwolujacy[0].nazwa = "Belmoria Rozwiązania S.A."
 | 2 | częściowo | klasyfikacja bez wielkości liter i polskich znaków; etykiety i nagłówki stron bez wielkości liter; `warianty_liter` | przeniesienia wyrazów; jeden widok dla wszystkich etapów z mapą pozycji |
 | 3 | jest | `znaczniki`, `PROG`, `wykluczenia` | wektor dokumentu (opcja) |
 | 4 | jest | `pola` w `config/typy/*.yaml` (ADR-0008, ADR-0010) | |
-| 5 | częściowo | `format` (cyfry, data, liczba, tekst); tekst kończy się na następnej etykiecie (`{STOP}`); etykieta innego pola nie jest wartością (T10) | stopy w środku linii (adres, kod pocztowy, „KRS:”); reguły w YAML (JSON Schema); sumy kontrolne NIP/REGON odpadają: dane UZP ich nie spełniają (144/218 NIP) |
+| 5 | częściowo | `format` (cyfry, data, liczba, tekst, bez_spacji); tekst kończy się na następnej etykiecie (`{STOP}`); etykieta innego pola nie jest wartością (T10); `utnij` w YAML: nazwa kończy się przed adresem, numerem, e-mailem (T13, ADR-0015) | sekcja, gdy nagłówek strony jest w środku linii; tytuł przelewu w środku linii; sumy kontrolne NIP/REGON odpadają: dane UZP ich nie spełniają (144/218 NIP) |
 | 6 | nie ma | GLiNER2 sprawdzony i odrzucony: F1 0.551, odwołanie 14,8 s (`docs/badania/gliner2.md`) | wektory etykiet (np. `multilingual-e5-small`, lokalnie, CPU) |
 | 7 | nie ma | klucz OVHcloud działa (ADR-0004) | wywołanie, sprawdzenie „wartość jest w tekście” |
 | 8 | nie ma | | kandydaci z innych dokumentów sprawy |

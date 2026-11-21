@@ -140,6 +140,9 @@ wzorce:
   TEKST: '(?:(?!{POCZATEK_LINII}{STOP})[\s\S]){1,{OKNO_TEKSTU}}'
   # Początek linii i spacje lub tabulatory przed tekstem.
   POCZATEK_LINII: '^[ \t]*'
+  # Bramka (etap 5, ADR-0015): tu kończy się nazwa, gdy dane strony są w jednej linii: adres (ul., al., pl., os.),
+  # kod pocztowy NN-NNN (standard Poczty Polskiej), numer z etykietą, e-mail, telefon, reprezentacja, „(dalej”.
+  KONIEC_NAZWY: ',?\s+(?:ul|al|pl|os)\.\s|(?<!\d)\d\d-\d\d\d(?!\d)|,?\s+(?:KRS|NIP|REGON|PESEL)\b|\S+@\S+|,?\s+tel\.|,?\s+reprezentowan|\s\(dalej'
   # Numer rachunku NRB: 26 cyfr (2 cyfry kontrolne + 24), drukowany w grupach po 4; przed nim kod kraju PL,
   # jeśli jest (IBAN). UZP: numer jak w dokumencie, z „PL” (ADR-0014).
   RACHUNEK: '(?:PL\s?)?\d{2}(?:\s?\d{4}){6}(?!\d)'

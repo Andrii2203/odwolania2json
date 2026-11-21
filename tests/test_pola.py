@@ -47,3 +47,14 @@ def test_t11_rachunek_z_pl():
 
     assert (dane["przelew_bankowy"]["z_rachunku"], dane["przelew_bankowy"]["na_rachunek"]) == (
         "PL62217000089152501756617062", "68438223049992295262834736")
+
+
+def test_t13_bramka_utnij():
+    typ = next(t for t in wczytaj_typy() if t["typ"] == "odwolanie")
+    dziennik = []
+
+    dane = wyciagnij("Odwołujący:\nBelmoria Rozwiązania S.A. ul. Zaczarowana 78, 90-803 Łódź KRS: 9999405188, NIP: 9999284065\n",
+                     typ, dziennik)
+
+    assert dane["Odwolujacy"][0]["nazwa"] == "Belmoria Rozwiązania S.A."
+    assert any("ucięte przed" in w["regula"] for w in dziennik if w["pole"] == "Odwolujacy[0].nazwa")

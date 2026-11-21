@@ -189,6 +189,17 @@ output/przyklad_01/przelew.json  -> taki sam jak bez --wyjasnij
 - Źródło: UZP premiuje „transparentność procesu ekstrakcji”; dziennik służy też do szukania błędów (ADR-0012, etap 10).
 - Test: `tests/test_e2e.py::test_t12_wyjasnij`
 
+## T13. Bramka: nazwa kończy się przed adresem, numerem z etykietą, e-mailem
+
+```
+"Odwołujący:\nBelmoria Rozwiązania S.A. ul. Zaczarowana 78, 90-803 Łódź KRS: 9999405188, NIP: 9999284065"
+  -> Odwolujacy[0].nazwa = "Belmoria Rozwiązania S.A."
+     dziennik: „… bramka: ucięte przed „ul.””
+```
+
+- Źródło: pomiar na wariantach (`laczenie_linii`, ADR-0011): gdy dane strony są w jednej linii, nazwa zabierała adres i numery. Pole ma klucz `utnij` (wzorce w YAML), bramka tnie wartość na pierwszym trafieniu (ADR-0012, etap 5).
+- Test: `tests/test_pola.py::test_t13_bramka_utnij`
+
 ## Pomiar jakości (to nie jest test)
 
 `tools/ocena_f1.py` przepuszcza wszystkie 60 spraw treningowych przez CLI i liczy F1 według ADR-0003. Przykładowy wynik:

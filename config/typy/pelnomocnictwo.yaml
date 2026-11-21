@@ -24,6 +24,7 @@ pola:
   mocodawca[].data.krs:
     wzorce: ['{KRS_Z_ETYKIETA}']
   mocodawca[].data.nazwa:
+    utnij: ['{KONIEC_NAZWY}']
     wzorce: ['({FIRMA})', 'pod\s+firmą\s+([^,]+?)\s*,']
   mocodawca[].data.typ:
     wzorce:

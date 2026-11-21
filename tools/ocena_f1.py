@@ -41,6 +41,7 @@ def porownaj(wzor, nasz):
 def main() -> int:
     ap = argparse.ArgumentParser(description="F1 na danych treningowych UZP (ADR-0003)")
     ap.add_argument("--dane", type=Path, default=ROOT / "data" / "uzp" / "dane")
+    ap.add_argument("--config", type=Path, default=ROOT / "config")
     ap.add_argument("--top", type=int, default=12)
     args = ap.parse_args()
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -48,7 +49,7 @@ def main() -> int:
     with tempfile.TemporaryDirectory() as tmp:
         wyjscie = Path(tmp)
         subprocess.run([sys.executable, "-m", "odwolania2json", "--input", str(args.dane),
-                        "--output", str(wyjscie)], cwd=ROOT, check=True, capture_output=True)
+                        "--output", str(wyjscie), "--config", str(args.config)], cwd=ROOT, check=True, capture_output=True)
         suma, pola = Counter(), Counter()
         dokumenty = trafione_typy = 0
         for sprawa in sorted(p for p in args.dane.iterdir() if all((p / n).exists() for n in WZORZEC.values())):
@@ -61,10 +62,13 @@ def main() -> int:
                 for sciezka, wynik in porownaj(wzor, nasz):
                     suma[wynik] += 1
                     pola[(nazwa_pdf, re.sub(r"\[\d+\]", "[]", sciezka), wynik)] += 1
+        obce = list(args.dane.glob("negatywne/*.pdf"))
+        obce_z_json = sum((wyjscie / "negatywne" / p.with_suffix(".json").name).exists() for p in obce)
 
     tp, fp, fn = suma["TP"], suma["FP"], suma["FN"]
     f1 = 2 * tp / (2 * tp + fp + fn) if tp + fp + fn else 0.0
     print(f"Dokumenty: {dokumenty} | typ poprawny: {trafione_typy}/{dokumenty}")
+    print(f"Obce dokumenty z JSON: {obce_z_json}/{len(obce)}")
     print(f"F1 = {f1:.3f}  (TP {tp} | FP {fp} | FN {fn})")
     bledy = Counter()
     for (typ, pole, wynik), ile in pola.items():

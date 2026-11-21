@@ -26,17 +26,16 @@ def test_t1_sprawa_trzy_dokumenty(tmp_path):
 
     run_cli(tmp_path / "input", tmp_path / "output")
 
-    expected = {
-        "odwolanie.json": "OdwolanieKIO",
-        "pelnomocnictwo.json": "mocodawca",
-        "potwierdzenie_przelewu.json": "przelew_bankowy",
-    }
+    def klucze(pliki):
+        return sorted(sorted(json.loads(p.read_text(encoding="utf-8"))) for p in pliki)
+
     wrong = []
     for case in sorted((tmp_path / "input").iterdir()):
-        for name, key in expected.items():
-            out = tmp_path / "output" / case.name / name
-            if not out.exists() or key not in json.loads(out.read_text(encoding="utf-8")):
-                wrong.append(f"{case.name}/{name}")
+        out = tmp_path / "output" / case.name
+        if not {p.stem for p in out.glob("*.json")} <= {p.stem for p in case.glob("*.pdf")}:
+            wrong.append(f"{case.name}: nazwy")
+        elif klucze(out.glob("*.json")) != klucze((UZP / "dane" / case.name).glob("*.json")):
+            wrong.append(f"{case.name}: klucze")
     assert wrong == []
 
 

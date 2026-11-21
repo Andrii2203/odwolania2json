@@ -22,11 +22,19 @@ Aktualizacja: 2026-11-21 noc, Claude.
   - GUI (ADR-0006): `odwolania2json/gui.py`, `gui.bat`, `requirements-gui.txt`.
   - Hooki Argona w `.agents/` (tylko lokalnie, poza git).
 
+## Nowe od UZP (Discord, repozytorium, 2026-11-21)
+
+- `data/uzp/dane/skany/`: 30 skanów (po 10 odwołań, pełnomocnictw, przelewów; obok wzorce JSON). Żaden nie ma warstwy tekstu, więc dziś nie dają JSON. OCR (ADR-0007) jest teraz najważniejszy. Układ: `skany/<typ>/<nr>/<nr>.pdf` + `<nr>.json`; `tools/ocena_f1.py` go jeszcze nie liczy.
+- Imiona i nazwiska w mianowniku („Mateusz Szymański”, nie „Mateusza Szymańskiego”). W danych treningowych bez problemu; w ukrytych możliwy dopełniacz po „radcy prawnego”, „adwokata”.
+- LLM: tylko firma z polityką prywatności (zakres i miejsce przetwarzania), serwery w UE/EOG. Hosting prywatny zabroniony. OVHcloud spełnia (ADR-0004).
+- Wzorce spraw 19, 23, 25, 44, 55 poprawione na „Odpowiedzi/wyjaśnienia do SWZ” (jak w słowniku). `przelew.pdf` zamiast `potwierdzenie_przelewu.pdf` w sprawach 01, 02.
+- Dane testowe można obejrzeć na stoisku UZP: warto sprawdzić, czy układ odwołań jest taki jak w treningowych.
+
 ## Plan
 
 | Kiedy | Kto | Co |
 |---|---|---|
-| sb noc | Claude | Klient LLM (OVHcloud) z limitem tokenów w `config/ustawienia.yaml`; wybór modelu pomiarem F1; OCR (ADR-0007) |
+| sb noc | Claude | OCR (ADR-0007) na `skany/`, ocena F1 skanów; potem klient LLM (OVHcloud) z limitem tokenów dla pól `null` |
 | nd 7:00-9:30 | [Argon] | Prezentacja PDF <= 10 MB wg ADR-0006; `README.md` po polsku |
 | nd przed 11:00 | Użytkownik | Repozytorium publiczne (jury musi je otworzyć); `.env` poza git |
 | nd 9:30-10:30 | Claude + Użytkownik | Finalny pomiar F1, `start.bat` na czystym katalogu, plik z kluczem dla jury, oddanie |

@@ -6,14 +6,15 @@ Każdy test to jeden przykład. Testu bez punktu w tym pliku nie piszemy.
 ## T1. Test przekrojowy (walking skeleton): każda sprawa z 3 dokumentów daje 3 JSON
 
 ```
-input/przyklad_01/odwolanie.pdf              -> output/przyklad_01/odwolanie.json              ma klucz "OdwolanieKIO"
-input/przyklad_01/pelnomocnictwo.pdf         -> output/przyklad_01/pelnomocnictwo.json         ma klucz "mocodawca"
-input/przyklad_01/potwierdzenie_przelewu.pdf -> output/przyklad_01/potwierdzenie_przelewu.json ma klucz "przelew_bankowy"
+input/przyklad_01/odwolanie.pdf              -> output/przyklad_01/odwolanie.json              klucze jak we wzorcu odwolanie.json ("OdwolanieKIO", …)
+input/przyklad_01/pelnomocnictwo.pdf         -> output/przyklad_01/pelnomocnictwo.json         klucze jak we wzorcu pelnomocnictwo.json ("mocodawca", …)
+input/przyklad_01/przelew.pdf                -> output/przyklad_01/przelew.json                klucze jak we wzorcu przelew.json ("przelew_bankowy")
+input/przyklad_03/potwierdzenie_przelewu.pdf -> output/przyklad_03/potwierdzenie_przelewu.json nazwa jak PDF, typ z treści
 ... i tak dla wszystkich 60 spraw (180 dokumentów)
 ```
 
 - Dane: `data/uzp/dane/przyklad_*`. Uruchamiamy prawdziwe CLI, tak jak jury.
-- Sprawdza: CLI, drzewo katalogów, nazwy plików, klasyfikację każdego dokumentu, kształt JSON.
+- Sprawdza: CLI, drzewo katalogów, nazwy plików, klasyfikację każdego dokumentu, kształt JSON. Nazwy PDF w danych UZP się zmieniają (`przelew.pdf`, `potwierdzenie_przelewu.pdf`), więc test nie zna nazw: każdy JSON ma nazwę jednego z PDF sprawy, a zbiory kluczy wyników i wzorców sprawy są równe. Obcy PDF w sprawie (np. ogłoszenie TED w `przyklad_04`) nie daje pliku.
 - Trudny przykład: pełnomocnictwo bez słowa „mocodawca”, ale z „udzielam pełnomocnictwa”, też ma dać `pelnomocnictwo`.
 - Test: `tests/test_e2e.py::test_t1_sprawa_trzy_dokumenty`
 

@@ -89,5 +89,5 @@ wzorce:
 slowniki:
   # data/uzp/oczekiwane-json/odwolanie.json: „1- tak, 0- nie”.
   tak_nie: {tak: 1, nie: 0}
-  # data/uzp/oczekiwane-json/czynnosc_powod_id_dict.md. Numer 6 zapisany jak we wzorcach spraw (6 spraw): „i”, nie „/”.
-  czynnosc_powod: {Decyzja o odrzuceniu oferty: 1, Ogłoszenie wyboru oferty: 2, Decyzja o wykluczeniu wykonawcy: 3, Publikacja specyfikacji warunków zamówienia (SWZ): 4, Modyfikacja treści SWZ: 5, Odpowiedzi i wyjaśnienia do SWZ: 6, Zaniechanie odrzucenia oferty: 7, Zaniechanie wykluczenia wykonawcy: 8, Decyzja o unieważnieniu postępowania: 9, Zaniechanie unieważnienia postępowania: 10, Opis przedmiotu zamówienia (OPZ): 11, Projektowane postanowienia umowy: 12}
+  # data/uzp/oczekiwane-json/czynnosc_powod_id_dict.md.
+  czynnosc_powod: {Decyzja o odrzuceniu oferty: 1, Ogłoszenie wyboru oferty: 2, Decyzja o wykluczeniu wykonawcy: 3, Publikacja specyfikacji warunków zamówienia (SWZ): 4, Modyfikacja treści SWZ: 5, Odpowiedzi/wyjaśnienia do SWZ: 6, Zaniechanie odrzucenia oferty: 7, Zaniechanie wykluczenia wykonawcy: 8, Decyzja o unieważnieniu postępowania: 9, Zaniechanie unieważnienia postępowania: 10, Opis przedmiotu zamówienia (OPZ): 11, Projektowane postanowienia umowy: 12}

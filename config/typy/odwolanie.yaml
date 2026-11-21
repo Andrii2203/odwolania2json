@@ -51,7 +51,7 @@ pola:
     - {wzorzec: '{CZYNNOSC}(?:poinformował\w*\s+o\s+)?wykluczeni', wartosc: Decyzja o wykluczeniu wykonawcy}
     - {wzorzec: '{CZYNNOSC}(?:opublikował\w*|ustaleniu\s+treści)\s+Specyfikacj', wartosc: Publikacja specyfikacji warunków zamówienia (SWZ)}
     - {wzorzec: '{CZYNNOSC}(?:zmodyfikował\w*|modyfikacji)\s+treś', wartosc: Modyfikacja treści SWZ}
-    - {wzorzec: '{CZYNNOSC}(?:przekazał\w*\s+wykonawcom\s+)?(?:odpowiedzi|udzieleniu)', wartosc: Odpowiedzi i wyjaśnienia do SWZ}
+    - {wzorzec: '{CZYNNOSC}(?:przekazał\w*\s+wykonawcom\s+)?(?:odpowiedzi|udzieleniu)', wartosc: Odpowiedzi/wyjaśnienia do SWZ}
     - {wzorzec: '{CZYNNOSC}(?:nie\s+odrzucił|zaniechaniu\s+odrzucenia)', wartosc: Zaniechanie odrzucenia oferty}
     - {wzorzec: '{CZYNNOSC}(?:nie\s+wykluczył|zaniechaniu\s+wykluczenia)', wartosc: Zaniechanie wykluczenia wykonawcy}
     - {wzorzec: '{CZYNNOSC}unieważni', wartosc: Decyzja o unieważnieniu postępowania}

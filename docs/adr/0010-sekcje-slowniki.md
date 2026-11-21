@@ -26,4 +26,3 @@ Zmiany w zachowaniu:
 
 - Odwołanie to tylko plik YAML: 0 błędów na 60 sprawach treningowych, łączny F1 z 0.5711 do 0.9983.
 - Reguły są dopasowane do 60 spraw. W ukrytych sprawach może być inny układ. Dlatego zostaje plan LLM (ADR-0004) dla pól, których reguły nie znajdą.
-- Słownik `czynnosc_powod` ma pozycję 6 w zapisie z wzorców spraw („Odpowiedzi i wyjaśnienia do SWZ”), a nie z `czynnosc_powod_id_dict.md` („Odpowiedzi/wyjaśnienia do SWZ”). Jury liczy F1 na takich samych wzorcach.

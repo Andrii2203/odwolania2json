@@ -31,6 +31,8 @@ Pola były wyciągane na dwa sposoby: `etykiety` + `format` (wyrażenia regularn
    OKNO_WARTOSCI: 120
    ```
 
+9. Znaki, które są regułą o dokumencie, też są w `ustawienia.yaml` (2026-11-21): `obcinane_po_bramce` (końcówka nazwy po bramce `utnij`), `separatory_dziesietne` (grosze w `format: liczba`), `ROZDZIELNIK_CYFR` (odstęp albo myślnik w znanym numerze: kontekst sprawy i `tools/warianty.py`, wcześniej dwa różne wzorce w kodzie). W kodzie zostają tylko wzorce ogólne (`\s+`, `\D`, składnia `{NAZWA}`). Tego T5 nie sprawdza; sprawdza przegląd kodu.
+
 ## Konsekwencje
 
 - Wynik na 180 dokumentach treningowych jest bajt w bajt taki sam jak przed zmianą; F1 0.571.

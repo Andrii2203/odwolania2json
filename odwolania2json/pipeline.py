@@ -27,6 +27,7 @@ def wczytaj_typy(config: Path = KONFIG) -> list[dict]:
     typy = [_yaml(p) for p in sorted((config / "typy").glob("*.yaml"))]
     for t in typy:
         t["prog"] = ust["liczby"]["PROG"]
+        t["rozdzielnik_cyfr"] = ust["wzorce"]["ROZDZIELNIK_CYFR"]
         t["wykluczenia"] = ust["wykluczenia"] + t.get("wykluczenia", [])
         przygotuj(t.setdefault("pola", {}), ust, t.get("wzorce", {}))
     return typy
@@ -71,20 +72,32 @@ def wyciagnij(tekst: str, typ: dict, dziennik: list | None = None) -> dict:
     return wynik
 
 
-def przetworz(pdf: Path, typy: list[dict], ust: dict, dziennik: list | None = None) -> tuple[str, dict] | None:
-    tekst = tekst_pdf(pdf, ust)
+def dokument_z_tekstu(tekst: str, typy: list[dict], ust: dict, dziennik: list) -> dict:
     typ = klasyfikuj(tekst, typy, ust)
-    return None if typ is None else (typ["typ"], wyciagnij(tekst, typ, dziennik))
+    dane = wyciagnij(tekst, typ, dziennik) if typ else None
+    return {"typ": typ and typ["typ"], "tekst": tekst, "dane": dane, "dziennik": dziennik}
+
+
+def przetworz(pdf: Path, typy: list[dict], ust: dict) -> tuple[str, dict] | None:
+    d = dokument_z_tekstu(tekst_pdf(pdf, ust), typy, ust, [])
+    return (d["typ"], d["dane"]) if d["typ"] else None
 
 
 def _dokument(pdf: Path, typy: list[dict], ust: dict, dziennik: list) -> dict:
     try:
-        tekst = tekst_pdf(pdf, ust)
-        typ = klasyfikuj(tekst, typy, ust)
-        dane = wyciagnij(tekst, typ, dziennik) if typ else None
-        return {"pdf": pdf, "typ": typ and typ["typ"], "tekst": tekst, "dane": dane, "dziennik": dziennik, "blad": None}
+        return {"pdf": pdf, "blad": None, **dokument_z_tekstu(tekst_pdf(pdf, ust), typy, ust, dziennik)}
     except Exception as blad:
         return {"pdf": pdf, "typ": None, "tekst": "", "dane": None, "dziennik": dziennik, "blad": blad}
+
+
+def kontekst_sprawy(dokumenty: list[dict], po_typie: dict[str, dict], ust: dict) -> None:
+    if not ust["etapy"]["kontekst_sprawy"]:
+        return
+    try:
+        uzupelnij_sprawe([d for d in dokumenty if d["typ"]], po_typie)
+    except Exception as blad:
+        for d in dokumenty:
+            d["dziennik"].append({"pole": "-", "wartosc": None, "regula": f"kontekst sprawy: błąd {blad!r}", "fragment": ""})
 
 
 def przetworz_wszystkie(pdfy: Iterable[Path], typy: list[dict], ust: dict,
@@ -95,11 +108,6 @@ def przetworz_wszystkie(pdfy: Iterable[Path], typy: list[dict], ust: dict,
     po_typie = {t["typ"]: t for t in typy}
     for pliki in sprawy.values():
         dokumenty = [_dokument(pdf, typy, ust, dzienniki.setdefault(pdf, []) if dzienniki is not None else []) for pdf in pliki]
-        if ust["etapy"]["kontekst_sprawy"]:
-            try:
-                uzupelnij_sprawe([d for d in dokumenty if d["typ"]], po_typie)
-            except Exception as blad:
-                for d in dokumenty:
-                    d["dziennik"].append({"pole": "-", "wartosc": None, "regula": f"kontekst sprawy: błąd {blad!r}", "fragment": ""})
+        kontekst_sprawy(dokumenty, po_typie, ust)
         for d in dokumenty:
             yield d["pdf"], (d["typ"], d["dane"]) if d["typ"] else None, d["blad"]

@@ -6,12 +6,12 @@ import sys
 from collections import Counter
 from datetime import date, timedelta
 from pathlib import Path
-from statistics import harmonic_mean
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from odwolania2json.cli import konsola_utf8
-from odwolania2json.pipeline import KONFIG, klasyfikuj, tekst_pdf, ustawienia, uzupelnij_sprawe, wczytaj_typy, wyciagnij
-from ocena_f1 import DANE, bez_prefiksu, liscie, porownaj
+from odwolania2json.kontekst import cyfry_w_tekscie
+from odwolania2json.pipeline import KONFIG, dokument_z_tekstu, kontekst_sprawy, tekst_pdf, ustawienia, wczytaj_typy
+from ocena_f1 import DANE, bez_prefiksu, liscie, miara_f1, pole_ogolne, porownaj, typy_wzorow
 
 def _mapuj(v, f):
     if isinstance(v, dict):
@@ -25,8 +25,8 @@ def _napisy(wzor) -> list[tuple[str, str]]:
     return [(s, v) for s, v in liscie(wzor) if isinstance(v, str)]
 
 
-def _cyfry_w_tekscie(cyfry: str) -> re.Pattern:
-    return re.compile(r"(?<!\d)" + r"(?:[^\S\n]|-)?".join(cyfry) + r"(?!\d)")
+def _cyfry_w_tekscie(cyfry: str, ust: dict) -> re.Pattern:
+    return cyfry_w_tekscie(cyfry, ust["wzorce"]["ROZDZIELNIK_CYFR"])
 
 
 def _podmien_cyfry(stare: str, nowe: str) -> str:
@@ -41,25 +41,25 @@ def _data(s: str) -> date | None:
         return None
 
 
-def _przebiegi(tekst: str, wzor, w: dict) -> list[str]:
+def _przebiegi(tekst: str, wzor, w: dict, ust: dict) -> list[str]:
     runy = {r for _, v in _napisy(wzor) for r in re.findall(r"\d+", v) if len(r) >= w["MIN_CYFR"]}
-    return sorted(r for r in runy if _cyfry_w_tekscie(r).search(tekst))
+    return sorted(r for r in runy if _cyfry_w_tekscie(r, ust).search(tekst))
 
 
 def wartosci(tekst, wzor, rng, w, ust):
     zamiana = {}
-    for r in _przebiegi(tekst, wzor, w):
+    for r in _przebiegi(tekst, wzor, w, ust):
         nowy = "".join(rng.choice("0123456789") for _ in r)
         zamiana[r] = nowy
-        tekst = _cyfry_w_tekscie(r).sub(lambda m: _podmien_cyfry(m[0], nowy), tekst)
+        tekst = _cyfry_w_tekscie(r, ust).sub(lambda m: _podmien_cyfry(m[0], nowy), tekst)
     return tekst, _mapuj(wzor, lambda s: re.sub(r"\d+", lambda m: zamiana.get(m[0], m[0]), s))
 
 
 def braki(tekst, wzor, rng, w, ust):
-    r = rng.choice(_przebiegi(tekst, wzor, w) or [None])
+    r = rng.choice(_przebiegi(tekst, wzor, w, ust) or [None])
     if r is None:
         return None
-    tekst = _cyfry_w_tekscie(r).sub(rng.choice(w["braki"]), tekst)
+    tekst = _cyfry_w_tekscie(r, ust).sub(rng.choice(w["braki"]), tekst)
     return tekst, _mapuj(wzor, lambda s: None if r in s else s)
 
 
@@ -157,27 +157,25 @@ def main() -> int:
     typy = wczytaj_typy(args.config)
     w = ust["narzedzia"]["warianty"]
     w["konfiguracja"] = " ".join(p.read_text(encoding="utf-8") for p in args.config.rglob("*.yaml")).lower()
-    typ_wzoru = {frozenset(t["szablon"]): t["typ"] for t in typy}
+    typ_wzoru = typy_wzorow(typy)
 
     suma, pola, licznik, przyklady = Counter(), Counter(), Counter(), {}
     dokumenty = []
     for sprawa in sorted(p for d in args.dane for p in d.iterdir() if p.is_dir()):
         wzory = {typ_wzoru[frozenset(j)]: j for j in (json.loads(p.read_text(encoding="utf-8")) for p in sprawa.glob("*.json"))}
         for pdf in sorted(sprawa.glob("*.pdf")):
-            tekst = tekst_pdf(pdf, ust)
-            typ = klasyfikuj(tekst, typy, ust)
-            if typ and typ["typ"] in wzory:
-                dokumenty.append((pdf, tekst, wzory[typ["typ"]], typ["typ"]))
+            d = {"pdf": pdf, **dokument_z_tekstu(tekst_pdf(pdf, ust), typy, ust, [])}
+            if d["typ"] in wzory:
+                dokumenty.append((d, wzory[d["typ"]]))
     po_typie = {t["typ"]: t for t in typy}
-    oryginaly = [{"pdf": pdf, "typ": o, "tekst": tekst, "dane": wyciagnij(tekst, po_typie[o]), "dziennik": []}
-                 for pdf, tekst, _, o in dokumenty]
-    for pdf, tekst, wzor, oczekiwany in dokumenty:
-        inne = [d for d in oryginaly if d["pdf"].parent == pdf.parent and d["pdf"] != pdf]
-        for rodzaj, t, wz in warianty(tekst, wzor, pdf, w, ust):
-            typ = klasyfikuj(t, typy, ust)
-            nasz = wyciagnij(t, typ) if typ and typ["typ"] == oczekiwany else {}
-            if nasz and ust["etapy"]["kontekst_sprawy"]:
-                uzupelnij_sprawe([{"typ": oczekiwany, "tekst": t, "dane": nasz, "dziennik": []}, *inne], po_typie)
+    for oryginal, wzor in dokumenty:
+        pdf, oczekiwany = oryginal["pdf"], oryginal["typ"]
+        inne = [d for d, _ in dokumenty if d["pdf"].parent == pdf.parent and d is not oryginal]
+        for rodzaj, t, wz in warianty(oryginal["tekst"], wzor, pdf, w, ust):
+            wariant = dokument_z_tekstu(t, typy, ust, [])
+            nasz = wariant["dane"] if wariant["typ"] == oczekiwany else {}
+            if nasz:
+                kontekst_sprawy([wariant, *inne], po_typie, ust)
             licznik[rodzaj, "warianty"] += 1
             licznik[rodzaj, "zly_typ"] += not nasz
             wyniki = dict(liscie(nasz))
@@ -186,15 +184,14 @@ def main() -> int:
                 suma[rodzaj, wynik] += 1
                 suma["razem", wynik] += 1
                 if wynik != "TP":
-                    pole = (rodzina, oczekiwany, re.sub(r"\[\d+\]", "[]", sciezka))
+                    pole = (rodzina, oczekiwany, pole_ogolne(sciezka))
                     pola[pole] += 1
                     przyklady.setdefault(pole, (pdf, rodzaj, dict(liscie(wz)).get(sciezka), wyniki.get(sciezka)))
 
     miejsca = ust["narzedzia"]["MIEJSCA_F1"]
 
     def f1(r):
-        tp, fp, fn = (suma[r, x] for x in ("TP", "FP", "FN"))
-        return harmonic_mean([tp / (tp + fp), tp / (tp + fn)]) if tp else 0.0
+        return miara_f1(*(suma[r, x] for x in ("TP", "FP", "FN")))
 
     rodzaje = sorted({r for r, _ in licznik}, key=f1)
     print(f"Warianty: {sum(licznik[r, 'warianty'] for r in rodzaje)} | F1 razem = {f1('razem'):.{miejsca}f}")

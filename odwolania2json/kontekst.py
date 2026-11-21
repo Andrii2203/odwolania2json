@@ -1,7 +1,7 @@
 import re
 from collections.abc import Iterator
 
-from .pola import pusty
+from .pola import pusty, wez
 
 
 def _sloty(obiekt, sciezka: str, droga: str = "") -> Iterator[tuple[dict, str, str]]:
@@ -20,10 +20,14 @@ def _sloty(obiekt, sciezka: str, droga: str = "") -> Iterator[tuple[dict, str, s
         yield from _sloty(element, reszta, f"{droga}{glowa}[{i}]")
 
 
-def _w_tekscie(wartosc, tekst: str) -> re.Match | None:
+def cyfry_w_tekscie(cyfry: str, rozdzielnik: str) -> re.Pattern:
+    return re.compile(r"(?<!\d)" + f"(?:{rozdzielnik})?".join(cyfry) + r"(?!\d)")
+
+
+def _w_tekscie(wartosc, tekst: str, rozdzielnik: str) -> re.Match | None:
     s = str(wartosc)
     if s.isdigit():
-        return re.search(r"(?<!\d)" + r"[\s-]?".join(s) + r"(?!\d)", tekst)
+        return cyfry_w_tekscie(s, rozdzielnik).search(tekst)
     return re.search(r"\s+".join(map(re.escape, s.split())), tekst)
 
 
@@ -35,18 +39,17 @@ def _kandydaci(dokumenty: list[dict], cel: dict, zrodla: dict) -> list[tuple[obj
 
 def _dodaj_element(dane: dict, szablon: dict, sciezka: str) -> None:
     glowa = sciezka.partition("[]")[0]
-    lista, wzor = dane, szablon
-    for k in glowa.split("."):
-        lista, wzor = lista[k], wzor[k]
+    lista = wez(dane, glowa)
     if not lista:
-        lista.append(pusty(wzor[0]))
+        lista.append(pusty(wez(szablon, glowa)[0]))
 
 
 def uzupelnij_sprawe(dokumenty: list[dict], typy: dict[str, dict]) -> None:
     for cel in dokumenty:
         typ = typy.get(cel["typ"])
         for sciezka, zrodla in (typ or {}).get("kontekst", {}).items():
-            obecni = [(w, skad, m) for w, skad in _kandydaci(dokumenty, cel, zrodla) if (m := _w_tekscie(w, cel["tekst"]))]
+            obecni = [(w, skad, m) for w, skad in _kandydaci(dokumenty, cel, zrodla)
+                      if (m := _w_tekscie(w, cel["tekst"], typ["rozdzielnik_cyfr"]))]
             if not obecni:
                 continue
             if "[]" in sciezka:

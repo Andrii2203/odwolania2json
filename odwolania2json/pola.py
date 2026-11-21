@@ -8,7 +8,7 @@ def _cyfry(ust: dict, s: str) -> str:
 
 
 def _liczba(ust: dict, s: str) -> float:
-    if m := re.fullmatch(r"(.*)[,.](\d+)", s):
+    if m := re.fullmatch(rf"(.*)[{re.escape(ust['separatory_dziesietne'])}](\d+)", s):
         calkowite, ulamek = m.groups()
         return float(_cyfry(ust, calkowite) + "." + ulamek)
     return float(_cyfry(ust, s))
@@ -72,6 +72,7 @@ def przygotuj(pola: dict, ust: dict, fragmenty_typu: dict) -> None:
                            for p in przedrostki for w in wzorce]
         spec["_podzial"] = _rozwin(spec["podzial"], fragmenty, warianty) if "podzial" in spec else None
         spec["_utnij"] = _rozwin("|".join(f"(?:{w})" for w in spec["utnij"]), fragmenty, warianty) if "utnij" in spec else None
+        spec["_obcinane_po_bramce"] = ust["obcinane_po_bramce"]
         format_ = partial(FORMATY[spec["format"]], ust) if "format" in spec else str
         spec["_wartosc"] = partial(_wartosc, format_, ust["slowniki"][spec["slownik"]] if "slownik" in spec else None)
 
@@ -91,7 +92,7 @@ def ustaw(wynik: dict, sciezka: str, wartosc) -> None:
     wynik[klucz] = wartosc
 
 
-def _wez(obiekt, sciezka: str):
+def wez(obiekt, sciezka: str):
     for klucz in filter(None, sciezka.split(".")):
         obiekt = obiekt[klucz]
     return obiekt
@@ -112,7 +113,7 @@ def trafienia(tekst: str, spec: dict) -> list[tuple[int, object, str, str]]:
             continue
         widziane.add(surowe)
         if spec["_utnij"] and (stop := spec["_utnij"].search(surowe)):
-            surowe = surowe[:stop.start()].rstrip(" ,;")
+            surowe = surowe[:stop.start()].rstrip(spec["_obcinane_po_bramce"])
             opis = f"{opis}; bramka: ucięte przed „{stop[0].strip()}”"
         wartosc = spec["_wartosc"](m, surowe, stala)
         if wartosc not in (None, "") and str(wartosc).lower() not in spec["_stopy"]:
@@ -133,7 +134,7 @@ def wypelnij(wynik: dict, szablon: dict, sciezka: str, spec: dict, tekst: str, z
         zapisz({"pole": sciezka, "wartosc": wartosc, "regula": opis, "fragment": fragment})
         return
     glowa, *srodek, reszta = czesci
-    lista, wzor = _wez(wynik, glowa), _wez(szablon, glowa)[0]
+    lista, wzor = wez(wynik, glowa), wez(szablon, glowa)[0]
     granice = [m.start() for m in spec["_podzial"].finditer(tekst)] if spec["_podzial"] else None
     for i, (poz, wartosc, opis, fragment) in enumerate(znalezione):
         if granice is not None:
@@ -147,11 +148,11 @@ def wypelnij(wynik: dict, szablon: dict, sciezka: str, spec: dict, tekst: str, z
         element = lista[i]
         konkretna = f"{glowa}[{i}]{reszta}"
         if srodek:
-            wewnetrzna = _wez(element, srodek[0])
-            wewnetrzna.append(pusty(_wez(wzor, srodek[0])[0]))
+            wewnetrzna = wez(element, srodek[0])
+            wewnetrzna.append(pusty(wez(wzor, srodek[0])[0]))
             element = wewnetrzna[-1]
             konkretna = f"{glowa}[{i}]{srodek[0]}[{len(wewnetrzna) - 1}]{reszta}"
-        elif _wez(element, reszta) is not None:
+        elif wez(element, reszta) is not None:
             continue
         ustaw(element, reszta.lstrip("."), wartosc)
         zapisz({"pole": konkretna, "wartosc": wartosc, "regula": opis, "fragment": fragment})

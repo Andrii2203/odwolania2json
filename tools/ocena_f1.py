@@ -49,14 +49,26 @@ def porownaj(wzor, nasz):
             yield sciezka, "FP"
 
 
+def miara_f1(tp: int, fp: int, fn: int) -> float:
+    return harmonic_mean([tp / (tp + fp), tp / (tp + fn)]) if tp else 0.0
+
+
+def typy_wzorow(typy: list[dict]) -> dict[frozenset, str]:
+    return {frozenset(t["szablon"]): t["typ"] for t in typy}
+
+
+def pole_ogolne(sciezka: str) -> str:
+    return re.sub(r"\[\d+\]", "[]", sciezka)
+
+
 def ocena(katalogi: list[Path], typy: list[dict], ust: dict) -> tuple[float, Counter, Counter, Counter]:
-    typ_wzoru = {frozenset(t["szablon"]): t["typ"] for t in typy}
+    typ_wzoru = typy_wzorow(typy)
     suma, pola, licznik = Counter(), Counter(), Counter()
 
     def licz(typ, pary):
         for sciezka, wynik in pary:
             suma[wynik] += 1
-            pola[(typ, re.sub(r"\[\d+\]", "[]", sciezka), wynik)] += 1
+            pola[(typ, pole_ogolne(sciezka), wynik)] += 1
 
     for sprawa in sorted(p for dane in katalogi for p in dane.iterdir() if p.is_dir()):
         nasze = {}
@@ -80,9 +92,7 @@ def ocena(katalogi: list[Path], typy: list[dict], ust: dict) -> tuple[float, Cou
             for nasz in nadmiarowe:
                 licz(typ, porownaj({}, nasz))
 
-    tp, fp, fn = suma["TP"], suma["FP"], suma["FN"]
-    f1 = harmonic_mean([tp / (tp + fp), tp / (tp + fn)]) if tp else 0.0
-    return f1, suma, pola, licznik
+    return miara_f1(suma["TP"], suma["FP"], suma["FN"]), suma, pola, licznik
 
 
 def main() -> int:

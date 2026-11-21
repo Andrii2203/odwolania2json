@@ -133,6 +133,12 @@ formaty_daty: ['%Y-%m-%d', '%d.%m.%Y', '%d-%m-%Y', '%d/%m/%Y', '%d %m %Y']
 # format: tekst obcina te znaki z obu końców wartości.
 obcinane_znaki: ' .:-–„”"'
 
+# Bramka `utnij` (ADR-0015) obcina te znaki z końca nazwy przed miejscem cięcia („Belmoria S.A., ul.” -> „Belmoria S.A.”).
+obcinane_po_bramce: ' ,;'
+
+# format: liczba: ostatni z tych znaków oddziela grosze („1 234,56”, „1,234.56”); pozostałe znaki niebędące cyframi są pomijane.
+separatory_dziesietne: ',.'
+
 # Wspólne fragmenty wzorców: {NAZWA} w polu `wzorce` (ADR-0008). {STOP} tworzy program z etykiet pól typu.
 wzorce:
   # Od 0 do OKNO_WARTOSCI dowolnych znaków za etykietą, jak najmniej.
@@ -155,6 +161,8 @@ wzorce:
   DATA: '(?:\d{4}-\d{2}-\d{2}|(?<!\d)\d{1,2}[.\-/]\d{1,2}[.\-/]\d{4}|(?<!\d)\d{1,2}\s+(?i:{MIESIAC})\s+\d{4}|(?<!\d)\d{1,2} \d{1,2} \d{4}(?!\d))'
   # Wielkie litery, cyfry, „/” i „-”; co najmniej jedna cyfra i co najmniej DLUGOSC_ID znaków.
   IDENTYFIKATOR: '(?<![A-Za-z0-9])(?=[A-Z0-9/-]*\d)(?=[A-Z0-9])[A-Z0-9/-]{{DLUGOSC_ID},}'
+  # Między cyframi znanego numeru (kontekst sprawy, ADR-0016; warianty, ADR-0011): odstęp albo myślnik (999-551-93-82).
+  ROZDZIELNIK_CYFR: '[\s-]'
   # NIP: 10 cyfr, czasem z myślnikami lub spacjami (999-551-93-82).
   NIP: '(?:\d[ -]?){9}\d(?!\d)'
   # PESEL: 11 cyfr (standard, ustawa o ewidencji ludności).

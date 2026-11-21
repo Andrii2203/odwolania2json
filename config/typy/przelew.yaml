@@ -8,3 +8,23 @@ prog: 0.6
 szablon:
   przelew_bankowy: {data_operacji: null, kwota: null, na_rachunek: null, numer_transakcji: null,
     tytul: null, z_rachunku: null}
+pola:
+  przelew_bankowy.data_operacji:
+    format: data
+    etykiety: [data operacji, data transakcji, data realizacji, data wykonania, data księgowania, data obciążenia, w dniu]
+  przelew_bankowy.kwota:
+    format: kwota
+    etykiety: [kwota, wartość, w kwocie]
+  przelew_bankowy.z_rachunku:
+    format: rachunek
+    etykiety: [rachunek obciążany, z rachunku, rachunek zleceniodawcy, rachunek nadawcy, rachunek płatnika, rachunek źródłowy, zleceniodawca, płatnik, nadawca]
+  przelew_bankowy.na_rachunek:
+    format: rachunek
+    etykiety: [rachunek odbiorcy, na rachunek, rachunek uznawany, rachunek adresata, rachunek beneficjenta, rachunek docelowy, beneficjent, odbiorca, adresat]
+  przelew_bankowy.numer_transakcji:
+    format: identyfikator
+    etykiety: [nr ref., numer referencyjny, nr referencyjny, numer transakcji, nr transakcji, id transakcji, identyfikator transakcji, identyfikator operacji, numer operacji, nr operacji]
+  przelew_bankowy.tytul:
+    format: tekst
+    etykiety: [tytuł przelewu, tytułem, tytuł, opis]
+    stop: [status, waluta, opłata/prowizja, prowizja, nadawca, adresat, odbiorca, zleceniodawca, płatnik]

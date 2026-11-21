@@ -1,27 +1,31 @@
-# ADR-0005: Невідомо, як саме UZP рахує F1 — як діємо
+# ADR-0005: Nie wiadomo, jak dokładnie UZP liczy F1
 
-Статус: прийнято, 2026-11-21
+Status: przyjęte, 2026-11-21
 
-## Контекст
-Невідомо: (1) чи вимагають точного збігу значень, (2) чи важливий порядок у списках (кілька Odwołujących, кілька pełnomocników). Чекати відповіді — втрачати час.
+## Kontekst
 
-## Рішення
-Робимо так, щоб результат був найкращим **за будь-якої** відповіді:
+Nie wiadomo: (1) czy wymagają dokładnej zgodności wartości, (2) czy liczy się kolejność na listach (kilku Odwołujących, kilku pełnomocników). Czekanie na odpowiedź to strata czasu.
 
-1. **Формат — точно як в еталоні.** Кожне значення видаємо в тому ж форматі й типі, що в тренувальних JSON:
+## Decyzja
 
-   | У документі | Видаємо | Тип |
+Robimy tak, żeby wynik był najlepszy przy każdej odpowiedzi.
+
+1. Format dokładnie jak we wzorcu. Każdą wartość zapisujemy w tym samym formacie i typie co w treningowych JSON:
+
+   | W dokumencie | Zapisujemy | Typ |
    |---|---|---|
-   | `21.03.2026`, `1 kwietnia 2026` | `"2026-03-21"` | рядок ISO |
-   | `200,00 zł` | `200.0` | число |
-   | `PL05 4706 8028 …` | `"05470680287581539721455024"` | рядок без `PL` і пробілів |
-   | `NIP: 999-928-40-65` | `"9999284065"` | рядок з цифр |
-   | PESEL `85120133547` | `85120133547` | число |
+   | `21.03.2026` | `"2026-03-21"` | tekst ISO |
+   | `1 kwietnia 2026` | `"2026-04-01"` | tekst ISO |
+   | `200,00 zł` | `200.0` | liczba |
+   | `PL05 4706 8028 …` | `"05470680287581539721455024"` | tekst bez `PL` i spacji |
+   | `NIP: 999-928-40-65` | `"9999284065"` | tekst z cyfr |
+   | PESEL `85120133547` | `85120133547` | liczba |
 
-   Наш F1 суворий (ADR-0003) — він сам покаже кожне відхилення формату.
-2. **Порядок у списках — як у документі:** хто згаданий першим, той перший у списку. Коли робитимемо списки, скрипт перевірить, що еталон теж іде в порядку документа.
-3. **Питання на стенді — не блокує.** Якщо відповідь інша, міняємо лише порівняння в `tools/ocena_f1.py`, а не екстракцію.
+   Nasz F1 jest ścisły (ADR-0003), więc sam pokaże każde odstępstwo formatu.
+2. Kolejność na listach jak w dokumencie: kto jest wymieniony pierwszy, jest pierwszy na liście. Przy listach skrypt sprawdzi, czy wzorzec też zachowuje kolejność dokumentu.
+3. Pytanie na stoisku UZP nie blokuje pracy. Jeśli odpowiedź będzie inna, zmieniamy tylko porównanie w `tools/ocena_f1.py`, a nie ekstrakcję.
 
-## Наслідки
-- Працюємо далі без відповіді UZP.
-- Точний формат дає максимум і за суворої, і за м'якої метрики.
+## Konsekwencje
+
+- Pracujemy dalej bez odpowiedzi UZP.
+- Dokładny format daje maksimum zarówno przy ścisłej, jak i przy łagodnej metryce.

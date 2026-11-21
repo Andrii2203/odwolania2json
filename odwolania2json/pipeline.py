@@ -47,3 +47,9 @@ def _empty(shape):
 
 def extract(text: str, typ: dict) -> dict:
     return _empty(typ["szablon"])
+
+
+def process(pdf: Path, types: list[dict]) -> tuple[str, dict] | None:
+    text = pdf_text(pdf)
+    typ = classify(text, types)
+    return None if typ is None else (typ["typ"], extract(text, typ))

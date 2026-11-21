@@ -1,45 +1,46 @@
 # Wszystkie liczby programu są w tym pliku (ADR-0009). Przy każdej: skąd się wzięła.
-# Pomiar: tools/przeglad.py NAZWA wartości... (F1, typy, obce dokumenty na 60 sprawach treningowych), 2026-11-21.
+# Liczba z pomiaru ma w komentarzu regułę wyboru i polecenie pomiaru, bez wyników (wyniki się starzeją).
+# tools/przeglad.py NAZWA wartości... pokazuje F1, typy i obce dokumenty dla każdej wartości (domyślnie 60 spraw treningowych).
 liczby:
-  # Najmniejszy odsetek znaczników typu. 0.5: 2 z 12 obcych dokumentów dostają JSON; od 0.6 do 1: 0 z 12, 180/180 typów.
-  # 0.6 dopuszcza brak 1 z 4 znaczników odwołania (3/4 = 0.75); przy 2 znacznikach wymaga obu.
+  # Najmniejszy odsetek znaczników typu. Najniższy próg, przy którym żaden obcy dokument nie dostaje JSON
+  # (tools/przeglad.py PROG 0.4 0.5 0.6 0.75 1); niższy niż 1, by dokument bez jednego znacznika nadal miał typ.
   PROG: 0.6
-  # Ile znaków za etykietą szukamy wartości (data, kwota, rachunek, numer). F1: 60 -> 0.569, od 120 do 500 -> 0.571.
-  # Wybrane najmniejsze okno z najlepszym F1 (większe łatwiej łapie cudzą wartość).
+  # Ile znaków za etykietą szukamy wartości (data, kwota, rachunek, numer). Najmniejsze okno bez spadku F1
+  # (tools/przeglad.py OKNO_WARTOSCI 40 60 120 240 500); większe łatwiej łapie cudzą wartość.
   OKNO_WARTOSCI: 120
-  # Najdłuższy tekst za etykietą (tytuł przelewu). Najdłuższy tytuł w danych: 148 znaków; F1: 100 -> 0.530, od 150 -> 0.571.
-  # 400 to zapas na dłuższe tytuły; tekst i tak kończy się na następnej etykiecie ({STOP}).
+  # Najdłuższy tekst za etykietą (tytuł przelewu). Z zapasem ponad najmniejsze okno bez spadku F1
+  # (tools/przeglad.py OKNO_TEKSTU 100 150 400 1000) na dłuższe tytuły; tekst i tak kończy się na następnej etykiecie ({STOP}).
   OKNO_TEKSTU: 400
-  # Ile znaków nie-liter między krótką etykietą a numerem. F1: 0 -> 0.461, od 1 do 20 -> 0.571.
-  # 4 obejmuje typowe „NIP: ” (2), „KRS - ” (3), „NIP : ” (3).
+  # Ile znaków nie-liter między krótką etykietą a numerem: „NIP: ”, „KRS - ”, „NIP : ” z zapasem.
+  # Mniej gubi numery (tools/przeglad.py ODSTEP_ETYKIETY 0 1 2 4 10 20).
   ODSTEP_ETYKIETY: 4
-  # Najkrótszy numer transakcji. F1 bez zmian od 2 do 16 (wszystkie 60 numerów treningowych ma 16 znaków, „CEN…”).
-  # 6: dłuższe niż rok „2026” i „30/06”, a krótsze numery innych banków przechodzą.
+  # Najkrótszy numer transakcji: dłuższy niż rok „2026” i data „30/06”, krótszy niż numery w danych,
+  # żeby krótsze numery innych banków przechodziły (tools/przeglad.py DLUGOSC_ID 2 6 16 20).
   DLUGOSC_ID: 6
   # Wcięcie JSON: 2 spacje, jak w przykładach UZP (data/uzp/dane/*/przelew.json).
   WCIECIE_JSON: 2
-  # Strona z mniejszą liczbą znaków tekstu idzie do OCR (ADR-0007). Pomiar 2026-11-21: najkrótsza strona cyfrowa
-  # w data/uzp/dane ma 55 znaków, wszystkie 72 strony skanów i 7 stron-obrazów w negatywne/ mają 0.
+  # Strona z mniejszą liczbą znaków tekstu idzie do OCR (ADR-0007). Między stroną skanu (bez tekstu)
+  # a najkrótszą stroną cyfrową w data/uzp/dane.
   MIN_ZNAKOW_STRONY: 40
-  # Rozdzielczość renderowania strony do OCR. F1 30 skanów UZP (2026-11-21): 150 -> 0.8696, 200 -> 0.8528, 300 -> 0.8533.
-  # Czas na stronę podobny (ok. 4 s przy 150, 200 i 300), bo RapidOCR i tak zmniejsza obraz do wykrywania tekstu.
+  # Rozdzielczość renderowania strony do OCR: najlepsze F1 na skanach UZP (tools/przeglad.py OCR_DPI 150 200 300
+  # --dane data/uzp/dane/skany/*). Czas podobny, bo RapidOCR i tak zmniejsza obraz do wykrywania tekstu.
   OCR_DPI: 150
   # Standard PDF: 1 punkt = 1/72 cala (rozmiar strony w PDF jest w punktach).
   PUNKTY_NA_CAL: 72
-  # Ramki OCR w jednym wierszu: środki różnią się o mniej niż tyle wysokości ramki. F1 30 skanów UZP (2026-11-21):
-  # od 0.3 do 0.7 -> 0.8272, 1.0 -> 0.7568 (sklejają się sąsiednie wiersze). Wybrany środek płaskiego zakresu.
+  # Ramki OCR w jednym wierszu: środki różnią się o mniej niż tyle wysokości ramki. Środek zakresu z najlepszym F1
+  # na skanach UZP (tools/przeglad.py TOLERANCJA_WIERSZA 0.3 0.5 0.7 1 --dane data/uzp/dane/skany/*); więcej skleja wiersze.
   TOLERANCJA_WIERSZA: 0.5
 
 # Liczby narzędzi (tools/), nie programu.
 narzedzia:
-  # Miejsca po przecinku w F1 (tools/ocena_f1.py). Jedno pole zmienia F1 o ok. 0.0005: 2TP+FP+FN = 2847 na 60 sprawach (2026-11-21).
-  # 3 miejsca chowają część zmian o jedno pole, 4 pokazują każdą.
+  # Miejsca po przecinku w F1 (tools/ocena_f1.py). Jedno pole zmienia F1 o ok. 1/(2TP+FP+FN), a to kilka tysięcy
+  # na 60 sprawach: 4 miejsca pokazują każdą zmianę o jedno pole, 3 część chowają.
   MIEJSCA_F1: 4
-  # Najniższe dopuszczalne F1 na data/uzp/dane (test T8). Pomiar 2026-11-21: 0.9983, po regułach dla skanów 0.9990;
-  # jedno pole to ok. 0.0005, więc 0.998 przepuszcza utratę jednego pola, blokuje dwa. Obniżenie tylko świadomie, z nowym pomiarem.
-  MIN_F1: 0.998
-  # Najniższe F1 na 3 skanach testu T9 (skany/<typ>/0001). Pomiar 2026-11-21: 0.9355 (TP 29, FP 2, FN 2);
-  # utrata jednego pola daje 0.918, więc 0.93 ją blokuje.
+  # Najniższe dopuszczalne F1 na data/uzp/dane (test T8): tuż poniżej obecnego F1 z tools/ocena_f1.py, tak by przeszło
+  # jedno błędne pole (TP -> FN + FP), a dwa już nie. Podnosimy po każdej poprawie; obniżamy tylko świadomie.
+  MIN_F1: 0.9985
+  # Najniższe F1 na 3 skanach testu T9 (skany/<typ>/0001): tuż poniżej obecnego F1, więc utrata jednego pola
+  # zaczerwienia test.
   MIN_F1_SKANY: 0.93
 
 # Słowa, po których dokument nie jest żadnym z typów (wyrok KIO, ogłoszenie TED). ADR-0002.
@@ -87,6 +88,11 @@ wzorce:
   PESEL: '\d{11}(?!\d)'
   # KRS: 10 cyfr.
   KRS: '\d{10}(?!\d)'
+  # Numer za swoją etykietą („NIP: 999-551-93-82”, „KRS - 0000123456”); grupa 1 to numer.
+  NIP_Z_ETYKIETA: 'NIP{ODSTEP}({NIP})'
+  KRS_Z_ETYKIETA: 'KRS{ODSTEP}({KRS})'
+  REGON_Z_ETYKIETA: 'REGON{ODSTEP}({REGON})'
+  PESEL_Z_ETYKIETA: 'PESEL{ODSTEP}({PESEL})'
   # Wielka i mała litera polskiego alfabetu.
   WIELKA: '[A-ZĄĆĘŁŃÓŚŹŻ]'
   MALA: '[a-ząćęłńóśźż]'
@@ -99,6 +105,8 @@ wzorce:
   FIRMA: '(?:{SLOWO_FIRMY}\s+)+{FORMA_PRAWNA}(?:\s+{FORMA_PRAWNA})?'
   # Tytuł zawodowy pełnomocnika przed imieniem i nazwiskiem.
   TYTUL_PRAWNIKA: '(?:r\.\s?pr\.|adw\.|apl\.\s?adw\.|apl\.\s?radc\.|radca\s+prawny|radcy\s+prawnego|adwokat|adwokata)'
+  # Pełnomocnik z tytułem („radca prawny Jan Kowalski”); grupa 1 to imię i nazwisko.
+  PRAWNIK: '{TYTUL_PRAWNIKA}\s+({OSOBA})'
   # Nazwa miejscowości, także wieloczłonowa (Grabów Nadrzeczny, Bielsko-Biała).
   MIEJSCOWOSC: '{WIELKA}{MALA}+(?:[ -]{WIELKA}{MALA}+)*'
   # REGON: 9 cyfr albo 14 cyfr (jednostka lokalna), standard GUS.

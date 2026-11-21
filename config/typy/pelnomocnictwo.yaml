@@ -20,14 +20,14 @@ wzorce:
 pola:
   mocodawca[].data.nip:
     format: cyfry
-    wzorce: ['NIP{ODSTEP}({NIP})']
+    wzorce: ['{NIP_Z_ETYKIETA}']
   mocodawca[].data.krs:
-    wzorce: [&krs 'KRS{ODSTEP}({KRS})']
+    wzorce: ['{KRS_Z_ETYKIETA}']
   mocodawca[].data.nazwa:
     wzorce: ['({FIRMA})', 'pod\s+firmą\s+([^,]+?)\s*,']
   mocodawca[].data.typ:
     wzorce:
-    - {wzorzec: *krs, wartosc: osoba_prawna}
+    - {wzorzec: '{KRS_Z_ETYKIETA}', wartosc: osoba_prawna}
     - {wzorzec: 'prowadząc\w*\s+działalność\s+gospodarczą', wartosc: osoba_fizyczna}
   mocodawca[].data.imie_nazwisko:
     wzorce: [&podpisany 'niżej\s+podpisan\w*\s+({OSOBA})']
@@ -39,7 +39,7 @@ pola:
     - *podpisany
   pelnomocnicy[].imie_nazwisko:
     wzorce:
-    - '{TYTUL_PRAWNIKA}\s+({OSOBA})'
+    - '{PRAWNIK}'
     - {wzorzec: '({OSOBA})', sekcja: '{LISTA_PELNOMOCNIKOW}'}
   pelnomocnicy[].pesel:
-    wzorce: ['PESEL{ODSTEP}({PESEL})']
+    wzorce: ['{PESEL_Z_ETYKIETA}']

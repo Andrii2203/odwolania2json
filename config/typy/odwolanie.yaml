@@ -18,12 +18,15 @@ szablon:
     tytul: null}
 
 wzorce:
+  NAGLOWEK_ODWOLUJACEGO: 'Odwołujący\s*:'
   NAGLOWEK_ZAMAWIAJACEGO: 'Zamawiający(?:\s*\([^)]*\))?\s*:'
+  # Nagłówek jednego z kilku Zamawiających („<nr>) Zamawiający – Lider”), bez dwukropka.
+  PUNKT_ZAMAWIAJACEGO: '{POCZATEK_LINII}(?:\d+\)\s*)?Zamawiający\b[^\n:]*'
   # Sekcja strony: od nagłówka „Odwołujący:” albo „Zamawiający:” do następnego nagłówka (także „Wykonawca wybrany …:”).
-  KONIEC_SEKCJI: '(?={POCZATEK_LINII}(?:Odwołujący\s*:|{NAGLOWEK_ZAMAWIAJACEGO}|Wykonawca|dotyczy|ODWOŁANIE|Działając)|\Z)'
-  ODWOLUJACY: '{POCZATEK_LINII}Odwołujący\s*:[\s\S]*?{KONIEC_SEKCJI}'
+  KONIEC_SEKCJI: '(?={POCZATEK_LINII}(?:{NAGLOWEK_ODWOLUJACEGO}|{NAGLOWEK_ZAMAWIAJACEGO}|Wykonawca|dotyczy|ODWOŁANIE|Działając)|\Z)'
+  ODWOLUJACY: '{POCZATEK_LINII}{NAGLOWEK_ODWOLUJACEGO}[\s\S]*?{KONIEC_SEKCJI}'
   # Konsorcjum: dane Odwołującego to dane lidera, do nagłówka „Partner Konsorcjum:”.
-  LIDER: '{POCZATEK_LINII}Odwołujący\s*:[\s\S]*?(?:(?={POCZATEK_LINII}\d+\)\s*Partner)|{KONIEC_SEKCJI})'
+  LIDER: '{POCZATEK_LINII}{NAGLOWEK_ODWOLUJACEGO}[\s\S]*?(?:(?={POCZATEK_LINII}\d+\)\s*Partner)|{KONIEC_SEKCJI})'
   ZAMAWIAJACY: '{POCZATEK_LINII}{NAGLOWEK_ZAMAWIAJACEGO}[\s\S]*?{KONIEC_SEKCJI}'
   # Reszta linii za dwukropkiem nagłówka („Odwołujący: Asterion sp. k.”, skany UZP) albo następny wiersz.
   # Nie „Konsorcjum wykonawców …” ani „Zamawiający wspólnie …”: wtedy nazwy są w punktach niżej.
@@ -72,21 +75,21 @@ pola:
     wzorce: ['{POCZATEK_LINII}(?:Odwołujący|\d+\)\s*Lider\s+Konsorcjum)\s*{WIERSZ_ZA_NAGLOWKIEM}']
   Odwolujacy[].krs:
     sekcja: *lider
-    wzorce: [&krs 'KRS{ODSTEP}({KRS})']
+    wzorce: ['{KRS_Z_ETYKIETA}']
   Odwolujacy[].nip:
     sekcja: *lider
-    wzorce: [&nip 'NIP{ODSTEP}({NIP})']
+    wzorce: ['{NIP_Z_ETYKIETA}']
     format: cyfry
   Odwolujacy[].regon:
     sekcja: *lider
-    wzorce: [&regon 'REGON{ODSTEP}({REGON})']
+    wzorce: ['{REGON_Z_ETYKIETA}']
   Odwolujacy[].przez-pelnomocnika:
     sekcja: &odwolujacy '{ODWOLUJACY}'
     wzorce: [{wzorzec: 'reprezentowan\w*\s+przez', wartosc: tak}]
     slownik: tak_nie
   Odwolujacy[].pelnomocnik.imie_nazwisko:
     sekcja: *odwolujacy
-    wzorce: ['{TYTUL_PRAWNIKA}\s+({OSOBA})']
+    wzorce: ['{PRAWNIK}']
   Odwolujacy[].pelnomocnik.nazwa:
     sekcja: *odwolujacy
     wzorce: ['korespondencji\s*:\s*([^,]+?)(?=\s*,|\s*\n\s*(?:ul|al|pl|os)\.)']
@@ -96,21 +99,21 @@ pola:
 
   Zamawiajacy[].nazwa:
     sekcja: &zamawiajacy '{ZAMAWIAJACY}'
-    podzial: &zamawiajacy_podzial '{POCZATEK_LINII}(?:\d+\)\s*)?Zamawiający\b[^\n:]*:[ \t]*\n'
-    wzorce: ['{POCZATEK_LINII}(?:\d+\)\s*)?Zamawiający\b[^\n:]*{WIERSZ_ZA_NAGLOWKIEM}']
+    podzial: &zamawiajacy_podzial '{PUNKT_ZAMAWIAJACEGO}:[ \t]*\n'
+    wzorce: ['{PUNKT_ZAMAWIAJACEGO}{WIERSZ_ZA_NAGLOWKIEM}']
   Zamawiajacy[].krs:
     sekcja: *zamawiajacy
     podzial: *zamawiajacy_podzial
-    wzorce: [*krs]
+    wzorce: ['{KRS_Z_ETYKIETA}']
   Zamawiajacy[].nip:
     sekcja: *zamawiajacy
     podzial: *zamawiajacy_podzial
-    wzorce: [*nip]
+    wzorce: ['{NIP_Z_ETYKIETA}']
     format: cyfry
   Zamawiajacy[].regon:
     sekcja: *zamawiajacy
     podzial: *zamawiajacy_podzial
-    wzorce: [*regon]
+    wzorce: ['{REGON_Z_ETYKIETA}']
   Zamawiajacy[].prowadzacy_postepowanie:
     sekcja: *zamawiajacy
     podzial: *zamawiajacy_podzial

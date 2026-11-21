@@ -36,7 +36,7 @@ Obcy dokument (np. ogłoszenie TED) nie daje pliku.
 6. Na koniec sesji aktualizujemy `docs/STAN.md` (zrobione, dalej, pytania).
 7. W kodzie bez komentarzy; jeśli komentarz jest konieczny, po polsku. Komunikaty CLI po polsku.
 8. Małe commity z krótkim opisem po polsku: `sh tools/zapisz.sh "opis" pliki...` (commit i push).
-9. Wszystkie liczby (progi, limity, okna, czasy, DPI) tylko w `config/ustawienia.yaml`, każda z komentarzem, skąd się wzięła: standard albo pomiar `tools/przeglad.py`. W plikach typów i w kodzie liczb nie ma (test T5, ADR-0009).
+9. Wszystkie liczby (progi, limity, okna, czasy, DPI) tylko w `config/ustawienia.yaml`, każda z komentarzem, skąd się wzięła: standard albo reguła wyboru z poleceniem `tools/przeglad.py` (bez wyników pomiaru, bo się starzeją). W plikach typów i w kodzie liczb nie ma (test T5, ADR-0009).
 
 ## Automatyczne straże
 

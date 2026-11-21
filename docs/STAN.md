@@ -14,7 +14,8 @@ Aktualizacja: 2026-11-21 wieczór, Claude (OCR, T9).
 - Zgłoszenie w HackTribe: szkic zapisany.
 - ADR-0009 (też `tools/` i `tests/`, sekcja `narzedzia`; hooki Claude blokują przez JSON, nie kod 2): jeden mechanizm pól (`wzorce`, `etykiety` to skrót), formaty wartości w YAML. Wszystkie liczby w `config/ustawienia.yaml` z pochodzeniem (pomiar `tools/przeglad.py`); pilnuje test T5. Wynik 180 JSON bajt w bajt bez zmian.
 - OCR (ADR-0007, test T9): strona z tekstem krótszym niż `MIN_ZNAKOW_STRONY` idzie przez `pypdfium2` i RapidOCR (modele w wheel, bez sieci). Skany UZP: F1 0 -> **0.8696** (30 dokumentów, 30/30 typów, 150 DPI), ok. 3,5 s na stronę. Nowe reguły (układ skanów, `warianty_liter`, `poprawki_ocr`, `sekcja` przy wzorcu, PESEL) podniosły też dane treningowe do **0.9990**.
-- Odporność: błąd w jednym PDF nie zatrzymuje pozostałych (T7, CLI kończy kodem 1). Próg F1 `MIN_F1 = 0.998` w `ustawienia.yaml` pilnuje test T8 (zepsuta reguła NIP daje 0.967, test czerwony).
+- Odporność: błąd w jednym PDF nie zatrzymuje pozostałych (T7, CLI kończy kodem 1). Próg F1 `MIN_F1 = 0.9985` w `ustawienia.yaml` pilnuje test T8: przepuszcza jedno błędne pole, blokuje dwa (zepsuta reguła NIP daje 0.967, test czerwony).
+- Porządki (wieczór 21.11): komentarze liczb bez wyników pomiaru, tylko reguła wyboru i polecenie (ADR-0009 pkt 8); ponowny pomiar `tools/przeglad.py`: wszystkie 5 liczb nadal spełnia swoją regułę. Wspólne fragmenty `NIP_Z_ETYKIETA`, `KRS_Z_ETYKIETA`, `REGON_Z_ETYKIETA`, `PESEL_Z_ETYKIETA`, `PRAWNIK`, `PUNKT_ZAMAWIAJACEGO`, `NAGLOWEK_ODWOLUJACEGO`; ścieżki `UZP`, `DANE` tylko w `tools/ocena_f1.py`; `start.bat`/`gui.bat` najpierw Python 3.13. Wynik 210 JSON bajt w bajt bez zmian.
 - Straże: pre-commit (testy, język polski), hooki Claude (TDD, stop), CI na Windows (`.github/workflows/testy.yml`, ostatni przebieg zielony). Opis w `AGENTS.md`.
 - Klucz OVHcloud działa (`chat/completions`, test 16 tokenów). `GET /v1/models` z kluczem zwraca 403; to cecha OVH, nie błąd klucza.
 - Argon (szczegóły w `docs/badania/`):
@@ -37,7 +38,6 @@ Aktualizacja: 2026-11-21 wieczór, Claude (OCR, T9).
 | Kiedy | Kto | Co |
 |---|---|---|
 | sb noc | Claude | Skany: podpisujący i nazwa mocodawcy, tytuły przelewów; potem klient LLM (OVHcloud) z limitem tokenów dla pól `null` |
-| sb noc | Claude | Porządki z przeglądu (dla użytkownika): podwójny regex nagłówka Zamawiającego, wspólne wzorce NIP/KRS/TYTUL, `data/uzp/dane` w jednym miejscu, wersja Pythona w `start.bat` |
 | nd 7:00-9:30 | [Argon] | Prezentacja PDF <= 10 MB wg ADR-0006; `README.md` po polsku |
 | nd przed 11:00 | Użytkownik | Repozytorium publiczne (jury musi je otworzyć); `.env` poza git |
 | nd 9:30-10:30 | Claude + Użytkownik | Finalny pomiar F1, `start.bat` na czystym katalogu, plik z kluczem dla jury, oddanie |

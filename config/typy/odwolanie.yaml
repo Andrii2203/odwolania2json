@@ -25,11 +25,15 @@ wzorce:
   # Konsorcjum: dane Odwołującego to dane lidera, do nagłówka „Partner Konsorcjum:”.
   LIDER: '{POCZATEK_LINII}Odwołujący\s*:[\s\S]*?(?:(?={POCZATEK_LINII}\d+\)\s*Partner)|{KONIEC_SEKCJI})'
   ZAMAWIAJACY: '{POCZATEK_LINII}{NAGLOWEK_ZAMAWIAJACEGO}[\s\S]*?{KONIEC_SEKCJI}'
-  # Wiersz za nagłówkiem zakończonym dwukropkiem.
-  WIERSZ_ZA_NAGLOWKIEM: ':[ \t]*\n[ \t]*([^\n]+)'
-  # Pierwsza zaskarżona czynność: „Zamawiający w dniu … roku <czynność>” albo pierwszy punkt listy po „polegających na:”.
+  # Reszta linii za dwukropkiem nagłówka („Odwołujący: Asterion sp. k.”, skany UZP) albo następny wiersz.
+  # Nie „Konsorcjum wykonawców …” ani „Zamawiający wspólnie …”: wtedy nazwy są w punktach niżej.
+  WIERSZ_ZA_NAGLOWKIEM: ':[ \t]*(?:\n[ \t]*)?(?!\s|Konsorcj|Zamawiaj)([^\n]+)'
+  # Pierwsza zaskarżona czynność: „Zamawiający w dniu … roku <czynność>”, pierwszy punkt listy po „polegających na:”
+  # albo po „wnoszę odwołanie wobec:” („<nr>. czynności Zamawiającego polegającej na odrzuceniu …”, skany UZP).
   PIERWSZY_PUNKT: 'polegając\w*\s+na:?(?:\s+Strona[^\n]*)?\s+\d+\)'
-  CZYNNOSC: '(?:Zamawiający\s+w\s+dniu\s+{DATA}\s+(?:roku|r\.)|{PIERWSZY_PUNKT})\s+'
+  # Między „wobec:” a punktem bywa stopka strony.
+  WOBEC: 'wobec:{PO_ETYKIECIE}{POCZATEK_LINII}\d+\.(?:\s+czynności(?:\s+Zamawiającego\s+polegając\w*\s+na)?)?'
+  CZYNNOSC: '(?:Zamawiający\s+w\s+dniu\s+{DATA}\s+(?:roku|r\.)|{PIERWSZY_PUNKT}|{WOBEC})\s+'
   # Nagłówek pisma w jednej linii: „Kraków, dnia <data>”, „Kraków <data>”.
   PRZED_DATA: ',?[ \t]+(?:dnia[ \t]+)?'
   ETYKIETA_BZP: '(?:o\s+zamówieniu|BZP|Zamówień\s+Publicznych)[\s:]*(?:w\s+BZP[\s:]*)?(?:nr\s+)?'
@@ -42,21 +46,22 @@ pola:
   OdwolanieKIO.miejscowosc:
     wzorce: ['{POCZATEK_LINII}({MIEJSCOWOSC}){PRZED_DATA}{DATA}']
   OdwolanieKIO.czynnosc_dzien:
-    wzorce: ['Zamawiający\s+w\s+dniu\s+({DATA})', '{PIERWSZY_PUNKT}[^;]*?({DATA})']
+    wzorce: ['Zamawiający\s+w\s+dniu\s+({DATA})', '{PIERWSZY_PUNKT}[^;]*?({DATA})', 'wobec:[^;]*?({DATA})',
+             'czynności\s+został\w*\s+[^.;]*?w\s+dniu\s+({DATA})']
     format: data
   OdwolanieKIO.czynnosc_opis:
     wzorce: &czynnosci
     - {wzorzec: '{CZYNNOSC}(?:poinformował\w*\s+o\s+)?odrzuceni\w*\s+oferty', wartosc: Decyzja o odrzuceniu oferty}
     - {wzorzec: '{CZYNNOSC}(?:ogłosił\w*\s+)?wyb[oó]r', wartosc: Ogłoszenie wyboru oferty}
     - {wzorzec: '{CZYNNOSC}(?:poinformował\w*\s+o\s+)?wykluczeni', wartosc: Decyzja o wykluczeniu wykonawcy}
-    - {wzorzec: '{CZYNNOSC}(?:opublikował\w*|ustaleniu\s+treści)\s+Specyfikacj', wartosc: Publikacja specyfikacji warunków zamówienia (SWZ)}
+    - {wzorzec: '{CZYNNOSC}(?:opublikował\w*|ustaleniu\s+treści|treści)\s+Specyfikacj', wartosc: Publikacja specyfikacji warunków zamówienia (SWZ)}
     - {wzorzec: '{CZYNNOSC}(?:zmodyfikował\w*|modyfikacji)\s+treś', wartosc: Modyfikacja treści SWZ}
     - {wzorzec: '{CZYNNOSC}(?:przekazał\w*\s+wykonawcom\s+)?(?:odpowiedzi|udzieleniu)', wartosc: Odpowiedzi/wyjaśnienia do SWZ}
-    - {wzorzec: '{CZYNNOSC}(?:nie\s+odrzucił|zaniechaniu\s+odrzucenia)', wartosc: Zaniechanie odrzucenia oferty}
-    - {wzorzec: '{CZYNNOSC}(?:nie\s+wykluczył|zaniechaniu\s+wykluczenia)', wartosc: Zaniechanie wykluczenia wykonawcy}
+    - {wzorzec: '{CZYNNOSC}(?:nie\s+odrzucił|zaniechani\w*\s+odrzucenia)', wartosc: Zaniechanie odrzucenia oferty}
+    - {wzorzec: '{CZYNNOSC}(?:nie\s+wykluczył|zaniechani\w*\s+wykluczenia)', wartosc: Zaniechanie wykluczenia wykonawcy}
     - {wzorzec: '{CZYNNOSC}unieważni', wartosc: Decyzja o unieważnieniu postępowania}
     - {wzorzec: '{CZYNNOSC}zaniecha\w*\s+unieważnienia', wartosc: Zaniechanie unieważnienia postępowania}
-    - {wzorzec: '{CZYNNOSC}(?:udostępnił\w*\s+Opis|opisaniu)\s+[Pp]rzedmiotu', wartosc: Opis przedmiotu zamówienia (OPZ)}
+    - {wzorzec: '{CZYNNOSC}(?:udostępnił\w*\s+Opis|opisaniu|opisu)\s+[Pp]rzedmiotu', wartosc: Opis przedmiotu zamówienia (OPZ)}
     - {wzorzec: '{CZYNNOSC}[^;.]*?projektowan\w*\s+postanowie', wartosc: Projektowane postanowienia umowy}
   OdwolanieKIO.czynnosc_powod_id:
     wzorce: *czynnosci
@@ -84,7 +89,7 @@ pola:
     wzorce: ['{TYTUL_PRAWNIKA}\s+({OSOBA})']
   Odwolujacy[].pelnomocnik.nazwa:
     sekcja: *odwolujacy
-    wzorce: ['korespondencji\s*:\s*([^,]+)']
+    wzorce: ['korespondencji\s*:\s*([^,]+?)(?=\s*,|\s*\n\s*(?:ul|al|pl|os)\.)']
   Odwolujacy[].pelnomocnik.mail:
     sekcja: *odwolujacy
     wzorce: ['korespondencji[\s\S]*?({EMAIL})']
@@ -115,7 +120,7 @@ pola:
     slownik: tak_nie
 
   ZamowieniePubliczne.tytul:
-    wzorce: ['pn\.\s*„([^”]+)”']
+    wzorce: ['pn\.\s*„?([^”"]+)[”"]']
   ZamowieniePubliczne.numer_postepowania:
     wzorce: ['(?i:nr|numer)\s+referencyjn\w*(?:\s+sprawy)?\s*:?\s*({SYGNATURA})']
   ZamowieniePubliczne.numer_bzp:

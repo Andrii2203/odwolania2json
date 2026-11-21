@@ -52,7 +52,9 @@ Obcy dokument (np. ogłoszenie TED) nie daje pliku.
 | Ścieżka | Co |
 |---|---|
 | `odwolania2json/` | kod; CLI: `python -m odwolania2json` |
-| `config/typy/*.yaml` | typ dokumentu: `znaczniki` (klasyfikacja), `szablon` (kształt JSON), `pola` (`etykiety`, `wzorce`, `format`, `sekcja`, `slownik`, `podzial`), `wzorce` (fragmenty typu). Nowy typ to nowy plik YAML |
+| `config/typy/*.yaml` | typ dokumentu: `znaczniki` (klasyfikacja), `szablon` (kształt JSON), `pola` (`etykiety`, `wzorce` z opcjonalnymi `wartosc` i `sekcja`, `format`, `sekcja`, `slownik`, `podzial`), `wzorce` (fragmenty typu). Nowy typ to nowy plik YAML |
+| `config/ustawienia.yaml` | wszystkie liczby, wspólne wzorce, słowniki; dla OCR `warianty_liter` (ł pasuje też do l) i `poprawki_ocr` |
+| `odwolania2json/ocr.py` | strona bez tekstu: render (`pypdfium2`), RapidOCR, ramki w wiersze (ADR-0007) |
 | `tests/` | testy z `docs/testy.md` |
 | `tools/ocena_f1.py` | F1 na 60 sprawach treningowych (ADR-0003) |
 | `tools/przeglad.py` | F1 dla kilku wartości jednej liczby z `config/ustawienia.yaml` (pochodzenie liczb) |
@@ -67,6 +69,7 @@ git clone https://github.com/Urzad-Zamowien-Publicznych/hacknation-2026 data/uzp
 start.bat                                  # input\ -> output\
 .venv\Scripts\python -m pytest -q          # testy
 .venv\Scripts\python tools\ocena_f1.py     # F1 i najgorsze pola
+.venv\Scripts\python tools\ocena_f1.py --dane data\uzp\dane\skany\potwierdzenia data\uzp\dane\skany\pelnomocnictwa data\uzp\dane\skany\odwolania   # skany, ok. 4 min
 .venv\Scripts\python tools\przeglad.py OKNO_WARTOSCI 60 120 240   # F1 dla kilku wartości
 ```
 

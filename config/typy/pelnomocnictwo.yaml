@@ -10,6 +10,13 @@ szablon:
     - {imie_nazwisko: null}
   pelnomocnicy:
   - {imie_nazwisko: null, pesel: null}
+wzorce:
+  # Funkcja osoby, która podpisuje w imieniu mocodawcy („Szymon Brzozowski - Wiceprezes Zarządu”, skany UZP).
+  FUNKCJA: '(?:Prezes|Wiceprezes|Członek|Prokurent|Dyrektor|Wspólnik|Właściciel)'
+  # Lista pełnomocników bez tytułów: od „udziela pełnomocnictwa:” do „do reprezentowania” (skany UZP:
+  # „X (adwokat, …) oraz Y (radca prawny, …)”, „<nr>. X – radca prawny”, imię i nazwisko w osobnych liniach).
+  LISTA_PELNOMOCNIKOW: 'udziel\w*\s+pełnomocnictw\w*\s*:[\s\S]*?(?=do\s+reprezentowania)'
+
 pola:
   mocodawca[].data.nip:
     format: cyfry
@@ -27,7 +34,12 @@ pola:
   mocodawca[].podpisujacy[].imie_nazwisko:
     podzial: '{POCZATEK_LINII}W imieniu'
     wzorce:
-    - '{POCZATEK_LINII}({OSOBA})[ \t]*\n[ \t]*(?:Prezes|Wiceprezes|Członek|Prokurent|Dyrektor|Wspólnik|Właściciel)'
+    - '{POCZATEK_LINII}({OSOBA})[ \t]*\n[ \t]*{FUNKCJA}'
+    - '({OSOBA})\s*[-–]\s*{FUNKCJA}'
     - *podpisany
   pelnomocnicy[].imie_nazwisko:
-    wzorce: ['{TYTUL_PRAWNIKA}\s+({OSOBA})']
+    wzorce:
+    - '{TYTUL_PRAWNIKA}\s+({OSOBA})'
+    - {wzorzec: '({OSOBA})', sekcja: '{LISTA_PELNOMOCNIKOW}'}
+  pelnomocnicy[].pesel:
+    wzorce: ['PESEL{ODSTEP}({PESEL})']

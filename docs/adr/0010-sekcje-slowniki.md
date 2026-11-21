@@ -21,6 +21,7 @@ Zmiany w zachowaniu:
 - Pole bez `[]` bierze pierwsze trafienie w tekście, a nie trafienie pierwszego wzorca. Wynik przelewu i pełnomocnictwa bez zmian (F1 0.5711 przed i po).
 - Powtórzenia pomijamy po sortowaniu według pozycji, więc zostaje najwcześniejsze trafienie.
 - W elemencie listy zostaje pierwsza wartość pola, kolejne trafienia go nie nadpisują.
+- Dopisane 2026-11-21 (skany, ADR-0007): `sekcja` może stać też przy jednym wzorcu (`{wzorzec: …, sekcja: …}`) i wtedy dotyczy tylko jego. Pełnomocnicy: `adw. X` w całym tekście albo dowolne imię i nazwisko na liście „udziela pełnomocnictwa: … do reprezentowania”.
 
 ## Konsekwencje
 

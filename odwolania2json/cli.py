@@ -18,9 +18,9 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
     konsola_utf8()
 
-    typy, wciecie = wczytaj_typy(args.config), ustawienia(args.config)["liczby"]["WCIECIE_JSON"]
+    typy, ust = wczytaj_typy(args.config), ustawienia(args.config)
     bledy = 0
-    for pdf, wynik, blad in przetworz_wszystkie(sorted(args.input.rglob("*.pdf")), typy):
+    for pdf, wynik, blad in przetworz_wszystkie(sorted(args.input.rglob("*.pdf")), typy, ust):
         wzgledna = pdf.relative_to(args.input)
         if blad is not None:
             bledy += 1
@@ -32,7 +32,7 @@ def main(argv: list[str] | None = None) -> int:
         typ, dane = wynik
         cel = args.output / wzgledna.with_suffix(".json")
         cel.parent.mkdir(parents=True, exist_ok=True)
-        cel.write_text(json.dumps(dane, ensure_ascii=False, indent=wciecie), encoding="utf-8")
+        cel.write_text(json.dumps(dane, ensure_ascii=False, indent=ust["liczby"]["WCIECIE_JSON"]), encoding="utf-8")
         print(f"{wzgledna} → {typ}")
     if bledy:
         print(f"Błędy: {bledy}. Pozostałe pliki zapisane.")

@@ -36,9 +36,12 @@ def _etykiety(etykiety: list[str]) -> str:
     return r"(?i:(?<!\w)(?:" + "|".join(r"\s+".join(map(re.escape, e.split())) for e in etykiety) + r")(?!\w))"
 
 
-def _rozwin(wzorzec: str, fragmenty: dict) -> re.Pattern:
+def _rozwin(wzorzec: str, fragmenty: dict, warianty: dict) -> re.Pattern:
     while (nowy := re.sub(r"\{([A-Z_]+)\}", lambda m: fragmenty.get(m[1], m[0]), wzorzec)) != wzorzec:
         wzorzec = nowy
+    # poza klasami [...] litera z polskim znakiem pasuje też do tego, co z niej robi OCR: „ł” -> „[łlt]”
+    wzorzec = re.sub(r"\\.|\[(?:\\.|[^\]\\])*\]|.", lambda m: f"[{m[0]}{warianty[m[0]]}]" if m[0] in warianty else m[0],
+                     wzorzec, flags=re.DOTALL)
     return re.compile(wzorzec, re.MULTILINE)
 
 
@@ -50,14 +53,17 @@ def _wartosc(format_, slownik: dict | None, m: re.Match, surowe: str, stala: str
 def przygotuj(pola: dict, ust: dict, fragmenty_typu: dict) -> None:
     wspolne = {**{k: str(v) for k, v in ust["liczby"].items()}, **ust["wzorce"], **fragmenty_typu,
                "MIESIAC": "|".join(ust["miesiace"])}
+    warianty = {**ust["warianty_liter"], **{k.upper(): v.upper() for k, v in ust["warianty_liter"].items()}}
     for spec in pola.values():
         stopy = [e for s in pola.values() if s is not spec for e in s.get("etykiety", [])] + spec.get("stop", [])
         fragmenty = {**wspolne, "STOP": _etykiety(stopy) if stopy else "(?!)"}
         przedrostki = [_etykiety([e]) + "{PO_ETYKIECIE}" for e in spec["etykiety"]] if "etykiety" in spec else [""]
         wzorce = [w if isinstance(w, dict) else {"wzorzec": w} for w in spec["wzorce"]]
-        spec["_wzorce"] = [(_rozwin(p + w["wzorzec"], fragmenty), w.get("wartosc")) for p in przedrostki for w in wzorce]
-        spec["_podzial"] = _rozwin(spec["podzial"], fragmenty) if "podzial" in spec else None
-        spec["_sekcja"] = _rozwin(spec["sekcja"], fragmenty) if "sekcja" in spec else None
+        sekcja = _rozwin(spec["sekcja"], fragmenty, warianty) if "sekcja" in spec else None
+        spec["_wzorce"] = [(_rozwin(p + w["wzorzec"], fragmenty, warianty), w.get("wartosc"),
+                            _rozwin(w["sekcja"], fragmenty, warianty) if "sekcja" in w else sekcja)
+                           for p in przedrostki for w in wzorce]
+        spec["_podzial"] = _rozwin(spec["podzial"], fragmenty, warianty) if "podzial" in spec else None
         format_ = partial(FORMATY[spec["format"]], ust) if "format" in spec else str
         spec["_wartosc"] = partial(_wartosc, format_, ust["slowniki"][spec["slownik"]] if "slownik" in spec else None)
 
@@ -83,9 +89,12 @@ def _wez(obiekt, sciezka: str):
     return obiekt
 
 
+def _zakresy(sekcja: re.Pattern | None, tekst: str) -> list[tuple[int, int]]:
+    return [m.span() for m in sekcja.finditer(tekst)] if sekcja else [(0, len(tekst))]
+
+
 def trafienia(tekst: str, spec: dict) -> list[tuple[int, object]]:
-    zakresy = [m.span() for m in spec["_sekcja"].finditer(tekst)] if spec["_sekcja"] else [(0, len(tekst))]
-    trafione = sorted(((m, stala) for wzorzec, stala in spec["_wzorce"] for od, do in zakresy
+    trafione = sorted(((m, stala) for wzorzec, stala, sekcja in spec["_wzorce"] for od, do in _zakresy(sekcja, tekst)
                        for m in wzorzec.finditer(tekst, od, do)), key=lambda t: t[0].start())
     wyniki, widziane = [], set()
     for m, stala in trafione:

@@ -16,11 +16,11 @@ pola:
     wzorce: ['({KWOTA})']
     format: liczba
   przelew_bankowy.z_rachunku:
-    etykiety: [rachunek obciążany, z rachunku, rachunek zleceniodawcy, rachunek nadawcy, rachunek płatnika, rachunek źródłowy, zleceniodawca, płatnik, nadawca]
+    etykiety: [rachunek obciążany, z rachunku, rachunek zleceniodawcy, rachunek nadawcy, rachunek płatnika, rachunek źródłowy, zleceniodawca, płatnik, nadawca, dane nadawcy, dane zleceniodawcy]
     wzorce: ['({RACHUNEK})']
     format: cyfry
   przelew_bankowy.na_rachunek:
-    etykiety: [rachunek odbiorcy, na rachunek, rachunek uznawany, rachunek adresata, rachunek beneficjenta, rachunek docelowy, beneficjent, odbiorca, adresat]
+    etykiety: [rachunek odbiorcy, na rachunek, rachunek uznawany, rachunek adresata, rachunek beneficjenta, rachunek docelowy, beneficjent, odbiorca, adresat, dane odbiorcy, dane kontrahenta, rachunek kontrahenta]
     wzorce: ['({RACHUNEK})']
     format: cyfry
   przelew_bankowy.numer_transakcji:
@@ -30,4 +30,4 @@ pola:
     etykiety: [tytuł przelewu, tytułem, tytuł, opis]
     wzorce: ['({TEKST})']
     format: tekst
-    stop: [status, waluta, opłata/prowizja, prowizja]
+    stop: [status, waluta, opłata/prowizja, prowizja, typ transakcji]

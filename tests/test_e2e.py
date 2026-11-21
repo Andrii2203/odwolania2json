@@ -68,6 +68,16 @@ def test_t7_blad_jednego_dokumentu(tmp_path):
 
 
 def test_t8_f1_nie_spada():
-    f1, *_ = ocena(UZP / "dane", wczytaj_typy())
+    f1, *_ = ocena([UZP / "dane"], wczytaj_typy(), ustawienia())
 
     assert f1 >= ustawienia()["narzedzia"]["MIN_F1"]
+
+
+def test_t9_skany(tmp_path):
+    for typ in ("potwierdzenia", "pelnomocnictwa", "odwolania"):
+        shutil.copytree(UZP / "dane" / "skany" / typ / "0001", tmp_path / typ)
+
+    f1, _, _, licznik = ocena([tmp_path], wczytaj_typy(), ustawienia())
+
+    assert licznik["trafione_typy"] == licznik["dokumenty"]
+    assert f1 >= ustawienia()["narzedzia"]["MIN_F1_SKANY"]

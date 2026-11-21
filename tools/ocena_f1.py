@@ -10,6 +10,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from odwolania2json.cli import konsola_utf8
 from odwolania2json.pipeline import KONFIG, ROOT, przetworz_wszystkie, ustawienia, wczytaj_typy
 
+DANE = ROOT / "data" / "uzp" / "dane"
+
 
 def liscie(v, sciezka=""):
     if isinstance(v, dict):
@@ -37,7 +39,7 @@ def porownaj(wzor, nasz):
             yield sciezka, "FP"
 
 
-def ocena(dane: Path, typy: list[dict]) -> tuple[float, Counter, Counter, Counter]:
+def ocena(katalogi: list[Path], typy: list[dict], ust: dict) -> tuple[float, Counter, Counter, Counter]:
     typ_wzoru = {frozenset(t["szablon"]): t["typ"] for t in typy}
     suma, pola, licznik = Counter(), Counter(), Counter()
 
@@ -46,9 +48,9 @@ def ocena(dane: Path, typy: list[dict]) -> tuple[float, Counter, Counter, Counte
             suma[wynik] += 1
             pola[(typ, re.sub(r"\[\d+\]", "[]", sciezka), wynik)] += 1
 
-    for sprawa in sorted(p for p in dane.iterdir() if p.is_dir()):
+    for sprawa in sorted(p for dane in katalogi for p in dane.iterdir() if p.is_dir()):
         nasze = {}
-        for _, wynik, blad in przetworz_wszystkie(sorted(sprawa.glob("*.pdf")), typy):
+        for _, wynik, blad in przetworz_wszystkie(sorted(sprawa.glob("*.pdf")), typy, ust):
             licznik["bledy"] += blad is not None
             if wynik:
                 nasze.setdefault(wynik[0], []).append(wynik[1])
@@ -75,15 +77,16 @@ def ocena(dane: Path, typy: list[dict]) -> tuple[float, Counter, Counter, Counte
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="F1 na danych treningowych UZP (ADR-0003)")
-    ap.add_argument("--dane", type=Path, default=ROOT / "data" / "uzp" / "dane")
+    ap.add_argument("--dane", type=Path, nargs="+", default=[DANE], help="katalogi ze sprawami (np. skany: dane/skany/*)")
     ap.add_argument("--config", type=Path, default=KONFIG)
     ap.add_argument("--bez-pol", action="store_true", help="tylko wynik, bez listy pól z błędami")
     args = ap.parse_args()
     konsola_utf8()
 
-    f1, suma, pola, licznik = ocena(args.dane, wczytaj_typy(args.config))
+    ust = ustawienia(args.config)
+    f1, suma, pola, licznik = ocena(args.dane, wczytaj_typy(args.config), ust)
     tp, fp, fn = suma["TP"], suma["FP"], suma["FN"]
-    miejsca = ustawienia(args.config)["narzedzia"]["MIEJSCA_F1"]
+    miejsca = ust["narzedzia"]["MIEJSCA_F1"]
     print(f"Dokumenty: {licznik['dokumenty']} | typ poprawny: {licznik['trafione_typy']}/{licznik['dokumenty']}")
     print(f"Obce dokumenty z JSON: {licznik['obce_z_json']}/{licznik['obce']}")
     if licznik["bledy"]:

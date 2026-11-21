@@ -5,6 +5,7 @@ from pathlib import Path
 import yaml
 from pypdf import PdfReader
 
+from .ocr import tekst_skanu
 from .pola import przygotuj, pusty, wypelnij
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -30,31 +31,33 @@ def wczytaj_typy(config: Path = KONFIG) -> list[dict]:
     return typy
 
 
-def tekst_pdf(pdf: Path) -> str:
-    try:
-        return "\n".join(strona.extract_text() or "" for strona in PdfReader(pdf).pages)
-    except Exception:
-        return ""
+def tekst_pdf(pdf: Path, ust: dict) -> str:
+    strony = [strona.extract_text() or "" for strona in PdfReader(pdf).pages]
+    skany = [nr for nr, tekst in enumerate(strony) if len(tekst.strip()) < ust["liczby"]["MIN_ZNAKOW_STRONY"]]
+    for nr, tekst in zip(skany, tekst_skanu(pdf, skany, ust) if skany else []):
+        strony[nr] = tekst
+    return "\n".join(strony)
 
 
-def _scisnij(s: str) -> str:
-    # „P E Ł N O M O C N I C T W O” → „pełnomocnictwo”
-    return re.sub(r"\s+", "", s).lower()
+def _scisnij(s: str, bez_znakow: dict) -> str:
+    # „P E Ł N O M O C N I C T W O” → „pelnomocnictwo”; bez polskich znaków, bo OCR je gubi
+    return re.sub(r"\s+", "", s).lower().translate(bez_znakow)
 
 
-def _jest(znacznik: str | list[str], plaski: str) -> bool:
+def _jest(znacznik: str | list[str], plaski: str, bez_znakow: dict) -> bool:
     warianty = znacznik if isinstance(znacznik, list) else [znacznik]
-    return any(_scisnij(w) in plaski for w in warianty)
+    return any(_scisnij(w, bez_znakow) in plaski for w in warianty)
 
 
-def klasyfikuj(tekst: str, typy: list[dict]) -> dict | None:
-    plaski = _scisnij(tekst)
+def klasyfikuj(tekst: str, typy: list[dict], ust: dict) -> dict | None:
+    bez_znakow = str.maketrans({litera: zamiany[0] for litera, zamiany in ust["warianty_liter"].items()})
+    plaski = _scisnij(tekst, bez_znakow)
     najlepszy, najlepszy_wynik = None, 0.0
     for t in typy:
-        if any(_jest(w, plaski) for w in t["wykluczenia"]):
+        if any(_jest(w, plaski, bez_znakow) for w in t["wykluczenia"]):
             continue
         znaczniki = t["znaczniki"]
-        wynik = sum(_jest(z, plaski) for z in znaczniki) / len(znaczniki)
+        wynik = sum(_jest(z, plaski, bez_znakow) for z in znaczniki) / len(znaczniki)
         if wynik > najlepszy_wynik:
             najlepszy, najlepszy_wynik = t, wynik
     return najlepszy if najlepszy is not None and najlepszy_wynik >= najlepszy["prog"] else None
@@ -67,15 +70,15 @@ def wyciagnij(tekst: str, typ: dict) -> dict:
     return wynik
 
 
-def przetworz(pdf: Path, typy: list[dict]) -> tuple[str, dict] | None:
-    tekst = tekst_pdf(pdf)
-    typ = klasyfikuj(tekst, typy)
+def przetworz(pdf: Path, typy: list[dict], ust: dict) -> tuple[str, dict] | None:
+    tekst = tekst_pdf(pdf, ust)
+    typ = klasyfikuj(tekst, typy, ust)
     return None if typ is None else (typ["typ"], wyciagnij(tekst, typ))
 
 
-def przetworz_wszystkie(pdfy: Iterable[Path], typy: list[dict]) -> Iterator[tuple[Path, tuple[str, dict] | None, Exception | None]]:
+def przetworz_wszystkie(pdfy: Iterable[Path], typy: list[dict], ust: dict) -> Iterator[tuple[Path, tuple[str, dict] | None, Exception | None]]:
     for pdf in pdfy:
         try:
-            yield pdf, przetworz(pdf, typy), None
+            yield pdf, przetworz(pdf, typy, ust), None
         except Exception as blad:
             yield pdf, None, blad

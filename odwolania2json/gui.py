@@ -6,7 +6,7 @@ import pypdfium2 as pdfium
 import streamlit as st
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from odwolania2json.pipeline import przetworz_wszystkie, wczytaj_typy
+from odwolania2json.pipeline import przetworz_wszystkie, ustawienia, wczytaj_typy
 
 
 def obrazy_stron(pdf: Path) -> list:
@@ -21,7 +21,7 @@ def main() -> None:
     st.set_page_config(page_title="Odwołania2JSON", layout="wide")
     st.title("Odwołania2JSON")
 
-    typy = wczytaj_typy()
+    typy, ust = wczytaj_typy(), ustawienia()
     pliki = st.file_uploader(
         "Wgraj jeden lub kilka plików PDF",
         type=["pdf"],
@@ -40,7 +40,7 @@ def main() -> None:
             st.subheader(plik.name)
             with st.spinner(f"Przetwarzanie pliku {plik.name}..."):
                 obrazy = obrazy_stron(sciezka)
-                _, wynik, blad = next(przetworz_wszystkie([sciezka], typy))
+                _, wynik, blad = next(przetworz_wszystkie([sciezka], typy, ust))
 
             lewa, prawa = st.columns([1, 1])
 

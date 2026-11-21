@@ -134,6 +134,20 @@ zmiana reguły psuje 2 pola  -> F1 = 0.9976 < 0.998 -> test czerwony, commit zab
 - Sprawdza: żadna zmiana (OCR, LLM, nowe reguły) nie obniża jakości po cichu. Świadome obniżenie progu to zmiana `MIN_F1` z nowym pomiarem w komentarzu.
 - Test: `tests/test_e2e.py::test_t8_f1_nie_spada`
 
+## T9. Skan bez warstwy tekstu daje JSON (OCR)
+
+```
+skany/potwierdzenia/0001/0001.pdf   (1 strona, sam obraz; pypdf daje 0 znaków)
+  -> OCR -> typ przelew, "kwota": 7500.0, "data_operacji": "2026-09-11", "numer_transakcji": "CEN9057564440515"
+skany/pelnomocnictwa/0001/0001.pdf  -> typ pelnomocnictwo
+skany/odwolania/0001/0001.pdf       (5 stron) -> typ odwolanie
+3 typy poprawne, F1 tych 3 dokumentów >= narzedzia.MIN_F1_SKANY
+```
+
+- Dane: `data/uzp/dane/skany/<typ>/0001/` (PDF i wzorzec JSON), pierwszy skan każdego typu. Wszystkie 30 skanów to ok. 4 min (OCR ok. 3,5 s na stronę), za długo na każdy commit. Pełny pomiar: `tools/ocena_f1.py --dane data/uzp/dane/skany/potwierdzenia data/uzp/dane/skany/pelnomocnictwa data/uzp/dane/skany/odwolania`.
+- Sprawdza: strona z tekstem krótszym niż `MIN_ZNAKOW_STRONY` idzie do OCR (`pypdfium2` + RapidOCR, ADR-0007); ramki OCR składane w wiersze mimo przekrzywienia skanu; typ i pola z tych samych reguł YAML co dla PDF cyfrowych; litery bez polskich znaków (`warianty_liter`) w klasyfikacji i wzorcach; `sekcja` przy jednym wzorcu (lista pełnomocników bez tytułów).
+- Test: `tests/test_e2e.py::test_t9_skany`
+
 ## Pomiar jakości (to nie jest test)
 
 `tools/ocena_f1.py` przepuszcza wszystkie 60 spraw treningowych przez CLI i liczy F1 według ADR-0003. Przykładowy wynik:

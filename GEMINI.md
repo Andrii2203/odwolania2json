@@ -1,6 +1,6 @@
 # Gemini (Argon)
 
-Увесь контекст проєкту — у `AGENTS.md`. Прочитай його перед будь-якою роботою.
-Твої задачі — пункти з позначкою `[Argon]` у `docs/STAN.md`.
+Cały kontekst projektu jest w `AGENTS.md`. Przeczytaj go przed każdą pracą.
+Twoje zadania to punkty oznaczone `[Argon]` w `docs/STAN.md`.
 
 @AGENTS.md

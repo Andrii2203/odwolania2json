@@ -20,7 +20,8 @@ def run_cli(inp: Path, out: Path) -> None:
 
 
 def test_t1_sprawa_trzy_dokumenty(tmp_path):
-    shutil.copytree(UZP / "dane", tmp_path / "input", ignore=shutil.ignore_patterns("*.json"))
+    for case in sorted((UZP / "dane").glob("przyklad_*")):
+        shutil.copytree(case, tmp_path / "input" / case.name, ignore=shutil.ignore_patterns("*.json"))
 
     run_cli(tmp_path / "input", tmp_path / "output")
 
@@ -39,10 +40,10 @@ def test_t1_sprawa_trzy_dokumenty(tmp_path):
 
 
 def test_t2_obcy_dokument(tmp_path):
-    case = tmp_path / "input" / "case1"
-    case.mkdir(parents=True)
+    case = tmp_path / "input" / "negatywne"
+    shutil.copytree(UZP / "dane" / "negatywne", case, ignore=shutil.ignore_patterns("*.md"))
     shutil.copy(UZP / "szablon-aplikacja" / "input" / "case1" / "negatywny przyklad.pdf", case)
 
     run_cli(tmp_path / "input", tmp_path / "output")
 
-    assert not list((tmp_path / "output").rglob("*.json"))
+    assert sorted(p.name for p in (tmp_path / "output").rglob("*.json")) == []

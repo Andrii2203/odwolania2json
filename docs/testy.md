@@ -12,7 +12,7 @@ input/przyklad_01/potwierdzenie_przelewu.pdf -> output/przyklad_01/potwierdzenie
 ... i tak dla wszystkich 60 spraw (180 dokumentów)
 ```
 
-- Dane: `data/uzp/dane/*`. Uruchamiamy prawdziwe CLI, tak jak jury.
+- Dane: `data/uzp/dane/przyklad_*`. Uruchamiamy prawdziwe CLI, tak jak jury.
 - Sprawdza: CLI, drzewo katalogów, nazwy plików, klasyfikację każdego dokumentu, kształt JSON.
 - Trudny przykład: pełnomocnictwo bez słowa „mocodawca”, ale z „udzielam pełnomocnictwa”, też ma dać `pelnomocnictwo`.
 - Test: `tests/test_e2e.py::test_t1_sprawa_trzy_dokumenty`
@@ -20,10 +20,13 @@ input/przyklad_01/potwierdzenie_przelewu.pdf -> output/przyklad_01/potwierdzenie
 ## T2. Obcy dokument nie daje pliku
 
 ```
-input/case1/negatywny przyklad.pdf (ogłoszenie TED) -> w output/ nie ma żadnego JSON
+input/negatywne/KIO_KIO 2617-21.pdf (wyrok KIO, podobny do odwołania)  -> brak JSON
+input/negatywne/2025_S 112-383751.pdf (ogłoszenie TED)                -> brak JSON
+... i tak dla wszystkich 13 obcych dokumentów
 ```
 
-- Dane: `data/uzp/szablon-aplikacja/input/case1/negatywny przyklad.pdf` (tak jest w szablonie UZP: nie ma dla niego wyjściowego JSON).
+- Dane: `data/uzp/dane/negatywne/*.pdf` (12 plików) i `data/uzp/szablon-aplikacja/input/case1/negatywny przyklad.pdf`.
+- Sprawdza: obcy dokument nie dostaje typu, więc nie daje pliku pełnego wymyślonych wartości (FP).
 - Test: `tests/test_e2e.py::test_t2_obcy_dokument`
 
 ## Pomiar jakości (to nie jest test)

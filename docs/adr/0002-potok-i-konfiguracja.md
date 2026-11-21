@@ -1,6 +1,6 @@
 # ADR-0002: Potok przetwarzania i typy dokumentów w konfiguracji
 
-Status: przyjęte, 2026-11-21
+Status: przyjęte, 2026-11-21; punkt 3 (formaty w kodzie) zmienia ADR-0009
 
 ## Kontekst
 

@@ -1,6 +1,56 @@
-okno_znakow: 120
-okno_tekstu: 400
+# Wszystkie liczby programu są w tym pliku (ADR-0009). Przy każdej: skąd się wzięła.
+# Pomiar: tools/przeglad.py NAZWA wartości... (F1, typy, obce dokumenty na 60 sprawach treningowych), 2026-11-21.
+liczby:
+  # Najmniejszy odsetek znaczników typu. 0.5: 2 z 12 obcych dokumentów dostają JSON; od 0.6 do 1: 0 z 12, 180/180 typów.
+  # 0.6 dopuszcza brak 1 z 4 znaczników odwołania (3/4 = 0.75); przy 2 znacznikach wymaga obu.
+  PROG: 0.6
+  # Ile znaków za etykietą szukamy wartości (data, kwota, rachunek, numer). F1: 60 -> 0.569, od 120 do 500 -> 0.571.
+  # Wybrane najmniejsze okno z najlepszym F1 (większe łatwiej łapie cudzą wartość).
+  OKNO_WARTOSCI: 120
+  # Najdłuższy tekst za etykietą (tytuł przelewu). Najdłuższy tytuł w danych: 148 znaków; F1: 100 -> 0.530, od 150 -> 0.571.
+  # 400 to zapas na dłuższe tytuły; tekst i tak kończy się na następnej etykiecie ({STOP}).
+  OKNO_TEKSTU: 400
+  # Ile znaków nie-liter między krótką etykietą a numerem. F1: 0 -> 0.461, od 1 do 20 -> 0.571.
+  # 4 obejmuje typowe „NIP: ” (2), „KRS - ” (3), „NIP : ” (3).
+  ODSTEP_ETYKIETY: 4
+  # Najkrótszy numer transakcji. F1 bez zmian od 2 do 16 (wszystkie 60 numerów treningowych ma 16 znaków, „CEN…”).
+  # 6: dłuższe niż rok „2026” i „30/06”, a krótsze numery innych banków przechodzą.
+  DLUGOSC_ID: 6
+  # Wcięcie JSON: 2 spacje, jak w przykładach UZP (data/uzp/dane/*/przelew.json).
+  WCIECIE_JSON: 2
+
+# Słowa, po których dokument nie jest żadnym z typów (wyrok KIO, ogłoszenie TED). ADR-0002.
+wykluczenia: [orzeka, oficjalna nazwa, see the notice]
+
+# Nazwy miesięcy w dopełniaczu, w kolejności od stycznia.
+miesiace: [stycznia, lutego, marca, kwietnia, maja, czerwca, lipca, sierpnia, września, października, listopada, grudnia]
+
+# Formaty dat (Python strptime). Nazwa miesiąca jest wcześniej zamieniana na jego numer.
+formaty_daty: ['%Y-%m-%d', '%d.%m.%Y', '%d-%m-%Y', '%d/%m/%Y', '%d %m %Y']
+
+# format: tekst obcina te znaki z obu końców wartości.
+obcinane_znaki: ' .:-–„”"'
+
+# Wspólne fragmenty wzorców: {NAZWA} w polu `wzorce` (ADR-0008). {STOP} tworzy program z etykiet pól typu.
 wzorce:
+  # Od 0 do OKNO_WARTOSCI dowolnych znaków za etykietą, jak najmniej.
+  PO_ETYKIECIE: '[\s\S]{0,{OKNO_WARTOSCI}}?'
+  # Od 0 do ODSTEP_ETYKIETY znaków nie-liter.
+  ODSTEP: '\W{0,{ODSTEP_ETYKIETY}}'
+  # Od 1 do OKNO_TEKSTU znaków, do pierwszej linii zaczynającej się etykietą z {STOP}.
+  TEKST: '(?:(?!^[ \t]*{STOP})[\s\S]){1,{OKNO_TEKSTU}}'
+  # Numer rachunku NRB: 26 cyfr (2 cyfry kontrolne + 24), drukowany w grupach po 4.
+  RACHUNEK: '\d{2}(?:\s?\d{4}){6}(?!\d)'
+  # Kwota: tysiące w grupach po 3 cyfry (spacja, twarda spacja albo kropka), zawsze 2 cyfry groszy.
+  KWOTA: '(?<![\d,.])(?:\d{1,3}(?:[  .]\d{3})+|\d+)[,.]\d{2}(?!\d)'
+  # Data: rok 4 cyfry, dzień i miesiąc 1-2 cyfry; RRRR-MM-DD, DD.MM.RRRR, „5 marca 2026”.
+  DATA: '(?:\d{4}-\d{2}-\d{2}|(?<!\d)\d{1,2}[.\-/]\d{1,2}[.\-/]\d{4}|(?<!\d)\d{1,2}\s+(?i:{MIESIAC})\s+\d{4})'
+  # Wielkie litery, cyfry, „/” i „-”; co najmniej jedna cyfra i co najmniej DLUGOSC_ID znaków.
+  IDENTYFIKATOR: '(?<![A-Za-z0-9])(?=[A-Z0-9/-]*\d)(?=[A-Z0-9])[A-Z0-9/-]{{DLUGOSC_ID},}'
+  # NIP: 10 cyfr, czasem z myślnikami lub spacjami (999-551-93-82).
+  NIP: '(?:\d[ -]?){9}\d(?!\d)'
+  # KRS: 10 cyfr.
+  KRS: '\d{10}(?!\d)'
   OSOBA: '[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]+(?:-[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]+)?\s+[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]+(?:-[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]+)?'
   SLOWO_FIRMY: '(?<![\w-])(?!(?i:pełnomocnictw|mocodawc|wykonawc|zamawiając|odwołując))[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż][\w&-]*'
   FORMA_PRAWNA: '(?i:S\.\s?A\.|sp\.\s?z\s?o\.\s?o\.|sp\.\s?k\.|sp\.\s?j\.|sp\.\s?p\.|S\.K\.A\.|spółka z ograniczoną odpowiedzialnością|spółka akcyjna|spółka jawna|spółka komandytowa)'

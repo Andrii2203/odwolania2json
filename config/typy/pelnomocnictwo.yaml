@@ -3,8 +3,6 @@ opis: Pełnomocnictwo
 znaczniki:
 - pełnomocnictw
 - [mocodawc, reprezentowani, ustanawiam, udzielam, upoważniam, izbą odwoławczą]
-wykluczenia: [orzeka, oficjalna nazwa, see the notice]
-prog: 0.6
 szablon:
   mocodawca:
   - data: {imie_nazwisko: null, krs: null, nazwa: null, nip: null, typ: null}
@@ -15,14 +13,14 @@ szablon:
 pola:
   mocodawca[].data.nip:
     format: cyfry
-    wzorce: ['NIP\W{0,4}((?:\d[ -]?){9}\d)(?!\d)']
+    wzorce: ['NIP{ODSTEP}({NIP})']
   mocodawca[].data.krs:
-    wzorce: ['KRS\W{0,4}(\d{10})(?!\d)']
+    wzorce: ['KRS{ODSTEP}({KRS})']
   mocodawca[].data.nazwa:
     wzorce: ['({FIRMA})', 'pod\s+firmą\s+([^,]+?)\s*,']
   mocodawca[].data.typ:
     wzorce:
-    - {wzorzec: 'KRS\W{0,4}\d{10}', wartosc: osoba_prawna}
+    - {wzorzec: 'KRS{ODSTEP}{KRS}', wartosc: osoba_prawna}
     - {wzorzec: 'prowadząc\w*\s+działalność\s+gospodarczą', wartosc: osoba_fizyczna}
   mocodawca[].data.imie_nazwisko:
     wzorce: ['niżej\s+podpisan\w*\s+({OSOBA})']

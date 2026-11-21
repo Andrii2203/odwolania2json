@@ -4,11 +4,28 @@ from pathlib import Path
 import yaml
 from pypdf import PdfReader
 
-from .pola import pusty, ustaw, wypelnij, wyciagnij
+from .pola import przygotuj, pusty, wypelnij
+
+ROOT = Path(__file__).resolve().parents[1]
+KONFIG = ROOT / "config"
 
 
-def load_types(config_dir: Path) -> list[dict]:
-    return [yaml.safe_load(p.read_text(encoding="utf-8")) for p in sorted(config_dir.glob("*.yaml"))]
+def _yaml(p: Path):
+    return yaml.safe_load(p.read_text(encoding="utf-8"))
+
+
+def ustawienia(config: Path = KONFIG) -> dict:
+    return _yaml(config / "ustawienia.yaml")
+
+
+def load_types(config: Path = KONFIG) -> list[dict]:
+    ust = ustawienia(config)
+    types = [_yaml(p) for p in sorted((config / "typy").glob("*.yaml"))]
+    for t in types:
+        t["prog"] = ust["liczby"]["PROG"]
+        t["wykluczenia"] = ust["wykluczenia"] + t.get("wykluczenia", [])
+        przygotuj(t.setdefault("pola", {}), ust)
+    return types
 
 
 def pdf_text(pdf: Path) -> str:
@@ -32,7 +49,7 @@ def classify(text: str, types: list[dict]) -> dict | None:
     flat = _squash(text)
     best, best_score = None, 0.0
     for t in types:
-        if any(_found(w, flat) for w in t.get("wykluczenia", [])):
+        if any(_found(w, flat) for w in t["wykluczenia"]):
             continue
         marks = t["znaczniki"]
         score = sum(_found(m, flat) for m in marks) / len(marks)
@@ -43,11 +60,8 @@ def classify(text: str, types: list[dict]) -> dict | None:
 
 def extract(text: str, typ: dict) -> dict:
     wynik, zamkniete = pusty(typ["szablon"]), set()
-    for sciezka, spec in typ.get("pola", {}).items():
-        if "wzorce" in spec:
-            wypelnij(wynik, typ["szablon"], sciezka, spec, text, zamkniete)
-        elif (wartosc := wyciagnij(text, spec, typ["pola"])) is not None:
-            ustaw(wynik, sciezka, wartosc)
+    for sciezka, spec in typ["pola"].items():
+        wypelnij(wynik, typ["szablon"], sciezka, spec, text, zamkniete)
     return wynik
 
 

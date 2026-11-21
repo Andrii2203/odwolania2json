@@ -24,7 +24,7 @@ def main() -> None:
     st.set_page_config(page_title="Odwołania2JSON", layout="wide")
     st.title("Odwołania2JSON")
 
-    typy = load_types(ROOT / "config" / "typy")
+    typy = load_types()
     pliki = st.file_uploader(
         "Wgraj jeden lub kilka plików PDF",
         type=["pdf"],
@@ -45,7 +45,7 @@ def main() -> None:
                 obrazy = render_pages(sciezka)
                 wynik = process(sciezka, typy)
 
-            lewa, prawa = st.columns(2)
+            lewa, prawa = st.columns([1, 1])
 
             with lewa:
                 for idx, obraz in enumerate(obrazy, start=1):

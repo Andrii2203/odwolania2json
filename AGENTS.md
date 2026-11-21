@@ -36,7 +36,7 @@ Obcy dokument (np. ogłoszenie TED) nie daje pliku.
 6. Na koniec sesji aktualizujemy `docs/STAN.md` (zrobione, dalej, pytania).
 7. W kodzie bez komentarzy; jeśli komentarz jest konieczny, po polsku. Komunikaty CLI po polsku.
 8. Małe commity z krótkim opisem po polsku: `sh tools/zapisz.sh "opis" pliki...` (commit i push).
-9. Liczby do strojenia (progi, limity, czasy, DPI) tylko w `config/`: wspólne w `config/ustawienia.yaml`, dotyczące jednego typu w `config/typy/<typ>.yaml`. W kodzie takich liczb nie ma.
+9. Wszystkie liczby (progi, limity, okna, czasy, DPI) tylko w `config/ustawienia.yaml`, każda z komentarzem, skąd się wzięła: standard albo pomiar `tools/przeglad.py`. W plikach typów i w kodzie liczb nie ma (test T5, ADR-0009).
 
 ## Automatyczne straże
 
@@ -52,9 +52,10 @@ Obcy dokument (np. ogłoszenie TED) nie daje pliku.
 | Ścieżka | Co |
 |---|---|
 | `odwolania2json/` | kod; CLI: `python -m odwolania2json` |
-| `config/typy/*.yaml` | typ dokumentu: `znaczniki` (klasyfikacja), `szablon` (kształt JSON). Nowy typ to nowy plik YAML |
+| `config/typy/*.yaml` | typ dokumentu: `znaczniki` (klasyfikacja), `szablon` (kształt JSON), `pola` (`etykiety`, `wzorce`, `format`). Nowy typ to nowy plik YAML |
 | `tests/` | testy z `docs/testy.md` |
 | `tools/ocena_f1.py` | F1 na 60 sprawach treningowych (ADR-0003) |
+| `tools/przeglad.py` | F1 dla kilku wartości jednej liczby z `config/ustawienia.yaml` (pochodzenie liczb) |
 | `data/uzp/` | klon https://github.com/Urzad-Zamowien-Publicznych/hacknation-2026 (poza git) |
 | `docs/adr/`, `docs/badania/`, `docs/testy.md`, `docs/STAN.md` | decyzje, badania, testy, stan |
 
@@ -66,6 +67,7 @@ git clone https://github.com/Urzad-Zamowien-Publicznych/hacknation-2026 data/uzp
 start.bat                                  # input\ -> output\
 .venv\Scripts\python -m pytest -q          # testy
 .venv\Scripts\python tools\ocena_f1.py     # F1 i najgorsze pola
+.venv\Scripts\python tools\przeglad.py OKNO_WARTOSCI 60 120 240   # F1 dla kilku wartości
 ```
 
 ## Role

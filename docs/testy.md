@@ -67,6 +67,21 @@ przyklad_44 (osoba fizyczna):
 - Sprawdza: `wzorce`, listy `[]`, `podzial` i `wartosc` z `config/typy/pelnomocnictwo.yaml` (ADR-0008).
 - Test: `tests/test_pola.py::test_t4_pelnomocnictwo`
 
+## T5. Liczby tylko w `config/ustawienia.yaml`, każda z pochodzeniem
+
+```
+config/typy/przelew.yaml:      wzorce: ['({RACHUNEK})']           -> dobrze, bez cyfr
+config/typy/przelew.yaml:      wzorce: ['\d{2}(?:\s?\d{4}){6}']   -> błąd: cyfry w pliku typu
+odwolania2json/pola.py:        okno = tekst[start:start + 120]     -> błąd: liczba w kodzie (wolno tylko 0 i 1)
+config/ustawienia.yaml:        # 26 cyfr: standard NRB
+                               RACHUNEK: '\d{2}(?:\s?\d{4}){6}'   -> dobrze, komentarz nad linią
+config/ustawienia.yaml:        OKNO_TEKSTU: 400                   -> błąd: brak komentarza, skąd 400
+```
+
+- Dane: pliki `config/typy/*.yaml`, `config/ustawienia.yaml`, `odwolania2json/*.py`.
+- Sprawdza: nowy typ to sam YAML bez liczb; liczby nie są rozsiane po kodzie; każda liczba ma zapisane pochodzenie (komentarz w tej samej linii albo w linii nad nią).
+- Test: `tests/test_konfiguracja.py::test_t5_liczby_w_jednym_pliku`
+
 ## Pomiar jakości (to nie jest test)
 
 `tools/ocena_f1.py` przepuszcza wszystkie 60 spraw treningowych przez CLI i liczy F1 według ADR-0003. Przykładowy wynik:

@@ -12,3 +12,24 @@ szablon:
     - {imie_nazwisko: null}
   pelnomocnicy:
   - {imie_nazwisko: null, pesel: null}
+pola:
+  mocodawca[].data.nip:
+    format: cyfry
+    wzorce: ['NIP\W{0,4}((?:\d[ -]?){9}\d)(?!\d)']
+  mocodawca[].data.krs:
+    wzorce: ['KRS\W{0,4}(\d{10})(?!\d)']
+  mocodawca[].data.nazwa:
+    wzorce: ['({FIRMA})', 'pod\s+firmą\s+([^,]+?)\s*,']
+  mocodawca[].data.typ:
+    wzorce:
+    - {wzorzec: 'KRS\W{0,4}\d{10}', wartosc: osoba_prawna}
+    - {wzorzec: 'prowadząc\w*\s+działalność\s+gospodarczą', wartosc: osoba_fizyczna}
+  mocodawca[].data.imie_nazwisko:
+    wzorce: ['niżej\s+podpisan\w*\s+({OSOBA})']
+  mocodawca[].podpisujacy[].imie_nazwisko:
+    podzial: '^[ \t]*W imieniu'
+    wzorce:
+    - '^[ \t]*({OSOBA})[ \t]*\n[ \t]*(?:Prezes|Wiceprezes|Członek|Prokurent|Dyrektor|Wspólnik|Właściciel)'
+    - 'niżej\s+podpisan\w*\s+({OSOBA})'
+  pelnomocnicy[].imie_nazwisko:
+    wzorce: ['(?:r\.\s?pr\.|adw\.|apl\.\s?adw\.|apl\.\s?radc\.|radca\s+prawny|radcy\s+prawnego|adwokat|adwokata)\s+({OSOBA})']

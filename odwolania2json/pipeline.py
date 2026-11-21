@@ -4,7 +4,7 @@ from pathlib import Path
 import yaml
 from pypdf import PdfReader
 
-from .pola import wyciagnij
+from .pola import pusty, ustaw, wypelnij, wyciagnij
 
 
 def load_types(config_dir: Path) -> list[dict]:
@@ -41,27 +41,13 @@ def classify(text: str, types: list[dict]) -> dict | None:
     return best if best is not None and best_score >= best["prog"] else None
 
 
-def _empty(shape):
-    if isinstance(shape, dict):
-        return {k: _empty(v) for k, v in shape.items()}
-    if isinstance(shape, list):
-        return []
-    return None
-
-
-def _ustaw(wynik: dict, sciezka: str, wartosc) -> None:
-    *rodzice, klucz = sciezka.split(".")
-    for r in rodzice:
-        wynik = wynik[r]
-    wynik[klucz] = wartosc
-
-
 def extract(text: str, typ: dict) -> dict:
-    wynik = _empty(typ["szablon"])
+    wynik, zamkniete = pusty(typ["szablon"]), set()
     for sciezka, spec in typ.get("pola", {}).items():
-        wartosc = wyciagnij(text, spec, typ["pola"])
-        if wartosc is not None:
-            _ustaw(wynik, sciezka, wartosc)
+        if "wzorce" in spec:
+            wypelnij(wynik, typ["szablon"], sciezka, spec, text, zamkniete)
+        elif (wartosc := wyciagnij(text, spec, typ["pola"])) is not None:
+            ustaw(wynik, sciezka, wartosc)
     return wynik
 
 

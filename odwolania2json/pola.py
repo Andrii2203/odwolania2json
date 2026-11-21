@@ -63,11 +63,80 @@ def _tekst(tekst: str, start: int, stopy: list[str]) -> str | None:
     return wartosc or None
 
 
+def pusty(ksztalt):
+    if isinstance(ksztalt, dict):
+        return {k: pusty(v) for k, v in ksztalt.items()}
+    if isinstance(ksztalt, list):
+        return []
+    return None
+
+
+def ustaw(wynik: dict, sciezka: str, wartosc) -> None:
+    *rodzice, klucz = sciezka.split(".")
+    for r in rodzice:
+        wynik = wynik[r]
+    wynik[klucz] = wartosc
+
+
+def _wez(obiekt, sciezka: str):
+    for klucz in filter(None, sciezka.split(".")):
+        obiekt = obiekt[klucz]
+    return obiekt
+
+
+@cache
+def _wzorzec(wzorzec: str) -> re.Pattern:
+    fragmenty = ustawienia().get("wzorce", {})
+    while (nowy := re.sub(r"\{([A-Z_]+)\}", lambda m: fragmenty.get(m[1], m[0]), wzorzec)) != wzorzec:
+        wzorzec = nowy
+    return re.compile(wzorzec, re.MULTILINE)
+
+
+def trafienia(tekst: str, spec: dict) -> list[tuple[int, object]]:
+    wyniki, widziane = [], set()
+    for w in spec["wzorce"]:
+        w = w if isinstance(w, dict) else {"wzorzec": w}
+        for m in _wzorzec(w["wzorzec"]).finditer(tekst):
+            surowe = " ".join(m.group(1 if m.re.groups else 0).split())
+            if surowe in widziane:
+                continue
+            widziane.add(surowe)
+            wartosc = re.sub(r"\D", "", surowe) if spec.get("format") == "cyfry" else surowe
+            wyniki.append((m.start(), w.get("wartosc", wartosc)))
+    return sorted(wyniki, key=lambda t: t[0])
+
+
+def wypelnij(wynik: dict, szablon: dict, sciezka: str, spec: dict, tekst: str, zamkniete: set) -> None:
+    znalezione = trafienia(tekst, spec)
+    czesci = sciezka.split("[]")
+    if not znalezione:
+        return
+    if len(czesci) == 1:
+        ustaw(wynik, sciezka, znalezione[0][1])
+        return
+    lista, wzor = _wez(wynik, czesci[0]), _wez(szablon, czesci[0])[0]
+    granice = [m.start() for m in _wzorzec(spec["podzial"]).finditer(tekst)] if "podzial" in spec else []
+    for i, (poz, wartosc) in enumerate(znalezione):
+        if len(czesci) == 3:
+            i = min(max(sum(g <= poz for g in granice) - 1, 0), max(len(lista) - 1, 0))
+        if i >= len(lista):
+            if czesci[0] in zamkniete:
+                break
+            lista.append(pusty(wzor))
+        element, reszta = lista[i], czesci[-1]
+        if len(czesci) == 3:
+            wewnetrzna = _wez(element, czesci[1])
+            wewnetrzna.append(pusty(_wez(wzor, czesci[1])[0]))
+            element = wewnetrzna[-1]
+        ustaw(element, reszta.lstrip("."), wartosc)
+    zamkniete.add(czesci[0])
+
+
 def wyciagnij(tekst: str, spec: dict, wszystkie: dict) -> object:
     start = _znajdz_etykiete(tekst, spec["etykiety"])
     if start is None:
         return None
     if spec["format"] == "tekst":
-        stopy = [e for s in wszystkie.values() if s is not spec for e in s["etykiety"]] + spec.get("stop", [])
+        stopy = [e for s in wszystkie.values() if s is not spec for e in s.get("etykiety", [])] + spec.get("stop", [])
         return _tekst(tekst, start, stopy)
     return FORMATY[spec["format"]](tekst[start:start + ustawienia()["okno_znakow"]])

@@ -46,6 +46,27 @@ przyklad_17 (etykieta i wartość w jednej linii, kropki):
 - Sprawdza: etykiety i formaty pól z `config/typy/przelew.yaml`.
 - Test: `tests/test_pola.py::test_t3_przelew`
 
+## T4. Pełnomocnictwo: wszystkie pola jak we wzorcu
+
+```
+przyklad_02 (tabela, jeden mocodawca):
+  "Mocodawca Hartica Serwis S.A."             -> "nazwa": "Hartica Serwis S.A.", "typ": "osoba_prawna"
+  "KRS 9999669444, NIP 9990678035"            -> "krs": "9999669444", "nip": "9990678035"
+  "adw. Bartosz Szymanski … adw. Cezary …"    -> dwóch pełnomocników
+  "Aleksandra Nowakowicz" nad "Prokurent"     -> podpisujący
+przyklad_41 (konsorcjum, dwóch mocodawców):
+  "W imieniu Torvex …: Marek Domański"        -> podpisujący pierwszego mocodawcy
+  "W imieniu Hydromel …: Agnieszka Kurek, Robert Kurek" -> podpisujący drugiego
+przyklad_44 (osoba fizyczna):
+  "Ja, niżej podpisany Jarosław Dudek … pod firmą DUDEK-TECH Jarosław Dudek, …"
+                                              -> "imie_nazwisko": "Jarosław Dudek", "nazwa": "DUDEK-TECH Jarosław Dudek",
+                                                 "krs": null, "typ": "osoba_fizyczna"
+```
+
+- Dane: `data/uzp/dane/przyklad_02`, `przyklad_41`, `przyklad_44`; cały JSON równy wzorcowi `pelnomocnictwo.json`.
+- Sprawdza: `wzorce`, listy `[]`, `podzial` i `wartosc` z `config/typy/pelnomocnictwo.yaml` (ADR-0008).
+- Test: `tests/test_pola.py::test_t4_pelnomocnictwo`
+
 ## Pomiar jakości (to nie jest test)
 
 `tools/ocena_f1.py` przepuszcza wszystkie 60 spraw treningowych przez CLI i liczy F1 według ADR-0003. Przykładowy wynik:

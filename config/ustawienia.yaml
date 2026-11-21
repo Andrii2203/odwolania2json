@@ -1,2 +1,7 @@
 okno_znakow: 120
 okno_tekstu: 400
+wzorce:
+  OSOBA: '[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]+(?:-[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]+)?\s+[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]+(?:-[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]+)?'
+  SLOWO_FIRMY: '(?<![\w-])(?!(?i:pełnomocnictw|mocodawc|wykonawc|zamawiając|odwołując))[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż][\w&-]*'
+  FORMA_PRAWNA: '(?i:S\.\s?A\.|sp\.\s?z\s?o\.\s?o\.|sp\.\s?k\.|sp\.\s?j\.|sp\.\s?p\.|S\.K\.A\.|spółka z ograniczoną odpowiedzialnością|spółka akcyjna|spółka jawna|spółka komandytowa)'
+  FIRMA: '(?:{SLOWO_FIRMY}\s+)+{FORMA_PRAWNA}(?:\s+{FORMA_PRAWNA})?'

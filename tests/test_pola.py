@@ -17,3 +17,11 @@ def test_t3_przelew(sprawa):
 
     assert typ == "przelew"
     assert dane == json.loads((DANE / sprawa / "przelew.json").read_text(encoding="utf-8"))
+
+
+@pytest.mark.parametrize("sprawa", ["przyklad_02", "przyklad_41", "przyklad_44"])
+def test_t4_pelnomocnictwo(sprawa):
+    typ, dane = process(DANE / sprawa / "pelnomocnictwo.pdf", load_types(ROOT / "config" / "typy"))
+
+    assert typ == "pelnomocnictwo"
+    assert dane == json.loads((DANE / sprawa / "pelnomocnictwo.json").read_text(encoding="utf-8"))

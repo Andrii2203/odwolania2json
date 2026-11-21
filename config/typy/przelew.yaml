@@ -1,0 +1,9 @@
+typ: przelew
+opis: Potwierdzenie przelewu
+znaczniki:
+- przelew
+- [rachun, kwota, tytuł, operacji, bank, transakcj]
+prog: 0.6
+szablon:
+  przelew_bankowy: {data_operacji: null, kwota: null, na_rachunek: null, numer_transakcji: null,
+    tytul: null, z_rachunku: null}

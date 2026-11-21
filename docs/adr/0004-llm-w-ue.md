@@ -1,6 +1,6 @@
 # ADR-0004: LLM – model z otwartymi wagami w UE
 
-Status: zaproponowane (potrzebny klucz OVHcloud)
+Status: przyjęte dla dostawcy OVHcloud (klucz działa od 21.11); model wybierzemy pomiarem F1. W OVH nie ma twardego limitu wydatków (`docs/badania/ovh-limity.md`), więc limit tokenów jest w programie (`config/ustawienia.yaml`).
 
 ## Kontekst
 

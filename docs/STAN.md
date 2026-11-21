@@ -29,22 +29,24 @@ Aktualizacja: 2026-11-21 noc, Claude (skany, porządki liczb, kryteria). Następ
 - README UZP (21.11 12:14): obcy dokument ma dać „pusty plik .json”. Pracownik UZP na stoisku: pusty plik wejściowy -> klucze z pustymi wartościami (bez wskazania, którego typu).
 - README UZP: premiowana „transparentność procesu ekstrakcji danych” i konfiguracja nowych klas bez zmiany kodu.
 
-## Plan (wszystko dziś w nocy, nowy czat)
+## Plan (noc 21/22.11): potok etapów, `docs/potok.md`, ADR-0012
 
-Kolejność według użytkownika: najpierw pomiar na dużej liczbie plików, potem decyzja o LLM i pustym JSON.
+Etapy podłączamy po jednym; po każdym pomiar (`ocena_f1.py`, skany, `warianty.py`, obce) i tabela stanu w `docs/potok.md`.
 
-| # | Kto | Co |
-|---|---|---|
-| 1 | Claude | **Zrobione (a), (b) TED; zostaje (b) faktury/wyroki KIO/BZP i (c) pusty/uszkodzony PDF.** Pomiar na dużej liczbie plików (narzędzie w `tools/`, ADR, opis w `docs/testy.md` jako pomiar). (a) Warianty dokumentów treningowych: podmiana wartości (nazwy, NIP, daty, kwoty), etykiet („NIP:” -> „NIP Odwołującego:”), kolejności bloków, podziału linii; poprawny JSON znany, bo wiemy, co wstawiliśmy. Setki–tysiące wariantów, na poziomie tekstu (szybko) i kilka jako PDF. (b) Kilkaset publicznych obcych PDF (wyroki KIO, TED, BZP, faktury): żaden nie dostaje typu. (c) Pusty PDF, PDF bez tekstu i obrazu, PDF uszkodzony. Wynik: F1 na wariantach i lista najsłabszych reguł |
-| 2 | Claude + Użytkownik | Decyzja o LLM po wynikach z 1: jeśli F1 na wariantach dużo niższe niż 0.999, LLM jeden model <=8B (np. `ministral-8b-2512` Mistral AI albo `Olala-v1.0-mini-7A1B` OVH) tylko dla pól `null`, wartość przyjęta tylko gdy jest dosłownie w tekście |
-| 3 | Claude | Pusty JSON dla obcego i pustego dokumentu (format z pytania 1 niżej); zmiana T2, ADR |
-| 4 | Claude | `README.md` po polsku: instalacja, `start.bat`, GUI, pomiar jakości, opis rozwiązania (bez LLM / z LLM) |
-| 5 | Claude | Transparentność: `--wyjasnij` (dla każdego pola fragment tekstu i nazwa reguły, jak `--debug` w invoice2data) i podgląd w GUI; nie w `output/`, żeby nie mylić oceny |
-| 6 | Claude | Słownik polski dla OCR (sjp.pl, CC BY 4.0) zamiast łatek słów w `poprawki_ocr`; sprawdzić licencję i zmierzyć na skanach |
-| 7 | Claude | Instrukcja „jak dodać nowy typ” z przykładem (np. faktura) dla finału |
-| 8 | [Argon] | Prezentacja PDF <= 10 MB wg ADR-0006 |
-| 9 | Użytkownik | Repozytorium publiczne przed 11:00; `.env` poza git |
-| 10 | Claude + Użytkownik | Finalny pomiar F1, `start.bat` na czystym katalogu, oddanie; termin nd 11:00 |
+| # | Kto | Etap | Co |
+|---|---|---|---|
+| 1 | Claude | 2 | Sekcje bez wielkości liter („ODWOŁUJĄCY:” gubi wszystkie pola Odwołującego, F1 wariantu 0.755); przeniesienia wyrazów |
+| 2 | Claude | 10 | Dziennik „skąd każda wartość” (etap, reguła, fragment tekstu), `--wyjasnij`, podgląd w GUI; potrzebny do szukania błędów w kolejnych etapach |
+| 3 | Claude | 5 | Bramka: stopy w środku linii (adres „ul.”, kod pocztowy, „KRS:”, „NIP:”, e-mail), reguły w YAML; cel: `laczenie_linii` (0.834) |
+| 4 | Claude | 8 | Kontekst sprawy: wartości z innych dokumentów sprawy jako kandydaci, tylko jeśli są w tekście |
+| 5 | Claude | 0 | Pusty / uszkodzony PDF, obcy dokument: format pliku (pytanie 1) |
+| 6 | Claude | 1 | Słownik sjp.pl (CC BY 4.0) zamiast łatek `poprawki_ocr`; pomiar na skanach |
+| 7 | Claude | 9 | Mianownik (Morfeusz2, BSD-2: sprawdzić wheel dla Python 3.13), duplikaty NIP z myślnikami i bez |
+| 8 | Claude + Użytkownik | 6, 7 | Decyzja: wektory etykiet i/lub LLM dla pól, które nadal są puste (po pomiarze 1–7); nowe zamiany etykiet w `warianty`, których reguły nie widziały |
+| 9 | Claude | | Obce dokumenty poza TED (faktury, wyroki KIO, BZP); `README.md`; instrukcja „jak dodać nowy typ” (finał) |
+| 10 | [Argon] | | Prezentacja PDF <= 10 MB wg ADR-0006 |
+| 11 | Użytkownik | | Repozytorium publiczne przed 11:00; `.env` poza git; zapytać UZP o lokalny model embeddingów |
+| 12 | Claude + Użytkownik | | Finalny pomiar F1, `start.bat` na czystym katalogu, oddanie; termin nd 11:00 |
 
 ## Otwarte pytania
 

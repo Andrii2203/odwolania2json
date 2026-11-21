@@ -1,0 +1,74 @@
+# Potok przetwarzania (ADR-0012)
+
+Każdy dokument przechodzi te same etapy. Każda wartość, skądkolwiek pochodzi (regex, wektory, LLM, inny dokument sprawy), przechodzi tę samą bramkę (etap 5) i musi być dosłownie w tekście dokumentu. Niczego nie wymyślamy.
+
+Etapy podłączamy po jednym. Etap zostaje tylko wtedy, gdy pomiar pokazał wyższy F1. Stan każdego etapu jest w tabeli niżej; zmieniamy ją razem z kodem.
+
+## Schemat
+
+```
+PDF
+ 0. Wejście: pusty / uszkodzony / skan -> OCR                  [mechanika]
+ 1. Tekst: pypdf, OCR, poprawki OCR słownikiem sjp.pl          [mechanika, słownik]
+ 2. Widok do szukania: małe litery, bez znaków diakrytycznych, [mechanika]
+    spacje, przeniesienie "postępo-\nwania" -> "postępowania",
+    mapa pozycji do oryginału
+ 3. Klasyfikacja: znaczniki (+ wektor dokumentu, jeśli pomiar  [mechanika / wektory]
+    pokaże, że można usunąć "oficjalna nazwa")
+ 4. Pola: regex z YAML                                         [mechanika]
+ 5. BRAMKA: format, długość, cięcie na stopach,                [mechanika, JSON Schema w YAML]
+    "w nazwie nie ma KRS:/NIP:/ul."
+ 6. Puste pola -> wektory etykiet -> regex za etykietą -> BRAMKA [wektory]
+ 7. Nadal puste / podejrzane -> LLM -> "czy jest dosłownie      [LLM]
+    w tekście?" -> BRAMKA
+ 8. Kontekst sprawy: wartości z innych dokumentów tej samej     [mechanika]
+    sprawy jako kandydaci (NIP Odwołującego z odwołania
+    szukamy w pełnomocnictwie) -> tylko jeśli jest w tekście
+ 9. Porządki: mianownik (Morfeusz2), daty ISO, słowo -> id,     [mechanika, słownik]
+    duplikaty ("999-928-40-65" = "9999284065")
+10. JSON + dziennik "skąd każda wartość" (etap, reguła,         [przejrzystość dla UZP]
+    fragment tekstu)
+```
+
+## Zasady
+
+1. Wartość wycinamy z oryginału. Małe litery i brak polskich znaków są tylko w widoku do szukania (etap 2); pozycje z widoku przenosimy na oryginał. UZP porównuje dokładnie: `"Belmoria Rozwiązania S.A."`, nie `"belmoria rozwiązania s.a."`.
+2. `null` bywa poprawny: wartości w dokumencie nie ma. Etapy 6–8 wypełniają pole tylko powyżej progu i tylko wartością, która jest w tekście.
+3. Kolejność od taniego do drogiego: regex, wektory (lokalnie), LLM (sieć, koszt, wynik niepowtarzalny).
+4. Bez sieci (LLM niedostępny) program działa: etapy 0–6 i 8–10.
+5. Każdy etap ma przełącznik w `config/ustawienia.yaml` (`etapy`), żeby zmierzyć F1 z nim i bez niego.
+6. Dziennik (etap 10) to to, co widzi pracownik: dla każdego pola etap, reguła i fragment tekstu. Ten sam dziennik służy do szukania błędów. Dziennik nie trafia do `output/` (żeby nie mylić oceny), tylko do GUI i do `--wyjasnij`.
+
+Przykład dziennika dla jednego pola:
+
+```
+Odwolujacy[0].nazwa = "Belmoria Rozwiązania S.A."
+  etap 4  regex     odwolanie.yaml: Odwolujacy[].nazwa, wzorzec 1
+  etap 5  bramka    ucięte przed "ul." (stop: adres)
+  tekst             "Odwołujący:\nBelmoria Rozwiązania S.A. ul. Zaczarowana 78, 90-803 Łódź"
+```
+
+## Stan etapów
+
+| Etap | Stan | Co jest | Czego brak |
+|---|---|---|---|
+| 0 | częściowo | skan -> OCR (ADR-0007); błąd jednego pliku nie zatrzymuje reszty (T7) | pusty PDF, PDF bez tekstu i obrazu, plik uszkodzony: jaki JSON (pytanie 1 w `STAN.md`) |
+| 1 | częściowo | pypdf, RapidOCR, `poprawki_ocr` (łatki dla wpisanych słów) | słownik sjp.pl zamiast łatek |
+| 2 | częściowo | klasyfikacja bez wielkości liter i polskich znaków; etykiety bez wielkości liter; `warianty_liter` | sekcje zależą od wielkości liter („ODWOŁUJĄCY:” gubi pola); przeniesienia wyrazów; jeden widok dla wszystkich etapów z mapą pozycji |
+| 3 | jest | `znaczniki`, `PROG`, `wykluczenia` | wektor dokumentu (opcja) |
+| 4 | jest | `pola` w `config/typy/*.yaml` (ADR-0008, ADR-0010) | |
+| 5 | częściowo | `format` (cyfry, data, liczba, tekst); tekst kończy się na następnej etykiecie (`{STOP}`); etykieta innego pola nie jest wartością (T10) | stopy w środku linii (adres, kod pocztowy, „KRS:”); reguły w YAML (JSON Schema); sumy kontrolne NIP/REGON odpadają: dane UZP ich nie spełniają (144/218 NIP) |
+| 6 | nie ma | | wektory etykiet (np. `multilingual-e5-small`, lokalnie, CPU) |
+| 7 | nie ma | klucz OVHcloud działa (ADR-0004) | wywołanie, sprawdzenie „wartość jest w tekście” |
+| 8 | nie ma | | kandydaci z innych dokumentów sprawy |
+| 9 | częściowo | daty ISO, słownik słowo -> id (ADR-0010) | mianownik (Morfeusz2), duplikaty NIP z myślnikami i bez |
+| 10 | częściowo | JSON w `output/` | dziennik, `--wyjasnij`, podgląd w GUI |
+
+## Jak sprawdzić etap
+
+```
+.venv\Scripts\python tools\ocena_f1.py              # 60 spraw treningowych
+.venv\Scripts\python tools\ocena_f1.py --dane data\uzp\dane\skany\potwierdzenia data\uzp\dane\skany\pelnomocnictwa data\uzp\dane\skany\odwolania
+.venv\Scripts\python tools\warianty.py --przyklady  # warianty dokumentów (ADR-0011)
+.venv\Scripts\python tools\ocena_f1.py --dane data\obce   # obce: ma być 0 z JSON
+```

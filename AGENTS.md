@@ -60,6 +60,7 @@ Obcy dokument (np. ogłoszenie TED) nie daje pliku.
 | `tools/warianty.py`, `tools/pobierz_obce.py` | F1 na wariantach dokumentów; obce PDF z TED do `data/obce` (ADR-0011) |
 | `tools/przeglad.py` | F1 dla kilku wartości jednej liczby z `config/ustawienia.yaml` (pochodzenie liczb) |
 | `data/uzp/` | klon https://github.com/Urzad-Zamowien-Publicznych/hacknation-2026 (poza git) |
+| `docs/potok.md` | etapy potoku, zasady i stan każdego etapu (ADR-0012) |
 | `docs/adr/`, `docs/badania/`, `docs/testy.md`, `docs/STAN.md`, `docs/kryteria.md` | decyzje, badania, testy, stan, za co punkty UZP i co mamy |
 
 ## Polecenia (Windows)

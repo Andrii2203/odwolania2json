@@ -52,16 +52,16 @@ Odwolujacy[0].nazwa = "Belmoria Rozwiązania S.A."
 
 | Etap | Stan | Co jest | Czego brak |
 |---|---|---|---|
-| 0 | częściowo | skan -> OCR (ADR-0007); błąd jednego pliku nie zatrzymuje reszty (T7) | pusty PDF, PDF bez tekstu i obrazu, plik uszkodzony: jaki JSON (pytanie 1 w `STAN.md`) |
+| 0 | jest | skan -> OCR (ADR-0007); błąd jednego pliku nie zatrzymuje reszty (T7); obcy, pusty, uszkodzony -> `{}` (ADR-0013) | |
 | 1 | częściowo | pypdf, RapidOCR, `poprawki_ocr` (łatki dla wpisanych słów) | słownik sjp.pl zamiast łatek |
-| 2 | częściowo | klasyfikacja bez wielkości liter i polskich znaków; etykiety bez wielkości liter; `warianty_liter` | sekcje zależą od wielkości liter („ODWOŁUJĄCY:” gubi pola); przeniesienia wyrazów; jeden widok dla wszystkich etapów z mapą pozycji |
+| 2 | częściowo | klasyfikacja bez wielkości liter i polskich znaków; etykiety i nagłówki stron bez wielkości liter; `warianty_liter` | przeniesienia wyrazów; jeden widok dla wszystkich etapów z mapą pozycji |
 | 3 | jest | `znaczniki`, `PROG`, `wykluczenia` | wektor dokumentu (opcja) |
 | 4 | jest | `pola` w `config/typy/*.yaml` (ADR-0008, ADR-0010) | |
 | 5 | częściowo | `format` (cyfry, data, liczba, tekst); tekst kończy się na następnej etykiecie (`{STOP}`); etykieta innego pola nie jest wartością (T10) | stopy w środku linii (adres, kod pocztowy, „KRS:”); reguły w YAML (JSON Schema); sumy kontrolne NIP/REGON odpadają: dane UZP ich nie spełniają (144/218 NIP) |
 | 6 | nie ma | GLiNER2 sprawdzony i odrzucony: F1 0.551, odwołanie 14,8 s (`docs/badania/gliner2.md`) | wektory etykiet (np. `multilingual-e5-small`, lokalnie, CPU) |
 | 7 | nie ma | klucz OVHcloud działa (ADR-0004) | wywołanie, sprawdzenie „wartość jest w tekście” |
 | 8 | nie ma | | kandydaci z innych dokumentów sprawy |
-| 9 | częściowo | daty ISO, słownik słowo -> id (ADR-0010) | mianownik (Morfeusz2), duplikaty NIP z myślnikami i bez |
+| 9 | częściowo | daty ISO, słownik słowo -> id (ADR-0010), rachunek z „PL” (ADR-0014) | mianownik (Morfeusz2), duplikaty NIP z myślnikami i bez |
 | 10 | częściowo | JSON w `output/` | dziennik, `--wyjasnij`, podgląd w GUI |
 
 ## Jak sprawdzić etap

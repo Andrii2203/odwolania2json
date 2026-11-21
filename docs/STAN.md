@@ -19,6 +19,9 @@ Aktualizacja: 2026-11-21 noc, Claude (skany, porządki liczb, kryteria). Następ
 - Klucz OVHcloud działa (`chat/completions`). LLM w programie nie jest używany.
 - Badania: `docs/badania/` (`llm-ue.md`, `ocr.md`, `ovh-limity.md`, `podobne-rozwiazania.md`); kryteria oceny i nasz stan: `docs/kryteria.md`.
 - Pomiar na nowych dokumentach (ADR-0011, 21.11 noc): `tools/warianty.py` 4673 warianty dokumentów treningowych, **F1 0.9559**; najsłabsze: etykieta „Odwołujący:” zapisana inaczej (0.755, także „ODWOŁUJĄCY:”), `laczenie_linii` (0.834), „Tytuł przelewu” -> „Tytuł operacji” (0.833), „Zamawiający:” inaczej (0.890), „Data operacji” -> „Data” (0.902). Obce: `tools/pobierz_obce.py` 160 ogłoszeń TED, **0/160 z JSON**.
+- Noc 21/22.11: obcy, pusty, uszkodzony PDF -> `{}` (ADR-0013); rachunek z „PL” jak w dokumencie (ADR-0014, 48/60 przelewów ma „PL”); nagłówki stron bez wielkości liter („ODWOŁUJĄCY:” 0.755 -> 1.000). Warianty **F1 0.9692** (było 0.9559), skany **0.9462** (było 0.9396), treningowe 0.9990 bez zmian.
+- GLiNER2 sprawdzony i odrzucony: F1 0.551 wobec 0.999 reguł, odwołanie 14,8 s (`docs/badania/gliner2.md`).
+- Czas (ten komputer, 16 wątków): cyfrowa sprawa 3 dokumenty 0,4 s; skany ok. 4 s na stronę (odwołanie 5 stron ok. 20 s). JSON zapisywany zaraz po każdym dokumencie. Ryzyko: wiele skanów na słabym komputerze.
 - GUI (ADR-0006): `odwolania2json/gui.py`, `gui.bat` (Streamlit, PDF obok JSON).
 
 ## Nowe od UZP (2026-11-21)
@@ -43,13 +46,13 @@ Etapy podłączamy po jednym; po każdym pomiar (`ocena_f1.py`, skany, `warianty
 
 | # | Kto | Etap | Co |
 |---|---|---|---|
-| 1 | Claude | 2 | Sekcje bez wielkości liter („ODWOŁUJĄCY:” gubi wszystkie pola Odwołującego, F1 wariantu 0.755); przeniesienia wyrazów |
+| 1 | Claude | **zrobione** 2 | Sekcje bez wielkości liter („ODWOŁUJĄCY:” gubi wszystkie pola Odwołującego, F1 wariantu 0.755); przeniesienia wyrazów |
 | 2 | Claude | 10 | Dziennik „skąd każda wartość” (etap, reguła, fragment tekstu), `--wyjasnij`, podgląd w GUI; potrzebny do szukania błędów w kolejnych etapach |
 | 3 | Claude | 5 | Bramka: stopy w środku linii (adres „ul.”, kod pocztowy, „KRS:”, „NIP:”, e-mail), reguły w YAML; cel: `laczenie_linii` (0.834) |
 | 4 | Claude | 8 | Kontekst sprawy: wartości z innych dokumentów sprawy jako kandydaci, tylko jeśli są w tekście |
-| 0a | Claude | 0, 10 | Obcy, pusty i uszkodzony PDF -> plik z `{}` (Discord UZP); zmiana T2, ADR. Robimy najpierw: pewny wpływ na ocenę |
-| 0b | Claude | 9 | Rachunek z „PL”, jeśli jest w dokumencie (Discord UZP); `tools/ocena_f1.py` porównuje rachunek bez „PL”, bo wzorce treningowe są tu błędne; ADR. Robimy najpierw |
-| 0c | Claude | | Czas: zmierzyć sekundy na dokument (cyfrowy, skan, z GLiNER2); JSON zapisywany zaraz po każdym dokumencie |
+| 0a | Claude | **zrobione** 0, 10 | Obcy, pusty i uszkodzony PDF -> plik z `{}` (Discord UZP); zmiana T2, ADR. Robimy najpierw: pewny wpływ na ocenę |
+| 0b | Claude | **zrobione** 9 | Rachunek z „PL”, jeśli jest w dokumencie (Discord UZP); `tools/ocena_f1.py` porównuje rachunek bez „PL”, bo wzorce treningowe są tu błędne; ADR. Robimy najpierw |
+| 0c | Claude | **zrobione** | Czas: zmierzyć sekundy na dokument (cyfrowy, skan, z GLiNER2); JSON zapisywany zaraz po każdym dokumencie |
 | 6 | Claude | 1 | Słownik sjp.pl (CC BY 4.0) zamiast łatek `poprawki_ocr`; pomiar na skanach |
 | 7 | Claude | 9 | Mianownik (Morfeusz2, BSD-2: sprawdzić wheel dla Python 3.13), duplikaty NIP z myślnikami i bez |
 | 8 | Claude + Użytkownik | 6, 7 | Decyzja: wektory etykiet i/lub LLM dla pól, które nadal są puste (po pomiarze 1–7); nowe zamiany etykiet w `warianty`, których reguły nie widziały |

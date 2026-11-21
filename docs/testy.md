@@ -149,6 +149,18 @@ skany/odwolania/0001/0001.pdf       (5 stron) -> typ odwolanie
 - Sprawdza: strona z tekstem krótszym niż `MIN_ZNAKOW_STRONY` idzie do OCR (`pypdfium2` + RapidOCR, ADR-0007); ramki OCR składane w wiersze mimo przekrzywienia skanu; typ i pola z tych samych reguł YAML co dla PDF cyfrowych; litery bez polskich znaków (`warianty_liter`) w klasyfikacji i wzorcach; `sekcja` przy jednym wzorcu (lista pełnomocników bez tytułów).
 - Test: `tests/test_e2e.py::test_t9_skany`
 
+## T10. Etykieta innego pola nie jest wartością
+
+```
+Data Opis Kwota                              <- wiersz nagłówków tabeli (skany UZP, potwierdzenia/0002)
+Data operacji 2026-04-09
+Tytuł: opłata skarbowa od pełnomocnictwa
+-> przelew_bankowy.tytul = "opłata skarbowa od pełnomocnictwa"   (nie "Kwota")
+```
+
+- Sprawdza: wartość równa etykiecie innego pola typu (albo słowu z listy `stop`) jest pomijana, wygrywa następne trafienie.
+- Test: `tests/test_pola.py::test_t10_etykieta_nie_jest_wartoscia`
+
 ## Pomiar jakości (to nie jest test)
 
 `tools/ocena_f1.py` przepuszcza wszystkie 60 spraw treningowych przez CLI i liczy F1 według ADR-0003. Przykładowy wynik:

@@ -57,6 +57,7 @@ def przygotuj(pola: dict, ust: dict, fragmenty_typu: dict) -> None:
     for spec in pola.values():
         stopy = [e for s in pola.values() if s is not spec for e in s.get("etykiety", [])] + spec.get("stop", [])
         fragmenty = {**wspolne, "STOP": _etykiety(stopy) if stopy else "(?!)"}
+        spec["_stopy"] = {" ".join(e.lower().split()) for e in stopy}
         przedrostki = [_etykiety([e]) + "{PO_ETYKIECIE}" for e in spec["etykiety"]] if "etykiety" in spec else [""]
         wzorce = [w if isinstance(w, dict) else {"wzorzec": w} for w in spec["wzorce"]]
         sekcja = _rozwin(spec["sekcja"], fragmenty, warianty) if "sekcja" in spec else None
@@ -103,7 +104,7 @@ def trafienia(tekst: str, spec: dict) -> list[tuple[int, object]]:
             continue
         widziane.add(surowe)
         wartosc = spec["_wartosc"](m, surowe, stala)
-        if wartosc not in (None, ""):
+        if wartosc not in (None, "") and str(wartosc).lower() not in spec["_stopy"]:
             wyniki.append((m.start(), wartosc))
     return wyniki
 

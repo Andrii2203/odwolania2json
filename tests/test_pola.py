@@ -1,7 +1,7 @@
 import json
 import pytest
 
-from odwolania2json.pipeline import przetworz, ustawienia, wczytaj_typy
+from odwolania2json.pipeline import przetworz, ustawienia, wczytaj_typy, wyciagnij
 from tools.ocena_f1 import DANE
 
 pytestmark = pytest.mark.skipif(not DANE.exists(), reason="brak data/uzp — zob. AGENTS.md")
@@ -29,3 +29,11 @@ def test_t6_odwolanie(sprawa):
 
     assert typ == "odwolanie"
     assert dane == json.loads((DANE / sprawa / "odwolanie.json").read_text(encoding="utf-8"))
+
+
+def test_t10_etykieta_nie_jest_wartoscia():
+    typ = next(t for t in wczytaj_typy() if t["typ"] == "przelew")
+
+    dane = wyciagnij("Data Opis Kwota\nData operacji 2026-04-09\nTytuł: opłata skarbowa od pełnomocnictwa\n", typ)
+
+    assert dane["przelew_bankowy"]["tytul"] == "opłata skarbowa od pełnomocnictwa"

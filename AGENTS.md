@@ -59,7 +59,7 @@ Obcy dokument (np. ogłoszenie TED) nie daje pliku.
 | `tools/ocena_f1.py` | F1 na 60 sprawach treningowych (ADR-0003) |
 | `tools/przeglad.py` | F1 dla kilku wartości jednej liczby z `config/ustawienia.yaml` (pochodzenie liczb) |
 | `data/uzp/` | klon https://github.com/Urzad-Zamowien-Publicznych/hacknation-2026 (poza git) |
-| `docs/adr/`, `docs/badania/`, `docs/testy.md`, `docs/STAN.md` | decyzje, badania, testy, stan |
+| `docs/adr/`, `docs/badania/`, `docs/testy.md`, `docs/STAN.md`, `docs/kryteria.md` | decyzje, badania, testy, stan, za co punkty UZP i co mamy |
 
 ## Polecenia (Windows)
 

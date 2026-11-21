@@ -62,8 +62,10 @@ def przygotuj(pola: dict, ust: dict, fragmenty_typu: dict) -> None:
         stopy = [e for s in pola.values() if s is not spec for e in s.get("etykiety", [])] + spec.get("stop", [])
         fragmenty = {**wspolne, "STOP": _etykiety(stopy) if stopy else "(?!)"}
         spec["_stopy"] = {" ".join(e.lower().split()) for e in stopy}
-        przedrostki = [_etykiety([e]) + "{PO_ETYKIECIE}" for e in spec["etykiety"]] if "etykiety" in spec else [""]
+        etykiety = spec.get("etykiety", [None])
+        przedrostki = [_etykiety([e]) + "{PO_ETYKIECIE}" if e else "" for e in etykiety]
         wzorce = [w if isinstance(w, dict) else {"wzorzec": w} for w in spec["wzorce"]]
+        spec["_opisy"] = [(f"etykieta „{e}”, " if e else "") + f"wzorzec „{w['wzorzec']}”" for e in etykiety for w in wzorce]
         sekcja = _rozwin(spec["sekcja"], fragmenty, warianty) if "sekcja" in spec else None
         spec["_wzorce"] = [(_rozwin(p + w["wzorzec"], fragmenty, warianty), w.get("wartosc"),
                             _rozwin(w["sekcja"], fragmenty, warianty) if "sekcja" in w else sekcja)
@@ -98,33 +100,38 @@ def _zakresy(sekcja: re.Pattern | None, tekst: str) -> list[tuple[int, int]]:
     return [m.span() for m in sekcja.finditer(tekst)] if sekcja else [(0, len(tekst))]
 
 
-def trafienia(tekst: str, spec: dict) -> list[tuple[int, object]]:
-    trafione = sorted(((m, stala) for wzorzec, stala, sekcja in spec["_wzorce"] for od, do in _zakresy(sekcja, tekst)
-                       for m in wzorzec.finditer(tekst, od, do)), key=lambda t: t[0].start())
+def trafienia(tekst: str, spec: dict) -> list[tuple[int, object, str, str]]:
+    trafione = sorted(((m, stala, opis) for (wzorzec, stala, sekcja), opis in zip(spec["_wzorce"], spec["_opisy"])
+                       for od, do in _zakresy(sekcja, tekst) for m in wzorzec.finditer(tekst, od, do)),
+                      key=lambda t: t[0].start())
     wyniki, widziane = [], set()
-    for m, stala in trafione:
+    for m, stala, opis in trafione:
         surowe = " ".join(m.group(1 if m.re.groups else 0).split())
         if surowe in widziane:
             continue
         widziane.add(surowe)
         wartosc = spec["_wartosc"](m, surowe, stala)
         if wartosc not in (None, "") and str(wartosc).lower() not in spec["_stopy"]:
-            wyniki.append((m.start(), wartosc))
+            wyniki.append((m.start(), wartosc, opis, " ".join(m[0].split())))
     return wyniki
 
 
-def wypelnij(wynik: dict, szablon: dict, sciezka: str, spec: dict, tekst: str, zamkniete: set) -> None:
+def wypelnij(wynik: dict, szablon: dict, sciezka: str, spec: dict, tekst: str, zamkniete: set,
+             dziennik: list | None = None) -> None:
     znalezione = trafienia(tekst, spec)
     czesci = sciezka.split("[]")
+    zapisz = dziennik.append if dziennik is not None else lambda _: None
     if not znalezione:
         return
     if len(czesci) == 1:
-        ustaw(wynik, sciezka, znalezione[0][1])
+        _, wartosc, opis, fragment = znalezione[0]
+        ustaw(wynik, sciezka, wartosc)
+        zapisz({"pole": sciezka, "wartosc": wartosc, "regula": opis, "fragment": fragment})
         return
     glowa, *srodek, reszta = czesci
     lista, wzor = _wez(wynik, glowa), _wez(szablon, glowa)[0]
     granice = [m.start() for m in spec["_podzial"].finditer(tekst)] if spec["_podzial"] else None
-    for i, (poz, wartosc) in enumerate(znalezione):
+    for i, (poz, wartosc, opis, fragment) in enumerate(znalezione):
         if granice is not None:
             i = max(sum(g <= poz for g in granice) - 1, 0)
         if srodek:
@@ -134,11 +141,14 @@ def wypelnij(wynik: dict, szablon: dict, sciezka: str, spec: dict, tekst: str, z
         if i >= len(lista):
             break
         element = lista[i]
+        konkretna = f"{glowa}[{i}]{reszta}"
         if srodek:
             wewnetrzna = _wez(element, srodek[0])
             wewnetrzna.append(pusty(_wez(wzor, srodek[0])[0]))
             element = wewnetrzna[-1]
+            konkretna = f"{glowa}[{i}]{srodek[0]}[{len(wewnetrzna) - 1}]{reszta}"
         elif _wez(element, reszta) is not None:
             continue
         ustaw(element, reszta.lstrip("."), wartosc)
+        zapisz({"pole": konkretna, "wartosc": wartosc, "regula": opis, "fragment": fragment})
     zamkniete.add(glowa)

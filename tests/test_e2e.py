@@ -83,3 +83,18 @@ def test_t9_skany(tmp_path):
 
     assert licznik["trafione_typy"] == licznik["dokumenty"]
     assert f1 >= ustawienia()["narzedzia"]["MIN_F1_SKANY"]
+
+
+def test_t12_wyjasnij(tmp_path):
+    shutil.copy(DANE / "przyklad_01" / "przelew.pdf", (tmp_path / "input" / "przyklad_01").mkdir(parents=True) or tmp_path / "input" / "przyklad_01")
+
+    zwykly = run_cli(tmp_path / "input", tmp_path / "zwykly")
+    wynik = run_cli(tmp_path / "input", tmp_path / "output", "--wyjasnij")
+
+    linie = wynik.stdout.splitlines()
+    i = next(n for n, linia in enumerate(linie) if "przelew_bankowy.kwota = 200.0" in linia)
+    _, regula, fragment, *_ = linie[i:]
+    assert "reguła:" in regula and "200,00" in fragment
+    sciezka = Path("przyklad_01") / "przelew.json"
+    assert (tmp_path / "output" / sciezka).read_text(encoding="utf-8") == (tmp_path / "zwykly" / sciezka).read_text(encoding="utf-8")
+    assert zwykly.returncode == 0

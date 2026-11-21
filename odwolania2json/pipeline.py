@@ -63,22 +63,24 @@ def klasyfikuj(tekst: str, typy: list[dict], ust: dict) -> dict | None:
     return najlepszy if najlepszy is not None and najlepszy_wynik >= najlepszy["prog"] else None
 
 
-def wyciagnij(tekst: str, typ: dict) -> dict:
+def wyciagnij(tekst: str, typ: dict, dziennik: list | None = None) -> dict:
     wynik, zamkniete = pusty(typ["szablon"]), set()
     for sciezka, spec in typ["pola"].items():
-        wypelnij(wynik, typ["szablon"], sciezka, spec, tekst, zamkniete)
+        wypelnij(wynik, typ["szablon"], sciezka, spec, tekst, zamkniete, dziennik)
     return wynik
 
 
-def przetworz(pdf: Path, typy: list[dict], ust: dict) -> tuple[str, dict] | None:
+def przetworz(pdf: Path, typy: list[dict], ust: dict, dziennik: list | None = None) -> tuple[str, dict] | None:
     tekst = tekst_pdf(pdf, ust)
     typ = klasyfikuj(tekst, typy, ust)
-    return None if typ is None else (typ["typ"], wyciagnij(tekst, typ))
+    return None if typ is None else (typ["typ"], wyciagnij(tekst, typ, dziennik))
 
 
-def przetworz_wszystkie(pdfy: Iterable[Path], typy: list[dict], ust: dict) -> Iterator[tuple[Path, tuple[str, dict] | None, Exception | None]]:
+def przetworz_wszystkie(pdfy: Iterable[Path], typy: list[dict], ust: dict,
+                        dzienniki: dict | None = None) -> Iterator[tuple[Path, tuple[str, dict] | None, Exception | None]]:
     for pdf in pdfy:
         try:
-            yield pdf, przetworz(pdf, typy, ust), None
+            dziennik = dzienniki.setdefault(pdf, []) if dzienniki is not None else None
+            yield pdf, przetworz(pdf, typy, ust, dziennik), None
         except Exception as blad:
             yield pdf, None, blad

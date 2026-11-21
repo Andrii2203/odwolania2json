@@ -62,7 +62,7 @@ Odwolujacy[0].nazwa = "Belmoria Rozwiązania S.A."
 | 7 | nie ma | klucz OVHcloud działa (ADR-0004) | wywołanie, sprawdzenie „wartość jest w tekście” |
 | 8 | nie ma | | kandydaci z innych dokumentów sprawy |
 | 9 | częściowo | daty ISO, słownik słowo -> id (ADR-0010), rachunek z „PL” (ADR-0014) | mianownik (Morfeusz2), duplikaty NIP z myślnikami i bez |
-| 10 | częściowo | JSON w `output/` | dziennik, `--wyjasnij`, podgląd w GUI |
+| 10 | jest | JSON w `output/`; dziennik: `--wyjasnij` w CLI i tabela „Skąd każda wartość” w GUI (T12) | wpisy bramki (etap 5), gdy powstanie |
 
 ## Jak sprawdzić etap
 

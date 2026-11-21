@@ -173,6 +173,22 @@ Tytuł: opłata skarbowa od pełnomocnictwa
 - Źródło: UZP na Discordzie (21.11): numer taki, jak w dokumencie; wzorce bez „PL” to błąd, którego nie będzie w zbiorze testowym. Wzorce skanów mają `PL` + 26 cyfr bez spacji.
 - Test: `tests/test_pola.py::test_t11_rachunek_z_pl`
 
+## T12. `--wyjasnij`: dla każdego pola reguła i fragment tekstu, JSON bez zmian
+
+```
+python -m odwolania2json --wyjasnij  (input/przyklad_01/przelew.pdf)
+przyklad_01/przelew.pdf → przelew
+  przelew_bankowy.kwota = 200.0
+      reguła: etykieta „kwota”, wzorzec „({KWOTA})”
+      tekst:  „Kwota 200,00 PLN”
+  ...
+  puste: (brak)
+output/przyklad_01/przelew.json  -> taki sam jak bez --wyjasnij
+```
+
+- Źródło: UZP premiuje „transparentność procesu ekstrakcji”; dziennik służy też do szukania błędów (ADR-0012, etap 10).
+- Test: `tests/test_e2e.py::test_t12_wyjasnij`
+
 ## Pomiar jakości (to nie jest test)
 
 `tools/ocena_f1.py` przepuszcza wszystkie 60 spraw treningowych przez CLI i liczy F1 według ADR-0003. Przykładowy wynik:

@@ -40,7 +40,8 @@ def main() -> None:
             st.subheader(plik.name)
             with st.spinner(f"Przetwarzanie pliku {plik.name}..."):
                 obrazy = obrazy_stron(sciezka)
-                _, wynik, blad = next(przetworz_wszystkie([sciezka], typy, ust))
+                dzienniki = {}
+                _, wynik, blad = next(przetworz_wszystkie([sciezka], typy, ust, dzienniki))
 
             lewa, prawa = st.columns([1, 1])
 
@@ -52,11 +53,14 @@ def main() -> None:
                 if blad is not None:
                     st.error(f"Błąd przetwarzania: {type(blad).__name__}: {blad}")
                 elif wynik is None:
-                    st.warning("Nieznany typ dokumentu")
+                    st.warning("Nieznany typ dokumentu: plik JSON z {}")
                 else:
                     typ, dane = wynik
                     st.markdown(f"**Typ dokumentu:** `{typ}`")
                     st.json(dane)
+                    with st.expander("Skąd każda wartość (reguła i fragment tekstu)"):
+                        st.table([{"pole": w["pole"], "wartość": str(w["wartosc"]), "reguła": w["regula"],
+                                   "tekst": w["fragment"]} for w in dzienniki.get(sciezka, [])])
 
 
 if __name__ == "__main__":

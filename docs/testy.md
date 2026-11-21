@@ -2,6 +2,7 @@
 
 TDD: najpierw opis tutaj (z przykładem), potem czerwony test, kod i zielony test.
 Każdy test to jeden przykład. Testu bez punktu w tym pliku nie piszemy.
+Ścieżki do danych UZP są w jednym miejscu: `UZP` (`data/uzp`) i `DANE` (`data/uzp/dane`) w `tools/ocena_f1.py`; testy ich używają.
 
 ## T1. Test przekrojowy (walking skeleton): każda sprawa z 3 dokumentów daje 3 JSON
 

@@ -10,7 +10,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from odwolania2json.cli import konsola_utf8
 from odwolania2json.pipeline import KONFIG, ROOT, przetworz_wszystkie, ustawienia, wczytaj_typy
 
-DANE = ROOT / "data" / "uzp" / "dane"
+UZP = ROOT / "data" / "uzp"
+DANE = UZP / "dane"
 
 
 def liscie(v, sciezka=""):

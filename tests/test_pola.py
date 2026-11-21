@@ -1,9 +1,8 @@
 import json
 import pytest
 
-from odwolania2json.pipeline import ROOT, przetworz, ustawienia, wczytaj_typy
-
-DANE = ROOT / "data" / "uzp" / "dane"
+from odwolania2json.pipeline import przetworz, ustawienia, wczytaj_typy
+from tools.ocena_f1 import DANE
 
 pytestmark = pytest.mark.skipif(not DANE.exists(), reason="brak data/uzp — zob. AGENTS.md")
 

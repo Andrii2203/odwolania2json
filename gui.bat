@@ -3,7 +3,7 @@ cd /d "%~dp0"
 echo === Odwolania2JSON - GUI ===
 if not exist .venv\Scripts\python.exe (
   echo [1/3] Tworzenie srodowiska Python .venv...
-  py -3 -m venv .venv
+  py -3.13 -m venv .venv 2>nul || py -3 -m venv .venv
 ) else (
   echo [1/3] Srodowisko Python .venv gotowe.
 )

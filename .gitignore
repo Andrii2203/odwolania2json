@@ -1,0 +1,13 @@
+# Materiały zadań i dane treningowe tylko lokalnie (ADR-0001)
+/docs/*/
+!/docs/adr/
+/data/
+/input/*
+!/input/.gitkeep
+/output/*
+!/output/.gitkeep
+.env
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/

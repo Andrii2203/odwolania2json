@@ -1,6 +1,6 @@
 # Stan
 
-Aktualizacja: 2026-11-21 14:45, Claude.
+Aktualizacja: 2026-11-21 wieczór, Claude.
 
 ## Zrobione
 
@@ -11,6 +11,7 @@ Aktualizacja: 2026-11-21 14:45, Claude.
 - Pola `przelew` regułami: 4 błędy na ok. 360 pól.
 - Pola `pelnomocnictwo` wzorcami regex i listami (ADR-0008): 1 błąd (PESEL w jednej sprawie). Łączny **F1 = 0.571** (`odwolanie` jeszcze puste).
 - Zgłoszenie w HackTribe: szkic zapisany.
+- ADR-0009: jeden mechanizm pól (`wzorce`, `etykiety` to skrót), formaty wartości w YAML. Wszystkie liczby w `config/ustawienia.yaml` z pochodzeniem (pomiar `tools/przeglad.py`); pilnuje test T5. Wynik 180 JSON bajt w bajt bez zmian.
 - Straże: pre-commit (testy, język polski), hooki Claude (TDD, stop), CI na Windows (`.github/workflows/testy.yml`, ostatni przebieg zielony). Opis w `AGENTS.md`.
 - Klucz OVHcloud działa (`chat/completions`, test 16 tokenów). `GET /v1/models` z kluczem zwraca 403; to cecha OVH, nie błąd klucza.
 - Argon (szczegóły w `docs/badania/`):
@@ -24,7 +25,7 @@ Aktualizacja: 2026-11-21 14:45, Claude.
 
 | Kiedy | Kto | Co |
 |---|---|---|
-| sb wieczór | Claude | Pola `odwolanie` wzorcami (ADR-0008); słownik `data/uzp/.../czynnosc_powod_id` |
+| sb wieczór | Claude | Pola `odwolanie` wzorcami (ADR-0008, fragmenty `{NIP}`, `{KRS}` gotowe); słownik `data/uzp/.../czynnosc_powod_id` |
 | sb noc | Claude | Klient LLM (OVHcloud) z limitem tokenów w `config/ustawienia.yaml`; wybór modelu pomiarem F1; OCR (ADR-0007) |
 | nd 7:00-9:30 | [Argon] | Prezentacja PDF <= 10 MB wg ADR-0006; `README.md` po polsku |
 | nd przed 11:00 | Użytkownik | Repozytorium publiczne (jury musi je otworzyć); `.env` poza git |

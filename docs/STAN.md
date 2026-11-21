@@ -1,6 +1,6 @@
 # Stan
 
-Aktualizacja: 2026-11-21 noc, Claude (skany, porządki liczb, kryteria). Następny czat zaczyna od „Plan” niżej.
+Aktualizacja: 2026-11-22 00:45, Claude (nowy plan: ocena na VM UZP). Następny czat zaczyna od „Plan” niżej.
 
 ## Zrobione
 
@@ -22,10 +22,13 @@ Aktualizacja: 2026-11-21 noc, Claude (skany, porządki liczb, kryteria). Następ
 - Noc 21/22.11: obcy, pusty, uszkodzony PDF -> `{}` (ADR-0013); rachunek z „PL” jak w dokumencie (ADR-0014, 48/60 przelewów ma „PL”); nagłówki stron bez wielkości liter („ODWOŁUJĄCY:” 0.755 -> 1.000); dziennik `--wyjasnij` i tabela w GUI (T12); bramka `utnij` dla nazw (ADR-0015); etykiety banków dla tytułu przelewu („Tytuł operacji” 0.833 -> 0.995); kontekst sprawy (ADR-0016). Warianty **F1 0.9798** (było 0.9559), skany **0.9462** (było 0.9396), treningowe 0.9990 bez zmian.
 - Porządki 21.11 (ADR-0009 pkt 9): znaki-reguły z kodu do `ustawienia.yaml` (`obcinane_po_bramce`, `separatory_dziesietne`, `ROZDZIELNIK_CYFR`); bez dubli: `dokument_z_tekstu` i `kontekst_sprawy` w `pipeline.py` wspólne dla CLI, GUI i `tools/warianty.py`; `miara_f1`, `typy_wzorow`, `pole_ogolne` raz, w `tools/ocena_f1.py`. Wyniki bez zmian (treningowe 0.9990, warianty 0.9798, obce 0/160).
 - GLiNER2 sprawdzony i odrzucony: F1 0.551 wobec 0.999 reguł, odwołanie 14,8 s (`docs/badania/gliner2.md`).
+- Wektory etykiet (etap 6) zmierzone w ślepym teście poza repozytorium (`docs/badania/wektory-etykiet.md`): Test 1 (1 etykieta/pole w `przelew.yaml`, wycięte 46 synonimów) F1 **0.3900 -> 0.6486** (`multilingual-e5-small` CPU ONNX, 0,45 s) i **0.7132** (OVHcloud `bge-m3`); Test 2 (100 nowych ślepych wariantów etykiet, 5 210 dokumentów, zamrożony YAML) F1 **0.9270 -> 0.9624** (`multilingual-e5-small`, czysty czas ONNX 0,98 s) i **0.9634** (OVHcloud `bge-m3`).
 - Czas (ten komputer, 16 wątków): cyfrowa sprawa 3 dokumenty 0,4 s; skany ok. 4 s na stronę (odwołanie 5 stron ok. 20 s). JSON zapisywany zaraz po każdym dokumencie. Ryzyko: wiele skanów na słabym komputerze.
 - GUI (ADR-0006): `odwolania2json/gui.py`, `gui.bat` (Streamlit, PDF obok JSON).
 
 ## Nowe od UZP (2026-11-21)
+
+- 22.11 w nocy: `data/uzp/VM.md` (ocena na maszynie UZP, zob. „Plan”); README: 150 PDF w 45 min; zasady punktów za model jeszcze zmieniane („stay tuned”). Discord: rachunek bez spacji, z kodem kraju, jeśli jest (nie tylko PL); lokalny mały model NER (~0,2 mld) dozwolony; jednego PDF z załącznikami w ocenie nie będzie; pytanie bez odpowiedzi: data zlecenia czy księgowania jako `data_operacji`.
 
 - `data/uzp/dane/skany/`: 30 skanów z wzorcami JSON. Według użytkownika na stoisku UZP pokazują te same dane, co na GitHubie, więc skany najlepiej przypominają zbiór testowy.
 - Imiona i nazwiska w mianowniku. LLM tylko przez firmę z polityką prywatności, serwery w UE/EOG, bez hostingu prywatnego.
@@ -41,26 +44,24 @@ Aktualizacja: 2026-11-21 noc, Claude (skany, porządki liczb, kryteria). Następ
   - Ocena na PDF cyfrowych i na skanach.
   - LLM tylko u firmy z polityką prywatności; hosting LLM przez osobę prywatną (własny komputer) wykluczony. Nie wiadomo, czy dotyczy to małego modelu nie-LLM (GLiNER2, ok. 0,2 mld parametrów) uruchamianego lokalnie jak OCR: zapytać.
 
-## Plan (noc 21/22.11): potok etapów, `docs/potok.md`, ADR-0012
+## Plan (22.11 od 00:45): ocena na maszynie UZP (`data/uzp/VM.md`)
 
-Etapy podłączamy po jednym; po każdym pomiar (`ocena_f1.py`, skany, `warianty.py`, obce) i tabela stanu w `docs/potok.md`.
+UZP ocenia na swojej maszynie wirtualnej: Ubuntu 24.04, 2 vCPU, 16 GB, bez GPU, Python 3.12, internet jest. Oceniający wgrywa PDF do `/opt/solution/input`, uruchamia komendę z `/opt/solution/RUN.md` (z `sudo`, bez interakcji), zabiera `/opt/solution/output`. Dostęp zespołów odcięty 22.11 o 11:00. README UZP: 150 PDF w 45 min (18 s na PDF). Lokalne modele, które mieszczą się w czasie: 20 pkt.
 
-| # | Kto | Etap | Co |
+| # | Kto | Co | Dlaczego |
 |---|---|---|---|
-| 1 | Claude | **zrobione** 2 | Sekcje bez wielkości liter („ODWOŁUJĄCY:” gubi wszystkie pola Odwołującego, F1 wariantu 0.755); przeniesienia wyrazów |
-| 2 | Claude | **zrobione** 10 | Dziennik „skąd każda wartość” (etap, reguła, fragment tekstu), `--wyjasnij`, podgląd w GUI; potrzebny do szukania błędów w kolejnych etapach |
-| 3 | Claude | **częściowo** (nazwy: `utnij`, ADR-0015) 5 | Bramka: stopy w środku linii (adres „ul.”, kod pocztowy, „KRS:”, „NIP:”, e-mail), reguły w YAML; cel: `laczenie_linii` (0.834) |
-| 4 | Claude | **zrobione** (ADR-0016) 8 | Kontekst sprawy: wartości z innych dokumentów sprawy jako kandydaci, tylko jeśli są w tekście |
-| 0a | Claude | **zrobione** 0, 10 | Obcy, pusty i uszkodzony PDF -> plik z `{}` (Discord UZP); zmiana T2, ADR. Robimy najpierw: pewny wpływ na ocenę |
-| 0b | Claude | **zrobione** 9 | Rachunek z „PL”, jeśli jest w dokumencie (Discord UZP); `tools/ocena_f1.py` porównuje rachunek bez „PL”, bo wzorce treningowe są tu błędne; ADR. Robimy najpierw |
-| 0c | Claude | **zrobione** | Czas: zmierzyć sekundy na dokument (cyfrowy, skan, z GLiNER2); JSON zapisywany zaraz po każdym dokumencie |
-| 6 | Claude | 1 | Słownik sjp.pl (CC BY 4.0) zamiast łatek `poprawki_ocr`; pomiar na skanach |
-| 7 | Claude | 9 | Mianownik (Morfeusz2, BSD-2: sprawdzić wheel dla Python 3.13), duplikaty NIP z myślnikami i bez |
-| 8 | Claude + Użytkownik | 6, 7 | Decyzja: wektory etykiet i/lub LLM dla pól, które nadal są puste (po pomiarze 1–7); nowe zamiany etykiet w `warianty`, których reguły nie widziały |
-| 9 | Claude | | Obce dokumenty poza TED (faktury, wyroki KIO, BZP); `README.md`; instrukcja „jak dodać nowy typ” (finał) |
-| 10 | [Argon] | | Prezentacja PDF <= 10 MB wg ADR-0006 |
-| 11 | Użytkownik | | Repozytorium publiczne przed 11:00; `.env` poza git; zapytać UZP o lokalny model embeddingów |
-| 12 | Claude + Użytkownik | | Finalny pomiar F1, `start.bat` na czystym katalogu, oddanie; termin nd 11:00 |
+| 1 | Użytkownik | Formularz VM (jeden na zespół), od razu | bez maszyny nie ma oceny; czekamy na login i IP |
+| 2 | Claude | Linux: Python 3.13 przez `uv` (na VM jest 3.12, UZP wymaga 3.13+), `RUN.md`, skrypt instalacji, modele OCR pobrane przy instalacji, test po `sudo reboot` | komenda musi działać bez nas |
+| 3 | Claude | Czas na 2 vCPU: pomiar skanów; straż czasu (liczba w `ustawienia.yaml`): po przekroczeniu reszta bez OCR; ewentualnie OCR tylko pierwszych stron, DPI (`tools/przeglad.py`) | 45 min na 150 PDF, nie wiemy, ile skanów |
+| 4 | Claude | Rachunek z dowolnym kodem kraju (IBAN), bez spacji (Discord) | F1 |
+| 5 | Claude | Ten sam NIP z myślnikami i bez: jeden mocodawca; inne znane błędy skanów („Otwarte pytania” 5) | F1; skany najbliżej zbioru testowego |
+| 6 | Claude | `README.md`, „jak dodać nowy typ” | finał: 50% za konfigurację nowych typów |
+| 7 | Claude | GUI: pliki jako jedna sprawa (kontekst), cache, edycja JSON, pobieranie JSON i ZIP | prezentacja, przejrzystość |
+| 8 | [Argon] | Prezentacja PDF <= 10 MB wg ADR-0006 | |
+| 9 | Użytkownik | Repozytorium publiczne, `.env` poza git, nazwa zespołu jak w drafcie (Discord) | |
+| 10 | Claude + Użytkownik | Końcowy test na VM dokładnie jak UZP (czyste `output/`, komenda z `RUN.md`, po restarcie), STAN | |
+
+Odłożone: wektory etykiet (etap 6, `docs/badania/wektory-etykiet.md`): na 2 vCPU z limitem czasu i bez zysku na znanych etykietach ryzyko większe niż zysk; opis w prezentacji. Słownik sjp.pl, Morfeusz.
 
 ## Otwarte pytania
 

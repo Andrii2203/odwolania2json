@@ -14,3 +14,6 @@ __pycache__/
 .pytest_cache/
 /argon.cmd
 /.agents/
+/.python/
+/.narzedzia/
+/.uv-cache/

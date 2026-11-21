@@ -9,6 +9,8 @@ on:
       - "tools/**"
       - "requirements*.txt"
       - "start.bat"
+      - "instaluj.sh"
+      - "uruchom.sh"
       - ".github/workflows/**"
 
 jobs:
@@ -23,3 +25,14 @@ jobs:
       - run: git clone --depth 1 https://github.com/Urzad-Zamowien-Publicznych/hacknation-2026 data/uzp
       - run: python -m pytest -q
       - run: python tools/ocena_f1.py
+
+  maszyna:
+    # jak maszyna UZP (ADR-0017): Ubuntu 24.04, systemowy Python 3.12, instalacja i uruchomienie naszymi skryptami
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: sh instaluj.sh
+      - run: .narzedzia/bin/uv pip install -q --python .venv/bin/python -r requirements-dev.txt
+      - run: git clone --depth 1 https://github.com/Urzad-Zamowien-Publicznych/hacknation-2026 data/uzp
+      - run: .venv/bin/python -m pytest -q
+      - run: nproc && cp -r data/uzp/dane/. input/ && time sh uruchom.sh > /dev/null && find input -name '*.pdf' | wc -l && find output -name '*.json' | wc -l

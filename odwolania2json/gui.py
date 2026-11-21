@@ -5,26 +5,23 @@ from pathlib import Path
 import pypdfium2 as pdfium
 import streamlit as st
 
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
-from odwolania2json.pipeline import load_types, process
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from odwolania2json.pipeline import przetworz, wczytaj_typy
 
 
-def render_pages(pdf_path: Path) -> list:
-    doc = pdfium.PdfDocument(str(pdf_path))
+def obrazy_stron(pdf: Path) -> list:
+    dokument = pdfium.PdfDocument(str(pdf))
     try:
-        return [page.render().to_pil() for page in doc]
+        return [strona.render().to_pil() for strona in dokument]
     finally:
-        doc.close()
+        dokument.close()
 
 
 def main() -> None:
     st.set_page_config(page_title="Odwołania2JSON", layout="wide")
     st.title("Odwołania2JSON")
 
-    typy = load_types()
+    typy = wczytaj_typy()
     pliki = st.file_uploader(
         "Wgraj jeden lub kilka plików PDF",
         type=["pdf"],
@@ -35,21 +32,21 @@ def main() -> None:
         st.info("Wybierz pliki PDF, aby rozpocząć analizę.")
         return
 
-    with tempfile.TemporaryDirectory() as tmp_dir:
+    with tempfile.TemporaryDirectory() as katalog:
         for plik in pliki:
-            sciezka = Path(tmp_dir) / Path(plik.name).name
+            sciezka = Path(katalog) / Path(plik.name).name
             sciezka.write_bytes(plik.getvalue())
 
             st.subheader(plik.name)
             with st.spinner(f"Przetwarzanie pliku {plik.name}..."):
-                obrazy = render_pages(sciezka)
-                wynik = process(sciezka, typy)
+                obrazy = obrazy_stron(sciezka)
+                wynik = przetworz(sciezka, typy)
 
             lewa, prawa = st.columns([1, 1])
 
             with lewa:
-                for idx, obraz in enumerate(obrazy, start=1):
-                    st.image(obraz, caption=f"Strona {idx}", use_container_width=True)
+                for nr, obraz in enumerate(obrazy, start=1):
+                    st.image(obraz, caption=f"Strona {nr}", use_container_width=True)
 
             with prawa:
                 if wynik is None:

@@ -1,18 +1,14 @@
 import argparse
 import json
 import re
-import subprocess
 import sys
-import tempfile
 from collections import Counter
 from pathlib import Path
 from statistics import harmonic_mean
 
-import yaml
-
-ROOT = Path(__file__).resolve().parents[1]
-WZORZEC = {"odwolanie": "odwolanie.json", "pelnomocnictwo": "pelnomocnictwo.json",
-           "potwierdzenie_przelewu": "przelew.json"}
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from odwolania2json.cli import konsola_utf8
+from odwolania2json.pipeline import KONFIG, ROOT, przetworz, ustawienia, wczytaj_typy
 
 
 def liscie(v, sciezka=""):
@@ -44,35 +40,47 @@ def porownaj(wzor, nasz):
 def main() -> int:
     ap = argparse.ArgumentParser(description="F1 na danych treningowych UZP (ADR-0003)")
     ap.add_argument("--dane", type=Path, default=ROOT / "data" / "uzp" / "dane")
-    ap.add_argument("--config", type=Path, default=ROOT / "config")
+    ap.add_argument("--config", type=Path, default=KONFIG)
     ap.add_argument("--bez-pol", action="store_true", help="tylko wynik, bez listy pól z błędami")
     args = ap.parse_args()
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    konsola_utf8()
 
-    with tempfile.TemporaryDirectory() as tmp:
-        wyjscie = Path(tmp)
-        subprocess.run([sys.executable, "-m", "odwolania2json", "--input", str(args.dane),
-                        "--output", str(wyjscie), "--config", str(args.config)], cwd=ROOT, check=True, capture_output=True)
-        suma, pola = Counter(), Counter()
-        dokumenty = trafione_typy = 0
-        for sprawa in sorted(p for p in args.dane.iterdir() if all((p / n).exists() for n in WZORZEC.values())):
-            for nazwa_pdf, nazwa_wzoru in WZORZEC.items():
-                wzor = json.loads((sprawa / nazwa_wzoru).read_text(encoding="utf-8"))
-                plik = wyjscie / sprawa.name / f"{nazwa_pdf}.json"
-                nasz = json.loads(plik.read_text(encoding="utf-8")) if plik.exists() else {}
-                dokumenty += 1
-                trafione_typy += nasz.keys() == wzor.keys()
-                for sciezka, wynik in porownaj(wzor, nasz):
-                    suma[wynik] += 1
-                    pola[(nazwa_pdf, re.sub(r"\[\d+\]", "[]", sciezka), wynik)] += 1
-        obce = list(args.dane.glob("negatywne/*.pdf"))
-        obce_z_json = sum((wyjscie / "negatywne" / p.with_suffix(".json").name).exists() for p in obce)
+    typy = wczytaj_typy(args.config)
+    typ_wzoru = {frozenset(t["szablon"]): t["typ"] for t in typy}
+    suma, pola = Counter(), Counter()
+    dokumenty = trafione_typy = obce = obce_z_json = 0
+
+    def licz(typ, pary):
+        for sciezka, wynik in pary:
+            suma[wynik] += 1
+            pola[(typ, re.sub(r"\[\d+\]", "[]", sciezka), wynik)] += 1
+
+    for sprawa in sorted(p for p in args.dane.iterdir() if p.is_dir()):
+        nasze = {}
+        for pdf in sorted(sprawa.glob("*.pdf")):
+            if wynik := przetworz(pdf, typy):
+                nasze.setdefault(wynik[0], []).append(wynik[1])
+        wzory = sorted(sprawa.glob("*.json"))
+        if not wzory:
+            obce += len(list(sprawa.glob("*.pdf")))
+            obce_z_json += sum(map(len, nasze.values()))
+            continue
+        for plik in wzory:
+            wzor = json.loads(plik.read_text(encoding="utf-8"))
+            typ = typ_wzoru.get(frozenset(wzor), plik.stem)
+            nasz = nasze[typ].pop(0) if nasze.get(typ) else {}
+            dokumenty += 1
+            trafione_typy += bool(nasz)
+            licz(typ, porownaj(wzor, nasz))
+        for typ, nadmiarowe in nasze.items():
+            for nasz in nadmiarowe:
+                licz(typ, porownaj({}, nasz))
 
     tp, fp, fn = suma["TP"], suma["FP"], suma["FN"]
     f1 = harmonic_mean([tp / (tp + fp), tp / (tp + fn)]) if tp else 0.0
-    miejsca = yaml.safe_load((args.config / "ustawienia.yaml").read_text(encoding="utf-8"))["narzedzia"]["MIEJSCA_F1"]
+    miejsca = ustawienia(args.config)["narzedzia"]["MIEJSCA_F1"]
     print(f"Dokumenty: {dokumenty} | typ poprawny: {trafione_typy}/{dokumenty}")
-    print(f"Obce dokumenty z JSON: {obce_z_json}/{len(obce)}")
+    print(f"Obce dokumenty z JSON: {obce_z_json}/{obce}")
     print(f"F1 = {f1:.{miejsca}f}  (TP {tp} | FP {fp} | FN {fn})")
     bledy = Counter()
     for (typ, pole, wynik), ile in pola.items():

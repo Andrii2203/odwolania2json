@@ -7,7 +7,9 @@ from pathlib import Path
 
 import yaml
 
-ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from odwolania2json.cli import konsola_utf8
+from odwolania2json.pipeline import KONFIG, ROOT, USTAWIENIA, ustawienia
 
 
 def main() -> int:
@@ -15,16 +17,15 @@ def main() -> int:
     ap.add_argument("liczba", help="nazwa z sekcji liczby, np. OKNO_WARTOSCI")
     ap.add_argument("wartosci", nargs="+", type=float)
     args = ap.parse_args()
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    konsola_utf8()
 
     for wartosc in args.wartosci:
         with tempfile.TemporaryDirectory() as tmp:
             config = Path(tmp) / "config"
-            shutil.copytree(ROOT / "config", config)
-            plik = config / "ustawienia.yaml"
-            ust = yaml.safe_load(plik.read_text(encoding="utf-8"))
+            shutil.copytree(KONFIG, config)
+            ust = ustawienia(config)
             ust["liczby"][args.liczba] = int(wartosc) if wartosc.is_integer() else wartosc
-            plik.write_text(yaml.safe_dump(ust, allow_unicode=True), encoding="utf-8")
+            (config / USTAWIENIA).write_text(yaml.safe_dump(ust, allow_unicode=True), encoding="utf-8")
             wynik = subprocess.run([sys.executable, str(ROOT / "tools" / "ocena_f1.py"), "--config", str(config),
                                     "--bez-pol"], capture_output=True, text=True, encoding="utf-8").stdout
             print(f"{args.liczba} = {ust['liczby'][args.liczba]}: " + " | ".join(wynik.splitlines()))

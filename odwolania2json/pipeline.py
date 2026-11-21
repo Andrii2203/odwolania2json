@@ -8,6 +8,7 @@ from .pola import przygotuj, pusty, wypelnij
 
 ROOT = Path(__file__).resolve().parents[1]
 KONFIG = ROOT / "config"
+USTAWIENIA = "ustawienia.yaml"
 
 
 def _yaml(p: Path):
@@ -15,57 +16,57 @@ def _yaml(p: Path):
 
 
 def ustawienia(config: Path = KONFIG) -> dict:
-    return _yaml(config / "ustawienia.yaml")
+    return _yaml(config / USTAWIENIA)
 
 
-def load_types(config: Path = KONFIG) -> list[dict]:
+def wczytaj_typy(config: Path = KONFIG) -> list[dict]:
     ust = ustawienia(config)
-    types = [_yaml(p) for p in sorted((config / "typy").glob("*.yaml"))]
-    for t in types:
+    typy = [_yaml(p) for p in sorted((config / "typy").glob("*.yaml"))]
+    for t in typy:
         t["prog"] = ust["liczby"]["PROG"]
         t["wykluczenia"] = ust["wykluczenia"] + t.get("wykluczenia", [])
         przygotuj(t.setdefault("pola", {}), ust)
-    return types
+    return typy
 
 
-def pdf_text(pdf: Path) -> str:
+def tekst_pdf(pdf: Path) -> str:
     try:
-        return "\n".join(page.extract_text() or "" for page in PdfReader(pdf).pages)
+        return "\n".join(strona.extract_text() or "" for strona in PdfReader(pdf).pages)
     except Exception:
         return ""
 
 
-def _squash(s: str) -> str:
+def _scisnij(s: str) -> str:
     # „P E Ł N O M O C N I C T W O” → „pełnomocnictwo”
     return re.sub(r"\s+", "", s).lower()
 
 
-def _found(mark: str | list[str], flat: str) -> bool:
-    alternatives = mark if isinstance(mark, list) else [mark]
-    return any(_squash(m) in flat for m in alternatives)
+def _jest(znacznik: str | list[str], plaski: str) -> bool:
+    warianty = znacznik if isinstance(znacznik, list) else [znacznik]
+    return any(_scisnij(w) in plaski for w in warianty)
 
 
-def classify(text: str, types: list[dict]) -> dict | None:
-    flat = _squash(text)
-    best, best_score = None, 0.0
-    for t in types:
-        if any(_found(w, flat) for w in t["wykluczenia"]):
+def klasyfikuj(tekst: str, typy: list[dict]) -> dict | None:
+    plaski = _scisnij(tekst)
+    najlepszy, najlepszy_wynik = None, 0.0
+    for t in typy:
+        if any(_jest(w, plaski) for w in t["wykluczenia"]):
             continue
-        marks = t["znaczniki"]
-        score = sum(_found(m, flat) for m in marks) / len(marks)
-        if score > best_score:
-            best, best_score = t, score
-    return best if best is not None and best_score >= best["prog"] else None
+        znaczniki = t["znaczniki"]
+        wynik = sum(_jest(z, plaski) for z in znaczniki) / len(znaczniki)
+        if wynik > najlepszy_wynik:
+            najlepszy, najlepszy_wynik = t, wynik
+    return najlepszy if najlepszy is not None and najlepszy_wynik >= najlepszy["prog"] else None
 
 
-def extract(text: str, typ: dict) -> dict:
+def wyciagnij(tekst: str, typ: dict) -> dict:
     wynik, zamkniete = pusty(typ["szablon"]), set()
     for sciezka, spec in typ["pola"].items():
-        wypelnij(wynik, typ["szablon"], sciezka, spec, text, zamkniete)
+        wypelnij(wynik, typ["szablon"], sciezka, spec, tekst, zamkniete)
     return wynik
 
 
-def process(pdf: Path, types: list[dict]) -> tuple[str, dict] | None:
-    text = pdf_text(pdf)
-    typ = classify(text, types)
-    return None if typ is None else (typ["typ"], extract(text, typ))
+def przetworz(pdf: Path, typy: list[dict]) -> tuple[str, dict] | None:
+    tekst = tekst_pdf(pdf)
+    typ = klasyfikuj(tekst, typy)
+    return None if typ is None else (typ["typ"], wyciagnij(tekst, typ))

@@ -6,7 +6,7 @@ Aktualizacja: 2026-11-21 wieczór, Claude.
 
 - Repozytorium (prywatne): https://github.com/Andrii2203/odwolania2json. Python 3.13.
 - `AGENTS.md` (+ `CLAUDE.md`, `GEMINI.md`), ADR-0001..0007, `docs/testy.md` (T1, T2, T3).
-- Potok: CLI `input/ -> output/`, klasyfikacja z YAML (`znaczniki`, `wykluczenia`), wyciąganie pól z YAML (`pola`: `etykiety` i `format`), `process()` wspólne dla CLI i GUI.
+- Potok: CLI `input/ -> output/`, klasyfikacja z YAML (`znaczniki`, `wykluczenia`), wyciąganie pól z YAML (`pola`: `etykiety` i `format`), `przetworz()` wspólne dla CLI i GUI.
 - Klasyfikacja: 180/180 dokumentów treningowych poprawnie, 13/13 obcych dokumentów UZP bez JSON.
 - Pola `przelew` regułami: 4 błędy na ok. 360 pól.
 - Pola `pelnomocnictwo` wzorcami regex i listami (ADR-0008): 1 błąd (PESEL w jednej sprawie). Łączny **F1 = 0.571** (`odwolanie` jeszcze puste).

@@ -60,7 +60,7 @@ Odwolujacy[0].nazwa = "Belmoria Rozwiązania S.A."
 | 5 | częściowo | `format` (cyfry, data, liczba, tekst, bez_spacji); tekst kończy się na następnej etykiecie (`{STOP}`); etykieta innego pola nie jest wartością (T10); `utnij` w YAML: nazwa kończy się przed adresem, numerem, e-mailem (T13, ADR-0015) | sekcja, gdy nagłówek strony jest w środku linii; tytuł przelewu w środku linii; sumy kontrolne NIP/REGON odpadają: dane UZP ich nie spełniają (144/218 NIP) |
 | 6 | nie ma | GLiNER2 sprawdzony i odrzucony: F1 0.551, odwołanie 14,8 s (`docs/badania/gliner2.md`) | wektory etykiet (np. `multilingual-e5-small`, lokalnie, CPU) |
 | 7 | nie ma | klucz OVHcloud działa (ADR-0004) | wywołanie, sprawdzenie „wartość jest w tekście” |
-| 8 | nie ma | | kandydaci z innych dokumentów sprawy |
+| 8 | jest | klucz `kontekst` w pliku typu: puste pole z innego dokumentu sprawy, jeśli wartość jest w tekście (T14, ADR-0016) | mianownik z innego dokumentu; wybór między kandydatami |
 | 9 | częściowo | daty ISO, słownik słowo -> id (ADR-0010), rachunek z „PL” (ADR-0014) | mianownik (Morfeusz2), duplikaty NIP z myślnikami i bez |
 | 10 | jest | JSON w `output/`; dziennik: `--wyjasnij` w CLI i tabela „Skąd każda wartość” w GUI (T12) | wpisy bramki (etap 5), gdy powstanie |
 

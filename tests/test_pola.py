@@ -1,7 +1,7 @@
 import json
 import pytest
 
-from odwolania2json.pipeline import przetworz, ustawienia, wczytaj_typy, wyciagnij
+from odwolania2json.pipeline import przetworz, uzupelnij_sprawe, ustawienia, wczytaj_typy, wyciagnij
 from tools.ocena_f1 import DANE, bez_prefiksu
 
 pytestmark = pytest.mark.skipif(not DANE.exists(), reason="brak data/uzp — zob. AGENTS.md")
@@ -58,3 +58,17 @@ def test_t13_bramka_utnij():
 
     assert dane["Odwolujacy"][0]["nazwa"] == "Belmoria Rozwiązania S.A."
     assert any("ucięte przed" in w["regula"] for w in dziennik if w["pole"] == "Odwolujacy[0].nazwa")
+
+
+def test_t14_kontekst_sprawy():
+    typy = {t["typ"]: t for t in wczytaj_typy()}
+    tekst = "Pełnomocnictwo\nBelmoria Rozwiązania S.A., numer identyfikacji podatkowej 999-928-40-65, udziela pełnomocnictwa.\n"
+    odwolanie = {"Odwolujacy": [{"nazwa": "Belmoria Rozwiązania S.A.", "nip": "9999284065", "krs": "9999405188"}]}
+    dokumenty = [{"typ": "odwolanie", "tekst": "", "dane": odwolanie, "dziennik": []},
+                 {"typ": "pelnomocnictwo", "tekst": tekst, "dane": wyciagnij(tekst, typy["pelnomocnictwo"]), "dziennik": []}]
+
+    uzupelnij_sprawe(dokumenty, typy)
+
+    mocodawca = dokumenty[-1]["dane"]["mocodawca"][0]["data"]
+    assert (mocodawca["nip"], mocodawca["krs"]) == ("9999284065", None)
+    assert any("kontekst sprawy" in w["regula"] for w in dokumenty[-1]["dziennik"])

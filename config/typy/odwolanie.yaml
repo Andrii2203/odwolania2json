@@ -17,6 +17,12 @@ szablon:
   ZamowieniePubliczne: {numer_bzp: null, numer_postepowania: null, numer_ted: null,
     tytul: null}
 
+# Kontekst sprawy (docs/potok.md): puste pole bierze wartość z innego dokumentu sprawy, jeśli jest w tym tekście.
+kontekst:
+  Odwolujacy[].nazwa: {pelnomocnictwo: 'mocodawca[].data.nazwa'}
+  Odwolujacy[].nip: {pelnomocnictwo: 'mocodawca[].data.nip'}
+  Odwolujacy[].krs: {pelnomocnictwo: 'mocodawca[].data.krs'}
+  Odwolujacy[].pelnomocnik.imie_nazwisko: {pelnomocnictwo: 'pelnomocnicy[].imie_nazwisko'}
 wzorce:
   # Nagłówek strony: dowolna wielkość liter („ODWOŁUJĄCY:”), potem dwukropek albo koniec linii. Bez myślnika:
   # „Zamawiający – Gmina … – prowadzi” w treści to nie nagłówek.

@@ -5,6 +5,7 @@ from pathlib import Path
 import yaml
 from pypdf import PdfReader
 
+from .kontekst import uzupelnij_sprawe
 from .ocr import tekst_skanu
 from .pola import przygotuj, pusty, wypelnij
 
@@ -76,11 +77,29 @@ def przetworz(pdf: Path, typy: list[dict], ust: dict, dziennik: list | None = No
     return None if typ is None else (typ["typ"], wyciagnij(tekst, typ, dziennik))
 
 
+def _dokument(pdf: Path, typy: list[dict], ust: dict, dziennik: list) -> dict:
+    try:
+        tekst = tekst_pdf(pdf, ust)
+        typ = klasyfikuj(tekst, typy, ust)
+        dane = wyciagnij(tekst, typ, dziennik) if typ else None
+        return {"pdf": pdf, "typ": typ and typ["typ"], "tekst": tekst, "dane": dane, "dziennik": dziennik, "blad": None}
+    except Exception as blad:
+        return {"pdf": pdf, "typ": None, "tekst": "", "dane": None, "dziennik": dziennik, "blad": blad}
+
+
 def przetworz_wszystkie(pdfy: Iterable[Path], typy: list[dict], ust: dict,
                         dzienniki: dict | None = None) -> Iterator[tuple[Path, tuple[str, dict] | None, Exception | None]]:
+    sprawy: dict[Path, list[Path]] = {}
     for pdf in pdfy:
-        try:
-            dziennik = dzienniki.setdefault(pdf, []) if dzienniki is not None else None
-            yield pdf, przetworz(pdf, typy, ust, dziennik), None
-        except Exception as blad:
-            yield pdf, None, blad
+        sprawy.setdefault(pdf.parent, []).append(pdf)
+    po_typie = {t["typ"]: t for t in typy}
+    for pliki in sprawy.values():
+        dokumenty = [_dokument(pdf, typy, ust, dzienniki.setdefault(pdf, []) if dzienniki is not None else []) for pdf in pliki]
+        if ust["etapy"]["kontekst_sprawy"]:
+            try:
+                uzupelnij_sprawe([d for d in dokumenty if d["typ"]], po_typie)
+            except Exception as blad:
+                for d in dokumenty:
+                    d["dziennik"].append({"pole": "-", "wartosc": None, "regula": f"kontekst sprawy: błąd {blad!r}", "fragment": ""})
+        for d in dokumenty:
+            yield d["pdf"], (d["typ"], d["dane"]) if d["typ"] else None, d["blad"]

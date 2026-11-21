@@ -200,6 +200,21 @@ output/przyklad_01/przelew.json  -> taki sam jak bez --wyjasnij
 - Źródło: pomiar na wariantach (`laczenie_linii`, ADR-0011): gdy dane strony są w jednej linii, nazwa zabierała adres i numery. Pole ma klucz `utnij` (wzorce w YAML), bramka tnie wartość na pierwszym trafieniu (ADR-0012, etap 5).
 - Test: `tests/test_pola.py::test_t13_bramka_utnij`
 
+## T14. Kontekst sprawy: puste pole z innego dokumentu tej samej sprawy, tylko jeśli wartość jest w tekście
+
+```
+odwolanie.pdf:       Odwolujacy[0].nip = "9999284065", krs = "9999405188"
+pelnomocnictwo.pdf:  "Belmoria Rozwiązania S.A., numer identyfikacji podatkowej 999-928-40-65, udziela pełnomocnictwa …"
+  regex: mocodawca[0].data.nip = null (brak etykiety NIP)
+  kontekst: "9999284065" jest w tekście (z myślnikami) -> mocodawca[0].data.nip = "9999284065"
+            dziennik: „kontekst sprawy: odwolanie Odwolujacy[].nip”
+  kontekst: "9999405188" nie ma w tekście -> mocodawca[0].data.krs = null (niczego nie wymyślamy)
+```
+
+- Źródło: w 60/60 sprawach treningowych mocodawca = Odwołujący (nazwa, NIP), pełnomocnik z odwołania jest w pełnomocnictwie (ADR-0012, etap 8; ADR-0016).
+- Skąd brać kandydatów: klucz `kontekst` w pliku typu.
+- Test: `tests/test_pola.py::test_t14_kontekst_sprawy`
+
 ## Pomiar jakości (to nie jest test)
 
 `tools/ocena_f1.py` przepuszcza wszystkie 60 spraw treningowych przez CLI i liczy F1 według ADR-0003. Przykładowy wynik:

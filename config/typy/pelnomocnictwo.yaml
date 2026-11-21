@@ -10,6 +10,12 @@ szablon:
     - {imie_nazwisko: null}
   pelnomocnicy:
   - {imie_nazwisko: null, pesel: null}
+# Kontekst sprawy (docs/potok.md): puste pole bierze wartość z innego dokumentu sprawy, jeśli jest w tym tekście.
+kontekst:
+  mocodawca[].data.nazwa: {odwolanie: 'Odwolujacy[].nazwa'}
+  mocodawca[].data.nip: {odwolanie: 'Odwolujacy[].nip'}
+  mocodawca[].data.krs: {odwolanie: 'Odwolujacy[].krs'}
+  pelnomocnicy[].imie_nazwisko: {odwolanie: 'Odwolujacy[].pelnomocnik.imie_nazwisko'}
 wzorce:
   # Funkcja osoby, która podpisuje w imieniu mocodawcy („Szymon Brzozowski - Wiceprezes Zarządu”, skany UZP).
   FUNKCJA: '(?:Prezes|Wiceprezes|Członek|Prokurent|Dyrektor|Wspólnik|Właściciel)'

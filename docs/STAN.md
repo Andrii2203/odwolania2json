@@ -49,7 +49,7 @@ Etapy podłączamy po jednym; po każdym pomiar (`ocena_f1.py`, skany, `warianty
 | 1 | Claude | **zrobione** 2 | Sekcje bez wielkości liter („ODWOŁUJĄCY:” gubi wszystkie pola Odwołującego, F1 wariantu 0.755); przeniesienia wyrazów |
 | 2 | Claude | **zrobione** 10 | Dziennik „skąd każda wartość” (etap, reguła, fragment tekstu), `--wyjasnij`, podgląd w GUI; potrzebny do szukania błędów w kolejnych etapach |
 | 3 | Claude | **częściowo** (nazwy: `utnij`, ADR-0015) 5 | Bramka: stopy w środku linii (adres „ul.”, kod pocztowy, „KRS:”, „NIP:”, e-mail), reguły w YAML; cel: `laczenie_linii` (0.834) |
-| 4 | Claude | 8 | Kontekst sprawy: wartości z innych dokumentów sprawy jako kandydaci, tylko jeśli są w tekście |
+| 4 | Claude | **zrobione** (ADR-0016) 8 | Kontekst sprawy: wartości z innych dokumentów sprawy jako kandydaci, tylko jeśli są w tekście |
 | 0a | Claude | **zrobione** 0, 10 | Obcy, pusty i uszkodzony PDF -> plik z `{}` (Discord UZP); zmiana T2, ADR. Robimy najpierw: pewny wpływ na ocenę |
 | 0b | Claude | **zrobione** 9 | Rachunek z „PL”, jeśli jest w dokumencie (Discord UZP); `tools/ocena_f1.py` porównuje rachunek bez „PL”, bo wzorce treningowe są tu błędne; ADR. Robimy najpierw |
 | 0c | Claude | **zrobione** | Czas: zmierzyć sekundy na dokument (cyfrowy, skan, z GLiNER2); JSON zapisywany zaraz po każdym dokumencie |

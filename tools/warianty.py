@@ -10,7 +10,7 @@ from statistics import harmonic_mean
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from odwolania2json.cli import konsola_utf8
-from odwolania2json.pipeline import KONFIG, klasyfikuj, tekst_pdf, ustawienia, wczytaj_typy, wyciagnij
+from odwolania2json.pipeline import KONFIG, klasyfikuj, tekst_pdf, ustawienia, uzupelnij_sprawe, wczytaj_typy, wyciagnij
 from ocena_f1 import DANE, bez_prefiksu, liscie, porownaj
 
 def _mapuj(v, f):
@@ -168,10 +168,16 @@ def main() -> int:
             typ = klasyfikuj(tekst, typy, ust)
             if typ and typ["typ"] in wzory:
                 dokumenty.append((pdf, tekst, wzory[typ["typ"]], typ["typ"]))
+    po_typie = {t["typ"]: t for t in typy}
+    oryginaly = [{"pdf": pdf, "typ": o, "tekst": tekst, "dane": wyciagnij(tekst, po_typie[o]), "dziennik": []}
+                 for pdf, tekst, _, o in dokumenty]
     for pdf, tekst, wzor, oczekiwany in dokumenty:
+        inne = [d for d in oryginaly if d["pdf"].parent == pdf.parent and d["pdf"] != pdf]
         for rodzaj, t, wz in warianty(tekst, wzor, pdf, w, ust):
             typ = klasyfikuj(t, typy, ust)
             nasz = wyciagnij(t, typ) if typ and typ["typ"] == oczekiwany else {}
+            if nasz and ust["etapy"]["kontekst_sprawy"]:
+                uzupelnij_sprawe([{"typ": oczekiwany, "tekst": t, "dane": nasz, "dziennik": []}, *inne], po_typie)
             licznik[rodzaj, "warianty"] += 1
             licznik[rodzaj, "zly_typ"] += not nasz
             wyniki = dict(liscie(nasz))

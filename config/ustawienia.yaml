@@ -90,6 +90,9 @@ narzedzia:
       - ['^Zamawiający:', '^Odwołujący:', '^dotyczy:']
       - ['^Płatnik', '^Beneficjent', '^Kwota operacji']
 
+# Przełączniki etapów potoku (docs/potok.md, ADR-0012): false wyłącza etap, żeby zmierzyć F1 bez niego.
+etapy: {kontekst_sprawy: true}
+
 # Słowa, po których dokument nie jest żadnym z typów (wyrok KIO, ogłoszenie TED). ADR-0002.
 wykluczenia: [orzeka, oficjalna nazwa, see the notice]
 

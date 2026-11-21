@@ -24,6 +24,9 @@ narzedzia:
   # Miejsca po przecinku w F1 (tools/ocena_f1.py). Jedno pole zmienia F1 o ok. 0.0005: 2TP+FP+FN = 2847 na 60 sprawach (2026-11-21).
   # 3 miejsca chowają część zmian o jedno pole, 4 pokazują każdą.
   MIEJSCA_F1: 4
+  # Najniższe dopuszczalne F1 na data/uzp/dane (test T8). Pomiar 2026-11-21: 0.9983; jedno pole to ok. 0.0005,
+  # więc 0.998 przepuszcza utratę jednego pola, blokuje dwa. Obniżenie tylko świadomie, z nowym pomiarem.
+  MIN_F1: 0.998
 
 # Słowa, po których dokument nie jest żadnym z typów (wyrok KIO, ogłoszenie TED). ADR-0002.
 wykluczenia: [orzeka, oficjalna nazwa, see the notice]

@@ -13,6 +13,7 @@ Aktualizacja: 2026-11-21 noc, Claude.
 - Pola `odwolanie` wzorcami, sekcjami i słownikami (ADR-0010, test T6): 0 błędów na 60 sprawach. Łączny **F1 = 0.9983** (TP 2027, FP 2, FN 5; wcześniej 0.5711).
 - Zgłoszenie w HackTribe: szkic zapisany.
 - ADR-0009 (też `tools/` i `tests/`, sekcja `narzedzia`; hooki Claude blokują przez JSON, nie kod 2): jeden mechanizm pól (`wzorce`, `etykiety` to skrót), formaty wartości w YAML. Wszystkie liczby w `config/ustawienia.yaml` z pochodzeniem (pomiar `tools/przeglad.py`); pilnuje test T5. Wynik 180 JSON bajt w bajt bez zmian.
+- Odporność: błąd w jednym PDF nie zatrzymuje pozostałych (T7, CLI kończy kodem 1). Próg F1 `MIN_F1 = 0.998` w `ustawienia.yaml` pilnuje test T8 (zepsuta reguła NIP daje 0.967, test czerwony).
 - Straże: pre-commit (testy, język polski), hooki Claude (TDD, stop), CI na Windows (`.github/workflows/testy.yml`, ostatni przebieg zielony). Opis w `AGENTS.md`.
 - Klucz OVHcloud działa (`chat/completions`, test 16 tokenów). `GET /v1/models` z kluczem zwraca 403; to cecha OVH, nie błąd klucza.
 - Argon (szczegóły w `docs/badania/`):

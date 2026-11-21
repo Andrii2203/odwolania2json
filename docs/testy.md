@@ -110,6 +110,30 @@ przyklad_41 (konsorcjum, dwa podmioty po stronie Odwołującego):
 - Sprawdza: `sekcja`, `slownik`, szablon `wartosc` z grup nazwanych, fragmenty typu (`wzorce` w pliku typu), pierwsze trafienie w tekście dla pola bez `[]` (ADR-0010).
 - Test: `tests/test_pola.py::test_t6_odwolanie`
 
+## T7. Błąd w jednym dokumencie nie zatrzymuje pozostałych
+
+```
+input/przyklad_01/odwolanie.pdf       -> output/przyklad_01/odwolanie.json
+input/przyklad_01/pelnomocnictwo.pdf  -> output/przyklad_01/pelnomocnictwo.json
+input/przyklad_01/przelew.pdf         -> wyjątek przy wyciąganiu pola: na ekranie „błąd: przyklad_01/przelew.pdf: …”, brak JSON
+kod wyjścia CLI: 1 (był błąd), ale dwa pozostałe pliki są zapisane
+```
+
+- Dane: `data/uzp/dane/przyklad_01` i kopia `config/` z zepsutym polem `przelew_bankowy.kwota` (`format: liczba` na słowie bez cyfr daje `ValueError`).
+- Sprawdza: CLI przetwarza każdy plik osobno (`przetworz_wszystkie`). Jeden nieprzewidziany wyjątek (OCR, LLM, dziwny tekst) nie zabiera jury wszystkich pozostałych JSON.
+- Test: `tests/test_e2e.py::test_t7_blad_jednego_dokumentu`
+
+## T8. F1 na danych treningowych nie spada poniżej progu
+
+```
+config/ustawienia.yaml: narzedzia.MIN_F1: 0.998   (pomiar 2026-11-21: F1 = 0.9983)
+zmiana reguły psuje 2 pola  -> F1 = 0.9976 < 0.998 -> test czerwony, commit zablokowany
+```
+
+- Dane: `data/uzp/dane` (60 spraw i obce dokumenty), liczone tak jak `tools/ocena_f1.py` (funkcja `ocena`).
+- Sprawdza: żadna zmiana (OCR, LLM, nowe reguły) nie obniża jakości po cichu. Świadome obniżenie progu to zmiana `MIN_F1` z nowym pomiarem w komentarzu.
+- Test: `tests/test_e2e.py::test_t8_f1_nie_spada`
+
 ## Pomiar jakości (to nie jest test)
 
 `tools/ocena_f1.py` przepuszcza wszystkie 60 spraw treningowych przez CLI i liczy F1 według ADR-0003. Przykładowy wynik:
@@ -121,4 +145,4 @@ Najgorsze pola (FN+FP):
   odwolanie   Odwolujacy[].nip   FN 58  FP 0
 ```
 
-To kompas: każda zmiana ekstrakcji powinna podnosić F1.
+To kompas: każda zmiana ekstrakcji powinna podnosić F1. Dolną granicę pilnuje test T8.

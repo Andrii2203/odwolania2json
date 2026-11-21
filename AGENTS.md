@@ -42,7 +42,7 @@ Obcy dokument (np. ogłoszenie TED) nie daje pliku.
 
 | Kiedy | Co sprawdza | Gdzie |
 |---|---|---|
-| każdy commit (każdy wykonawca) | testy zielone; brak cyrylicy | `.githooks/pre-commit` |
+| każdy commit (każdy wykonawca) | testy zielone, w tym F1 nie niższe niż `MIN_F1` (T8); brak cyrylicy | `.githooks/pre-commit` |
 | Claude edytuje `tests/` | czy najpierw zmieniono `docs/testy.md` | `tools/hooks/straz_testow.py` |
 | Claude kończy turę | testy zielone przy zmianach w kodzie; wysyła zaległe commity | `tools/hooks/stop.py` |
 | push na GitHub | testy i F1 na czystym Windows z Pythonem 3.13 | `.github/workflows/testy.yml` |

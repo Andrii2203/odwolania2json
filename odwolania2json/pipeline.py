@@ -1,4 +1,5 @@
 import re
+from collections.abc import Iterable, Iterator
 from pathlib import Path
 
 import yaml
@@ -70,3 +71,11 @@ def przetworz(pdf: Path, typy: list[dict]) -> tuple[str, dict] | None:
     tekst = tekst_pdf(pdf)
     typ = klasyfikuj(tekst, typy)
     return None if typ is None else (typ["typ"], wyciagnij(tekst, typ))
+
+
+def przetworz_wszystkie(pdfy: Iterable[Path], typy: list[dict]) -> Iterator[tuple[Path, tuple[str, dict] | None, Exception | None]]:
+    for pdf in pdfy:
+        try:
+            yield pdf, przetworz(pdf, typy), None
+        except Exception as blad:
+            yield pdf, None, blad

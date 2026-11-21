@@ -6,7 +6,7 @@ import pypdfium2 as pdfium
 import streamlit as st
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from odwolania2json.pipeline import przetworz, wczytaj_typy
+from odwolania2json.pipeline import przetworz_wszystkie, wczytaj_typy
 
 
 def obrazy_stron(pdf: Path) -> list:
@@ -40,7 +40,7 @@ def main() -> None:
             st.subheader(plik.name)
             with st.spinner(f"Przetwarzanie pliku {plik.name}..."):
                 obrazy = obrazy_stron(sciezka)
-                wynik = przetworz(sciezka, typy)
+                _, wynik, blad = next(przetworz_wszystkie([sciezka], typy))
 
             lewa, prawa = st.columns([1, 1])
 
@@ -49,7 +49,9 @@ def main() -> None:
                     st.image(obraz, caption=f"Strona {nr}", use_container_width=True)
 
             with prawa:
-                if wynik is None:
+                if blad is not None:
+                    st.error(f"Błąd przetwarzania: {type(blad).__name__}: {blad}")
+                elif wynik is None:
                     st.warning("Nieznany typ dokumentu")
                 else:
                     typ, dane = wynik

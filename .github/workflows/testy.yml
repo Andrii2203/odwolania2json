@@ -1,0 +1,25 @@
+name: testy
+
+on:
+  push:
+    paths:
+      - "odwolania2json/**"
+      - "config/**"
+      - "tests/**"
+      - "tools/**"
+      - "requirements*.txt"
+      - "start.bat"
+      - ".github/workflows/**"
+
+jobs:
+  testy:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install -r requirements-dev.txt
+      - run: git clone --depth 1 https://github.com/Urzad-Zamowien-Publicznych/hacknation-2026 data/uzp
+      - run: python -m pytest -q
+      - run: python tools/ocena_f1.py

@@ -18,12 +18,15 @@ szablon:
     tytul: null}
 
 wzorce:
-  NAGLOWEK_ODWOLUJACEGO: 'Odwołujący\s*:'
-  NAGLOWEK_ZAMAWIAJACEGO: 'Zamawiający(?:\s*\([^)]*\))?\s*:'
+  # Nagłówek strony: dowolna wielkość liter („ODWOŁUJĄCY:”), potem dwukropek albo koniec linii. Bez myślnika:
+  # „Zamawiający – Gmina … – prowadzi” w treści to nie nagłówek.
+  KONIEC_NAGLOWKA: '[ \t]*(?::|$)'
+  NAGLOWEK_ODWOLUJACEGO: '(?i:Odwołujący)(?:\s+się)?{KONIEC_NAGLOWKA}'
+  NAGLOWEK_ZAMAWIAJACEGO: '(?i:Zamawiający)(?:\s*\([^)]*\))?{KONIEC_NAGLOWKA}'
   # Nagłówek jednego z kilku Zamawiających („<nr>) Zamawiający – Lider”), bez dwukropka.
-  PUNKT_ZAMAWIAJACEGO: '{POCZATEK_LINII}(?:\d+\)\s*)?Zamawiający\b[^\n:]*'
+  PUNKT_ZAMAWIAJACEGO: '{POCZATEK_LINII}(?:\d+\)\s*)?(?i:Zamawiający)\b[^\n:]*'
   # Sekcja strony: od nagłówka „Odwołujący:” albo „Zamawiający:” do następnego nagłówka (także „Wykonawca wybrany …:”).
-  KONIEC_SEKCJI: '(?={POCZATEK_LINII}(?:{NAGLOWEK_ODWOLUJACEGO}|{NAGLOWEK_ZAMAWIAJACEGO}|Wykonawca|dotyczy|ODWOŁANIE|Działając)|\Z)'
+  KONIEC_SEKCJI: '(?={POCZATEK_LINII}(?:{NAGLOWEK_ODWOLUJACEGO}|{NAGLOWEK_ZAMAWIAJACEGO}|(?i:Wykonawca|dotyczy|ODWOŁANIE|Działając))|\Z)'
   ODWOLUJACY: '{POCZATEK_LINII}{NAGLOWEK_ODWOLUJACEGO}[\s\S]*?{KONIEC_SEKCJI}'
   # Konsorcjum: dane Odwołującego to dane lidera, do nagłówka „Partner Konsorcjum:”.
   # Partner bywa przed nazwą („<nr>) Partner Konsorcjum:”) albo za nią („<nr>) Lumidor sp. z o.o. (Partner Konsorcjum)”, skany UZP).
@@ -75,7 +78,7 @@ pola:
   Odwolujacy[].nazwa:
     sekcja: &lider '{LIDER}'
     # Osoba fizyczna: nazwa to firma za „pod firmą” („Jan Nowak prowadzący działalność gospodarczą pod firmą” / „<firma>”).
-    wzorce: ['{POCZATEK_LINII}(?:Odwołujący|\d+\)\s*Lider\s+Konsorcjum)\s*(?![^\n]*prowadząc){WIERSZ_ZA_NAGLOWKIEM}',
+    wzorce: ['{POCZATEK_LINII}(?:(?i:Odwołujący)(?:\s+się)?|\d+\)\s*Lider\s+Konsorcjum)\s*(?![^\n]*prowadząc){WIERSZ_ZA_NAGLOWKIEM}',
              '{POCZATEK_LINII}{NAGLOWEK_ODWOLUJACEGO}[^\n]*pod\s+firmą[ \t]*(?:\n[ \t]*)?([^\n]+)',
              '{POCZATEK_LINII}\d+\)[ \t]*([^\n(]+?)[ \t]*\(Lider']
   Odwolujacy[].krs:

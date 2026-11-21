@@ -1,17 +1,20 @@
-# ADR-0001: Що лежить у репо і що йде на GitHub
+# ADR-0001: Co jest w repozytorium, a co trafia na GitHub
 
-Статус: прийнято, 2026-11-21
+Status: przyjęte, 2026-11-21
 
-## Контекст
-У `e:\hacknation` лежать матеріали всіх 15 завдань хакатону, тренувальні дані UZP (19 МБ PDF) і буде ключ API. GitHub-посилання потрібне для чернетки й здачі.
+## Kontekst
 
-## Рішення
-- Корінь репо = `e:\hacknation`.
-- `docs/<КОД>/` (матеріали завдань) — **лише локально**, у `.gitignore`. У git з `docs/` ідуть тільки наші файли (`adr/`, `testy.md`, `STAN.md`).
-- `data/uzp/` — клон публічного репо UZP, не комітимо; інструкція клонування — в `AGENTS.md`.
-- `input/` і `output/` у корені (вимога UZP), вміст не комітимо.
-- Ключ API — у `.env`, не комітимо.
+W `e:\hacknation` leżą materiały wszystkich 15 zadań hackathonu, dane treningowe UZP (19 MB PDF) i będzie klucz API. Link do GitHuba jest potrzebny do szkicu i oddania.
 
-## Наслідки
-- Репо маленьке, без чужих матеріалів і секретів.
-- Тести, яким потрібні дані, пропускаються, якщо `data/uzp` немає (з поясненням).
+## Decyzja
+
+- Katalog główny repozytorium: `e:\hacknation`.
+- `docs/<KOD>/` (materiały zadań) tylko lokalnie, w `.gitignore`. Z `docs/` do git trafiają tylko nasze pliki: `adr/`, `badania/`, `testy.md`, `STAN.md`.
+- `data/uzp/` to klon publicznego repozytorium UZP; nie commitujemy go, instrukcja klonowania jest w `AGENTS.md`.
+- `input/` i `output/` w katalogu głównym (wymóg UZP), zawartości nie commitujemy.
+- Klucz API w `.env`, nie commitujemy.
+
+## Konsekwencje
+
+- Repozytorium jest małe, bez cudzych materiałów i sekretów.
+- Testy wymagające danych są pomijane, jeśli nie ma `data/uzp` (z wyjaśnieniem).

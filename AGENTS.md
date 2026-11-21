@@ -20,9 +20,9 @@ Obcy dokument (np. ogłoszenie TED) nie daje pliku.
 
 - Python 3.13+, `requirements.txt`, uruchomienie z CLI (`start.bat`).
 - `input/` i `output/` w katalogu głównym; to samo drzewo katalogów, JSON ma tę samą nazwę co PDF.
-- Tylko open source. LLM: wyłącznie model z otwartymi wagami przez API dostawcy, którego firma i serwer są w UE (ADR-0004). Klucz API oddajemy razem z rozwiązaniem.
-- Komputer testowy jest biurowy, bez GPU. Większość dokumentów to cyfrowe PDF, ale zdarzają się skany (ADR-0007).
-- Brak wartości w dokumencie: `null`. Niczego nie wymyślamy.
+- Tylko open source. LLM: wyłącznie model z otwartymi wagami przez API firmy, która w polityce prywatności podaje zakres i miejsce przetwarzania, z serwerem w UE/EOG; hosting przez osobę prywatną zabroniony (ADR-0004). Klucz API oddajemy razem z rozwiązaniem.
+- Komputer testowy jest biurowy, bez GPU. Większość dokumentów to cyfrowe PDF, ale zdarzają się skany (ADR-0007, przykłady w `data/uzp/dane/skany/`).
+- Brak wartości w dokumencie: `null`. Niczego nie wymyślamy. Imiona i nazwiska w mianowniku („Mateusz Szymański”, nie „Mateusza Szymańskiego”).
 - Ocena: F1 na ukrytych sprawach (co najmniej 10). Finał (top 3): 50% F1, 50% dodawanie nowych typów dokumentów przez konfigurację, bez zmiany kodu.
 - Pełne warunki: `docs/UZP/` (tylko lokalnie, poza git).
 
@@ -52,7 +52,7 @@ Obcy dokument (np. ogłoszenie TED) nie daje pliku.
 | Ścieżka | Co |
 |---|---|
 | `odwolania2json/` | kod; CLI: `python -m odwolania2json` |
-| `config/typy/*.yaml` | typ dokumentu: `znaczniki` (klasyfikacja), `szablon` (kształt JSON), `pola` (`etykiety`, `wzorce`, `format`). Nowy typ to nowy plik YAML |
+| `config/typy/*.yaml` | typ dokumentu: `znaczniki` (klasyfikacja), `szablon` (kształt JSON), `pola` (`etykiety`, `wzorce`, `format`, `sekcja`, `slownik`, `podzial`), `wzorce` (fragmenty typu). Nowy typ to nowy plik YAML |
 | `tests/` | testy z `docs/testy.md` |
 | `tools/ocena_f1.py` | F1 na 60 sprawach treningowych (ADR-0003) |
 | `tools/przeglad.py` | F1 dla kilku wartości jednej liczby z `config/ustawienia.yaml` (pochodzenie liczb) |

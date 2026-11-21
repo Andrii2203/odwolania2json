@@ -1,12 +1,12 @@
 # Stan
 
-Aktualizacja: 2026-11-21 noc, Claude.
+Aktualizacja: 2026-11-21 noc, Claude (po odwołaniu, T7, T8).
 
 ## Zrobione
 
 - Repozytorium (prywatne): https://github.com/Andrii2203/odwolania2json. Python 3.13.
-- `AGENTS.md` (+ `CLAUDE.md`, `GEMINI.md`), ADR-0001..0007, `docs/testy.md` (T1, T2, T3).
-- Potok: CLI `input/ -> output/`, klasyfikacja z YAML (`znaczniki`, `wykluczenia`), wyciąganie pól z YAML (`pola`: `etykiety` i `format`), `przetworz()` wspólne dla CLI i GUI.
+- `AGENTS.md` (+ `CLAUDE.md`, `GEMINI.md`), ADR-0001..0010, `docs/testy.md` (T1–T8).
+- Potok: CLI `input/ -> output/`, klasyfikacja z YAML (`znaczniki`, `wykluczenia`), pola z YAML (`etykiety`, `wzorce`, `format`, `sekcja`, `slownik`, `podzial`), `przetworz_wszystkie()` wspólne dla CLI, GUI i `tools/ocena_f1.py`.
 - Klasyfikacja: 180/180 dokumentów treningowych poprawnie, 13/13 obcych dokumentów UZP bez JSON.
 - Pola `przelew` regułami: 4 błędy na ok. 360 pól.
 - Pola `pelnomocnictwo` wzorcami regex i listami (ADR-0008): 1 błąd (PESEL w jednej sprawie).
@@ -46,3 +46,4 @@ Aktualizacja: 2026-11-21 noc, Claude.
 - Jak UZP liczy F1: nie blokuje pracy (ADR-0005).
 - Reguły `odwolanie` są dopasowane do 60 spraw treningowych. Jeśli ukryte sprawy mają inny układ, pomoże LLM dla pól z `null` (ADR-0004).
 - Commituj test razem z kodem i konfiguracją, które go zazieleniają; inaczej CI na pośrednim commicie jest czerwone.
+- CI klonuje najnowsze dane UZP, więc zmiana danych u UZP może zaczerwienić CI bez naszej zmiany (tak było przy `11a810c`: `przelew.pdf`). Wtedy: `git -C data/uzp pull`, testy lokalnie, poprawka.

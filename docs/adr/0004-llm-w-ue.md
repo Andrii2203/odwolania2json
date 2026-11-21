@@ -4,7 +4,7 @@ Status: przyjęte dla dostawcy OVHcloud (klucz działa od 21.11); model wybierze
 
 ## Kontekst
 
-FAQ UZP: tylko modele open source, które można też zainstalować lokalnie; API u dostawcy, którego firma i serwer są w UE; dane nie opuszczają UE. Komputer testowy jest bez GPU, więc duży model lokalny odpada. Klucz API oddajemy razem z rozwiązaniem.
+FAQ UZP: tylko modele open source, które można też zainstalować lokalnie; API u dostawcy, którego firma i serwer są w UE; dane nie opuszczają UE. Discord i README UZP, 21.11: firma musi mieć politykę prywatności z zakresem i miejscem przetwarzania danych; hosting modelu przez osobę prywatną (np. na własnym komputerze) jest zabroniony. OVHcloud to spełnia. Komputer testowy jest bez GPU, więc duży model lokalny odpada. Klucz API oddajemy razem z rozwiązaniem.
 
 ## Decyzja (propozycja, według `docs/badania/llm-ue.md`, aktualizacja 21.11)
 
@@ -25,6 +25,8 @@ FAQ UZP: tylko modele open source, które można też zainstalować lokalnie; AP
 - Osobny klucz z limitem wydatków (klucz trafia do jury).
 
 ## Rozwój lokalnie
+
+Tylko do eksperymentów; w rozwiązaniu dla jury model lokalny u osoby prywatnej jest zabroniony.
 
 W `E:\call to ai` jest `tools\llama.cpp\llama-server.exe` (CUDA) i modele `models\brain\*.gguf`. Na RTX 5060 (8 GB):
 

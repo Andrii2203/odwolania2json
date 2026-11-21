@@ -15,20 +15,20 @@ input/przyklad_03/potwierdzenie_przelewu.pdf -> output/przyklad_03/potwierdzenie
 ```
 
 - Dane: `data/uzp/dane/przyklad_*`. Uruchamiamy prawdziwe CLI, tak jak jury.
-- Sprawdza: CLI, drzewo katalogów, nazwy plików, klasyfikację każdego dokumentu, kształt JSON. Nazwy PDF w danych UZP się zmieniają (`przelew.pdf`, `potwierdzenie_przelewu.pdf`), więc test nie zna nazw: każdy JSON ma nazwę jednego z PDF sprawy, a zbiory kluczy wyników i wzorców sprawy są równe. Obcy PDF w sprawie (np. ogłoszenie TED w `przyklad_04`) nie daje pliku.
+- Sprawdza: CLI, drzewo katalogów, nazwy plików, klasyfikację każdego dokumentu, kształt JSON. Nazwy PDF w danych UZP się zmieniają (`przelew.pdf`, `potwierdzenie_przelewu.pdf`), więc test nie zna nazw: każdy JSON ma nazwę jednego z PDF sprawy, a zbiory kluczy wyników i wzorców sprawy są równe. Obcy PDF w sprawie (np. ogłoszenie TED w `przyklad_04`) daje plik z `{}` (T2); każdy PDF ma swój JSON.
 - Trudny przykład: pełnomocnictwo bez słowa „mocodawca”, ale z „udzielam pełnomocnictwa”, też ma dać `pelnomocnictwo`.
 - Test: `tests/test_e2e.py::test_t1_sprawa_trzy_dokumenty`
 
-## T2. Obcy dokument nie daje pliku
+## T2. Obcy dokument daje plik z `{}`
 
 ```
-input/negatywne/KIO_KIO 2617-21.pdf (wyrok KIO, podobny do odwołania)  -> brak JSON
-input/negatywne/2025_S 112-383751.pdf (ogłoszenie TED)                -> brak JSON
-... i tak dla wszystkich 13 obcych dokumentów
+input/negatywne/KIO_KIO 2617-21.pdf (wyrok KIO, podobny do odwołania)  -> output/negatywne/KIO_KIO 2617-21.json: {}
+input/negatywne/2025_S 112-383751.pdf (ogłoszenie TED)                -> output/negatywne/2025_S 112-383751.json: {}
+... i tak dla wszystkich 13 obcych dokumentów (odpowiedź UZP na Discordzie, ADR-0013)
 ```
 
 - Dane: `data/uzp/dane/negatywne/*.pdf` (12 plików) i `data/uzp/szablon-aplikacja/input/case1/negatywny przyklad.pdf`.
-- Sprawdza: obcy dokument nie dostaje typu, więc nie daje pliku pełnego wymyślonych wartości (FP).
+- Sprawdza: obcy dokument nie dostaje typu, więc nie daje wymyślonych wartości (FP); plik jest, ale pusty: `{}`.
 - Test: `tests/test_e2e.py::test_t2_obcy_dokument`
 
 ## T3. Przelew: wszystkie pola jak we wzorcu
@@ -116,7 +116,7 @@ przyklad_41 (konsorcjum, dwa podmioty po stronie Odwołującego):
 ```
 input/przyklad_01/odwolanie.pdf       -> output/przyklad_01/odwolanie.json
 input/przyklad_01/pelnomocnictwo.pdf  -> output/przyklad_01/pelnomocnictwo.json
-input/przyklad_01/przelew.pdf         -> wyjątek przy wyciąganiu pola: na ekranie „błąd: przyklad_01/przelew.pdf: …”, brak JSON
+input/przyklad_01/przelew.pdf         -> wyjątek przy wyciąganiu pola: na ekranie „błąd: przyklad_01/przelew.pdf: …”, output/przyklad_01/przelew.json: {}
 kod wyjścia CLI: 1 (był błąd), ale dwa pozostałe pliki są zapisane
 ```
 

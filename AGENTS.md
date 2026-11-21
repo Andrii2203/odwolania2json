@@ -14,7 +14,7 @@ input/case1/odwolanie.pdf  ->  output/case1/odwolanie.json
 ```
 
 Typy: `odwolanie`, `pelnomocnictwo`, `przelew` (potwierdzenie przelewu).
-Obcy dokument (np. ogłoszenie TED) nie daje pliku.
+Obcy, pusty albo uszkodzony dokument (np. ogłoszenie TED) daje plik z `{}` (ADR-0013).
 
 ## Wymagania UZP
 

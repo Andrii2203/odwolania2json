@@ -22,18 +22,17 @@ def main(argv: list[str] | None = None) -> int:
     bledy = 0
     for pdf, wynik, blad in przetworz_wszystkie(sorted(args.input.rglob("*.pdf")), typy, ust):
         wzgledna = pdf.relative_to(args.input)
+        typ, dane = wynik or (None, {})
         if blad is not None:
             bledy += 1
-            print(f"błąd: {wzgledna.as_posix()}: {type(blad).__name__}: {blad}")
-            continue
-        if wynik is None:
-            print(f"pominięto (nieznany typ): {wzgledna}")
-            continue
-        typ, dane = wynik
+            print(f"błąd: {wzgledna.as_posix()}: {type(blad).__name__}: {blad} → {{}}")
+        elif typ is None:
+            print(f"nieznany typ: {wzgledna} → {{}}")
+        else:
+            print(f"{wzgledna} → {typ}")
         cel = args.output / wzgledna.with_suffix(".json")
         cel.parent.mkdir(parents=True, exist_ok=True)
         cel.write_text(json.dumps(dane, ensure_ascii=False, indent=ust["liczby"]["WCIECIE_JSON"]), encoding="utf-8")
-        print(f"{wzgledna} → {typ}")
     if bledy:
         print(f"Błędy: {bledy}. Pozostałe pliki zapisane.")
     return 1 if bledy else 0

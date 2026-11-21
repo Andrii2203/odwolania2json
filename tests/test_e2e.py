@@ -32,9 +32,9 @@ def test_t1_sprawa_trzy_dokumenty(tmp_path):
     wrong = []
     for case in sorted((tmp_path / "input").iterdir()):
         out = tmp_path / "output" / case.name
-        if not {p.stem for p in out.glob("*.json")} <= {p.stem for p in case.glob("*.pdf")}:
+        if {p.stem for p in out.glob("*.json")} != {p.stem for p in case.glob("*.pdf")}:
             wrong.append(f"{case.name}: nazwy")
-        elif klucze(out.glob("*.json")) != klucze((DANE / case.name).glob("*.json")):
+        elif [k for k in klucze(out.glob("*.json")) if k] != klucze((DANE / case.name).glob("*.json")):
             wrong.append(f"{case.name}: klucze")
     assert wrong == []
 
@@ -46,7 +46,9 @@ def test_t2_obcy_dokument(tmp_path):
 
     run_cli(tmp_path / "input", tmp_path / "output")
 
-    assert sorted(p.name for p in (tmp_path / "output").rglob("*.json")) == []
+    pdfy = sorted(p.stem for p in case.glob("*.pdf"))
+    jsony = {p.stem: json.loads(p.read_text(encoding="utf-8")) for p in (tmp_path / "output").rglob("*.json")}
+    assert (sorted(jsony), set(map(str, jsony.values()))) == (pdfy, {"{}"})
 
 
 def test_t7_blad_jednego_dokumentu(tmp_path):
@@ -62,7 +64,9 @@ def test_t7_blad_jednego_dokumentu(tmp_path):
 
     assert wynik.returncode == 1
     assert "błąd: przyklad_01" in wynik.stdout
-    assert sorted(p.name for p in (tmp_path / "output" / "przyklad_01").glob("*.json")) == ["odwolanie.json", "pelnomocnictwo.json"]
+    wyjscie = tmp_path / "output" / "przyklad_01"
+    assert sorted(p.name for p in wyjscie.glob("*.json")) == ["odwolanie.json", "pelnomocnictwo.json", "przelew.json"]
+    assert json.loads((wyjscie / "przelew.json").read_text(encoding="utf-8")) == {}
 
 
 def test_t8_f1_nie_spada():

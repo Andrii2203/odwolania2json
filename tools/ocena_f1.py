@@ -25,6 +25,15 @@ def liscie(v, sciezka=""):
         yield sciezka, v
 
 
+def bez_prefiksu(v, ust: dict):
+    b = ust["narzedzia"]["bez_prefiksu"]
+    if isinstance(v, dict):
+        return {k: x.removeprefix(b["prefiks"]) if k in b["pola"] and isinstance(x, str) else bez_prefiksu(x, ust) for k, x in v.items()}
+    if isinstance(v, list):
+        return [bez_prefiksu(x, ust) for x in v]
+    return v
+
+
 def porownaj(wzor, nasz):
     w, n = dict(liscie(wzor)), dict(liscie(nasz))
     for sciezka in w.keys() | n.keys():
@@ -66,7 +75,7 @@ def ocena(katalogi: list[Path], typy: list[dict], ust: dict) -> tuple[float, Cou
             nasz = nasze[typ].pop(0) if nasze.get(typ) else {}
             licznik["dokumenty"] += 1
             licznik["trafione_typy"] += bool(nasz)
-            licz(typ, porownaj(wzor, nasz))
+            licz(typ, porownaj(bez_prefiksu(wzor, ust), bez_prefiksu(nasz, ust)))
         for typ, nadmiarowe in nasze.items():
             for nasz in nadmiarowe:
                 licz(typ, porownaj({}, nasz))

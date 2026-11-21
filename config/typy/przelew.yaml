@@ -18,11 +18,11 @@ pola:
   przelew_bankowy.z_rachunku:
     etykiety: [rachunek obciążany, z rachunku, rachunek zleceniodawcy, rachunek nadawcy, rachunek płatnika, rachunek źródłowy, zleceniodawca, płatnik, nadawca, dane nadawcy, dane zleceniodawcy]
     wzorce: ['({RACHUNEK})']
-    format: cyfry
+    format: bez_spacji
   przelew_bankowy.na_rachunek:
     etykiety: [rachunek odbiorcy, na rachunek, rachunek uznawany, rachunek adresata, rachunek beneficjenta, rachunek docelowy, beneficjent, odbiorca, adresat, dane odbiorcy, dane kontrahenta, rachunek kontrahenta]
     wzorce: ['({RACHUNEK})']
-    format: cyfry
+    format: bez_spacji
   przelew_bankowy.numer_transakcji:
     etykiety: [nr ref., numer referencyjny, nr referencyjny, numer transakcji, nr transakcji, id transakcji, identyfikator transakcji, identyfikator operacji, numer operacji, nr operacji]
     wzorce: ['({IDENTYFIKATOR})']

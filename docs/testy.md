@@ -48,6 +48,8 @@ przyklad_17 (etykieta i wartość w jednej linii, kropki):
 - Sprawdza: etykiety i formaty pól z `config/typy/przelew.yaml`.
 - Test: `tests/test_pola.py::test_t3_przelew`
 
+- Rachunki porównujemy bez „PL” (`bez_prefiksu` w `config/ustawienia.yaml`): wzorce treningowe nie mają „PL”, a według UZP to błąd wzorców (T11, ADR-0014).
+
 ## T4. Pełnomocnictwo: wszystkie pola jak we wzorcu
 
 ```
@@ -160,6 +162,16 @@ Tytuł: opłata skarbowa od pełnomocnictwa
 
 - Sprawdza: wartość równa etykiecie innego pola typu (albo słowu z listy `stop`) jest pomijana, wygrywa następne trafienie.
 - Test: `tests/test_pola.py::test_t10_etykieta_nie_jest_wartoscia`
+
+## T11. Rachunek jak w dokumencie, z „PL”, jeśli jest
+
+```
+"Z rachunku: PL 62 2170 0008 9152 5017 5661 7062"  -> z_rachunku  = "PL62217000089152501756617062"
+"Na rachunek: 68 4382 2304 9992 2952 6283 4736"    -> na_rachunek = "68438223049992295262834736"
+```
+
+- Źródło: UZP na Discordzie (21.11): numer taki, jak w dokumencie; wzorce bez „PL” to błąd, którego nie będzie w zbiorze testowym. Wzorce skanów mają `PL` + 26 cyfr bez spacji.
+- Test: `tests/test_pola.py::test_t11_rachunek_z_pl`
 
 ## Pomiar jakości (to nie jest test)
 

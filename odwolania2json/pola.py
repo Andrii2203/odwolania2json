@@ -29,7 +29,11 @@ def _tekst(ust: dict, s: str) -> str:
     return s.strip(ust["obcinane_znaki"])
 
 
-FORMATY = {"cyfry": _cyfry, "liczba": _liczba, "data": _data, "tekst": _tekst}
+def _bez_spacji(ust: dict, s: str) -> str:
+    return re.sub(r"\s", "", s)
+
+
+FORMATY = {"cyfry": _cyfry, "liczba": _liczba, "data": _data, "tekst": _tekst, "bez_spacji": _bez_spacji}
 
 
 def _etykiety(etykiety: list[str]) -> str:

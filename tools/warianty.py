@@ -11,7 +11,7 @@ from statistics import harmonic_mean
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from odwolania2json.cli import konsola_utf8
 from odwolania2json.pipeline import KONFIG, klasyfikuj, tekst_pdf, ustawienia, wczytaj_typy, wyciagnij
-from ocena_f1 import DANE, liscie, porownaj
+from ocena_f1 import DANE, bez_prefiksu, liscie, porownaj
 
 def _mapuj(v, f):
     if isinstance(v, dict):
@@ -175,7 +175,7 @@ def main() -> int:
             licznik[rodzaj, "warianty"] += 1
             licznik[rodzaj, "zly_typ"] += not nasz
             wyniki = dict(liscie(nasz))
-            for sciezka, wynik in porownaj(wz, nasz):
+            for sciezka, wynik in porownaj(bez_prefiksu(wz, ust), bez_prefiksu(nasz, ust)):
                 rodzina = rodzaj.split(" ")[0]
                 suma[rodzaj, wynik] += 1
                 suma["razem", wynik] += 1

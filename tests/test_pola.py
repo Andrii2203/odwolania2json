@@ -2,7 +2,7 @@ import json
 import pytest
 
 from odwolania2json.pipeline import przetworz, ustawienia, wczytaj_typy, wyciagnij
-from tools.ocena_f1 import DANE
+from tools.ocena_f1 import DANE, bez_prefiksu
 
 pytestmark = pytest.mark.skipif(not DANE.exists(), reason="brak data/uzp — zob. AGENTS.md")
 
@@ -12,7 +12,8 @@ def test_t3_przelew(sprawa):
     typ, dane = przetworz(DANE / sprawa / "potwierdzenie_przelewu.pdf", wczytaj_typy(), ustawienia())
 
     assert typ == "przelew"
-    assert dane == json.loads((DANE / sprawa / "przelew.json").read_text(encoding="utf-8"))
+    wzor = json.loads((DANE / sprawa / "przelew.json").read_text(encoding="utf-8"))
+    assert bez_prefiksu(dane, ustawienia()) == bez_prefiksu(wzor, ustawienia())
 
 
 @pytest.mark.parametrize("sprawa", ["przyklad_02", "przyklad_41", "przyklad_44"])
@@ -37,3 +38,12 @@ def test_t10_etykieta_nie_jest_wartoscia():
     dane = wyciagnij("Data Opis Kwota\nData operacji 2026-04-09\nTytuł: opłata skarbowa od pełnomocnictwa\n", typ)
 
     assert dane["przelew_bankowy"]["tytul"] == "opłata skarbowa od pełnomocnictwa"
+
+
+def test_t11_rachunek_z_pl():
+    typ = next(t for t in wczytaj_typy() if t["typ"] == "przelew")
+
+    dane = wyciagnij("Z rachunku: PL 62 2170 0008 9152 5017 5661 7062\nNa rachunek: 68 4382 2304 9992 2952 6283 4736\n", typ)
+
+    assert (dane["przelew_bankowy"]["z_rachunku"], dane["przelew_bankowy"]["na_rachunek"]) == (
+        "PL62217000089152501756617062", "68438223049992295262834736")

@@ -42,6 +42,9 @@ narzedzia:
   # Najniższe F1 na 3 skanach testu T9 (skany/<typ>/0001): tuż poniżej obecnego F1, więc utrata jednego pola
   # zaczerwienia test.
   MIN_F1_SKANY: 0.96
+  # UZP (Discord 21.11): rachunek jak w dokumencie, z „PL”; wzorce treningowe bez „PL” są błędne (ADR-0014).
+  # Narzędzia i testy porównują te pola bez prefiksu.
+  bez_prefiksu: {prefiks: PL, pola: [z_rachunku, na_rachunek]}
   # Obce dokumenty do pomiaru klasyfikacji (tools/pobierz_obce.py, ADR-0011): polskie ogłoszenia TED z API TED.
   obce_ted:
     # Zamawiający z Polski, ogłoszenia z bieżącego roku (składnia wyszukiwania eksperckiego TED).
@@ -137,8 +140,9 @@ wzorce:
   TEKST: '(?:(?!{POCZATEK_LINII}{STOP})[\s\S]){1,{OKNO_TEKSTU}}'
   # Początek linii i spacje lub tabulatory przed tekstem.
   POCZATEK_LINII: '^[ \t]*'
-  # Numer rachunku NRB: 26 cyfr (2 cyfry kontrolne + 24), drukowany w grupach po 4.
-  RACHUNEK: '\d{2}(?:\s?\d{4}){6}(?!\d)'
+  # Numer rachunku NRB: 26 cyfr (2 cyfry kontrolne + 24), drukowany w grupach po 4; przed nim kod kraju PL,
+  # jeśli jest (IBAN). UZP: numer jak w dokumencie, z „PL” (ADR-0014).
+  RACHUNEK: '(?:PL\s?)?\d{2}(?:\s?\d{4}){6}(?!\d)'
   # Kwota: tysiące w grupach po 3 cyfry (spacja, twarda spacja albo kropka), zawsze 2 cyfry groszy.
   KWOTA: '(?<![\d,.])(?:\d{1,3}(?:[  .]\d{3})+|\d+)[,.]\d{2}(?!\d)'
   # Data: rok 4 cyfry, dzień i miesiąc 1-2 cyfry; RRRR-MM-DD, DD.MM.RRRR, „5 marca 2026”, „20 04 2026” (skany UZP).

@@ -27,7 +27,8 @@ pola:
     etykiety: [nr ref., numer referencyjny, nr referencyjny, numer transakcji, nr transakcji, id transakcji, identyfikator transakcji, identyfikator operacji, numer operacji, nr operacji]
     wzorce: ['({IDENTYFIKATOR})']
   przelew_bankowy.tytul:
-    etykiety: [tytuł przelewu, tytułem, tytuł, opis, szczegóły płatności]
+    etykiety: [tytuł przelewu, tytuł operacji, tytuł transakcji, opis operacji, opis transakcji, tytułem, tytuł, opis, szczegóły płatności]
     wzorce: ['({TEKST})']
     format: tekst
+    utnij: ['{STOP}']
     stop: [status, waluta, opłata/prowizja, prowizja, typ transakcji, dokument, signature]

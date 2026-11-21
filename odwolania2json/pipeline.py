@@ -4,6 +4,8 @@ from pathlib import Path
 import yaml
 from pypdf import PdfReader
 
+from .pola import wyciagnij
+
 
 def load_types(config_dir: Path) -> list[dict]:
     return [yaml.safe_load(p.read_text(encoding="utf-8")) for p in sorted(config_dir.glob("*.yaml"))]
@@ -47,8 +49,20 @@ def _empty(shape):
     return None
 
 
+def _ustaw(wynik: dict, sciezka: str, wartosc) -> None:
+    *rodzice, klucz = sciezka.split(".")
+    for r in rodzice:
+        wynik = wynik[r]
+    wynik[klucz] = wartosc
+
+
 def extract(text: str, typ: dict) -> dict:
-    return _empty(typ["szablon"])
+    wynik = _empty(typ["szablon"])
+    for sciezka, spec in typ.get("pola", {}).items():
+        wartosc = wyciagnij(text, spec, typ["pola"])
+        if wartosc is not None:
+            _ustaw(wynik, sciezka, wartosc)
+    return wynik
 
 
 def process(pdf: Path, types: list[dict]) -> tuple[str, dict] | None:

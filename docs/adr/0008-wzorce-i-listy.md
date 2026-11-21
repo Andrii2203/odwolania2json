@@ -1,6 +1,6 @@
 # ADR-0008: Wzorce regex i listy w regułach pól
 
-Status: przyjęte, 2026-11-21; uzupełnia ADR-0009 (`etykiety` przed wzorcami, pole bez `[]`)
+Status: przyjęte, 2026-11-21; uzupełniają ADR-0009 (`etykiety` przed wzorcami, pole bez `[]`) i ADR-0010 (sekcje, słowniki, szablony wartości)
 
 ## Kontekst
 

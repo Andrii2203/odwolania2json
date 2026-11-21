@@ -69,3 +69,25 @@ wzorce:
   SLOWO_FIRMY: '(?<![\w-])(?!(?i:pełnomocnictw|mocodawc|wykonawc|zamawiając|odwołując)){WIELKA}{MALA}[\w&-]*'
   FORMA_PRAWNA: '(?i:S\.\s?A\.|sp\.\s?z\s?o\.\s?o\.|sp\.\s?k\.|sp\.\s?j\.|sp\.\s?p\.|S\.K\.A\.|spółka z ograniczoną odpowiedzialnością|spółka akcyjna|spółka jawna|spółka komandytowa)'
   FIRMA: '(?:{SLOWO_FIRMY}\s+)+{FORMA_PRAWNA}(?:\s+{FORMA_PRAWNA})?'
+  # Tytuł zawodowy pełnomocnika przed imieniem i nazwiskiem.
+  TYTUL_PRAWNIKA: '(?:r\.\s?pr\.|adw\.|apl\.\s?adw\.|apl\.\s?radc\.|radca\s+prawny|radcy\s+prawnego|adwokat|adwokata)'
+  # Nazwa miejscowości, także wieloczłonowa (Grabów Nadrzeczny, Bielsko-Biała).
+  MIEJSCOWOSC: '{WIELKA}{MALA}+(?:[ -]{WIELKA}{MALA}+)*'
+  # REGON: 9 cyfr albo 14 cyfr (jednostka lokalna), standard GUS.
+  REGON: '\d{9}(?:\d{5})?(?!\d)'
+  EMAIL: '[\w.+-]+@[\w-]+(?:\.[\w-]+)+'
+  # Sygnatura postępowania: od wielkiej litery, kończy się cyfrą (ZP.431.2026, MCLM/ZP/07/2026).
+  SYGNATURA: '[A-ZĄĆĘŁŃÓŚŹŻ][\w./-]*\d'
+  # Numer BZP: rok, „/BZP”, 8 cyfr, opcjonalnie „/” i 2 cyfry korekty (UZP: oczekiwane-json/odwolanie.json).
+  BZP: '(?P<rok>\d{4})/BZP\s?(?P<nr>\d{8})(?P<korekta>/\d{2})?'
+  # Numer TED: 6 cyfr, „-”, rok (UZP: oczekiwane-json/odwolanie.json).
+  TED: '(?P<nr>\d{6})-(?P<rok>\d{4})(?!\d)'
+  # Numer TED w zapisie Dziennika Urzędowego UE: rok, „/S”, 3 cyfry numeru wydania, „-”, 6 cyfr.
+  TED_S: '(?P<rok>\d{4})/S\s?\d{3}-(?P<nr>\d{6})'
+
+# Słowniki UZP: tekst wartości -> liczba w JSON (pole `slownik` w pliku typu).
+slowniki:
+  # data/uzp/oczekiwane-json/odwolanie.json: „1- tak, 0- nie”.
+  tak_nie: {tak: 1, nie: 0}
+  # data/uzp/oczekiwane-json/czynnosc_powod_id_dict.md. Numer 6 zapisany jak we wzorcach spraw (6 spraw): „i”, nie „/”.
+  czynnosc_powod: {Decyzja o odrzuceniu oferty: 1, Ogłoszenie wyboru oferty: 2, Decyzja o wykluczeniu wykonawcy: 3, Publikacja specyfikacji warunków zamówienia (SWZ): 4, Modyfikacja treści SWZ: 5, Odpowiedzi i wyjaśnienia do SWZ: 6, Zaniechanie odrzucenia oferty: 7, Zaniechanie wykluczenia wykonawcy: 8, Decyzja o unieważnieniu postępowania: 9, Zaniechanie unieważnienia postępowania: 10, Opis przedmiotu zamówienia (OPZ): 11, Projektowane postanowienia umowy: 12}

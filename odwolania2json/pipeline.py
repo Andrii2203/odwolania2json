@@ -25,7 +25,7 @@ def wczytaj_typy(config: Path = KONFIG) -> list[dict]:
     for t in typy:
         t["prog"] = ust["liczby"]["PROG"]
         t["wykluczenia"] = ust["wykluczenia"] + t.get("wykluczenia", [])
-        przygotuj(t.setdefault("pola", {}), ust)
+        przygotuj(t.setdefault("pola", {}), ust, t.get("wzorce", {}))
     return typy
 
 

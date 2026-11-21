@@ -1,6 +1,6 @@
 # Stan
 
-Aktualizacja: 2026-11-21 wieczór, Claude.
+Aktualizacja: 2026-11-21 noc, Claude.
 
 ## Zrobione
 
@@ -9,7 +9,8 @@ Aktualizacja: 2026-11-21 wieczór, Claude.
 - Potok: CLI `input/ -> output/`, klasyfikacja z YAML (`znaczniki`, `wykluczenia`), wyciąganie pól z YAML (`pola`: `etykiety` i `format`), `przetworz()` wspólne dla CLI i GUI.
 - Klasyfikacja: 180/180 dokumentów treningowych poprawnie, 13/13 obcych dokumentów UZP bez JSON.
 - Pola `przelew` regułami: 4 błędy na ok. 360 pól.
-- Pola `pelnomocnictwo` wzorcami regex i listami (ADR-0008): 1 błąd (PESEL w jednej sprawie). Łączny **F1 = 0.571** (`odwolanie` jeszcze puste).
+- Pola `pelnomocnictwo` wzorcami regex i listami (ADR-0008): 1 błąd (PESEL w jednej sprawie).
+- Pola `odwolanie` wzorcami, sekcjami i słownikami (ADR-0010, test T6): 0 błędów na 60 sprawach. Łączny **F1 = 0.9983** (TP 2027, FP 2, FN 5; wcześniej 0.5711).
 - Zgłoszenie w HackTribe: szkic zapisany.
 - ADR-0009 (też `tools/` i `tests/`, sekcja `narzedzia`; hooki Claude blokują przez JSON, nie kod 2): jeden mechanizm pól (`wzorce`, `etykiety` to skrót), formaty wartości w YAML. Wszystkie liczby w `config/ustawienia.yaml` z pochodzeniem (pomiar `tools/przeglad.py`); pilnuje test T5. Wynik 180 JSON bajt w bajt bez zmian.
 - Straże: pre-commit (testy, język polski), hooki Claude (TDD, stop), CI na Windows (`.github/workflows/testy.yml`, ostatni przebieg zielony). Opis w `AGENTS.md`.
@@ -25,7 +26,6 @@ Aktualizacja: 2026-11-21 wieczór, Claude.
 
 | Kiedy | Kto | Co |
 |---|---|---|
-| sb wieczór | Claude | Pola `odwolanie` wzorcami (ADR-0008, fragmenty `{NIP}`, `{KRS}` gotowe); słownik `data/uzp/.../czynnosc_powod_id` |
 | sb noc | Claude | Klient LLM (OVHcloud) z limitem tokenów w `config/ustawienia.yaml`; wybór modelu pomiarem F1; OCR (ADR-0007) |
 | nd 7:00-9:30 | [Argon] | Prezentacja PDF <= 10 MB wg ADR-0006; `README.md` po polsku |
 | nd przed 11:00 | Użytkownik | Repozytorium publiczne (jury musi je otworzyć); `.env` poza git |
@@ -35,4 +35,5 @@ Aktualizacja: 2026-11-21 wieczór, Claude.
 ## Otwarte pytania
 
 - Jak UZP liczy F1: nie blokuje pracy (ADR-0005).
+- Reguły `odwolanie` są dopasowane do 60 spraw treningowych. Jeśli ukryte sprawy mają inny układ, pomoże LLM dla pól z `null` (ADR-0004).
 - Commituj test razem z kodem i konfiguracją, które go zazieleniają; inaczej CI na pośrednim commicie jest czerwone.

@@ -85,6 +85,30 @@ config/ustawienia.yaml:        OKNO_TEKSTU: 400                   -> błąd: bra
 - Sprawdza: nowy typ to sam YAML bez liczb; liczby nie są rozsiane po kodzie, także w formatach f-stringów i we wzorcach regex w kodzie; każda liczba ma zapisane pochodzenie (komentarz w tej samej linii albo w linii nad nią).
 - Test: `tests/test_konfiguracja.py::test_t5_liczby_w_jednym_pliku`
 
+## T6. Odwołanie: wszystkie pola jak we wzorcu
+
+```
+przyklad_01 (najpierw Odwołujący, bez daty w nagłówku):
+  "Zamawiający w dniu 20 marca 2026 roku unieważniił postępowanie."
+                                     -> "czynnosc_dzien": "2026-03-20", "czynnosc_powod_id": 9,
+                                        "czynnosc_opis": "Decyzja o unieważnieniu postępowania", "data": null
+  "Odwołujący: … NIP: 9999284065", "Zamawiający: … NIP: 9997518659"
+                                     -> NIP-y trafiają do właściwej strony
+  "reprezentowana przez: r. pr. Aleksandra Marciniak, r. pr. Jolanta Zajkowski"
+                                     -> "przez-pelnomocnika": 1, "imie_nazwisko": "Aleksandra Marciniak" (tylko pierwszy)
+przyklad_03 (najpierw Zamawiający):
+  "Bydgoszcz, dnia 2 marca 2026 roku" -> "miejscowosc": "Bydgoszcz", "data": "2026-03-02"
+przyklad_41 (konsorcjum, dwa podmioty po stronie Odwołującego):
+  "1) Lider Konsorcjum: Torvex Budownictwo sp. z o.o." -> tylko lider w "Odwolujacy"
+  "polegających na: 1) odrzuceniu oferty … z dnia 4 sierpnia 2026 r."
+                                     -> "czynnosc_powod_id": 1, "czynnosc_dzien": "2026-08-04"
+  "Unii Europejskiej nr 2026/S 142-999327" -> "numer_ted": "999327-2026"
+```
+
+- Dane: `data/uzp/dane/przyklad_01`, `przyklad_03`, `przyklad_41`; cały JSON równy wzorcowi `odwolanie.json`.
+- Sprawdza: `sekcja`, `slownik`, szablon `wartosc` z grup nazwanych, fragmenty typu (`wzorce` w pliku typu), pierwsze trafienie w tekście dla pola bez `[]` (ADR-0010).
+- Test: `tests/test_pola.py::test_t6_odwolanie`
+
 ## Pomiar jakości (to nie jest test)
 
 `tools/ocena_f1.py` przepuszcza wszystkie 60 spraw treningowych przez CLI i liczy F1 według ADR-0003. Przykładowy wynik:

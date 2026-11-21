@@ -22,3 +22,11 @@ def test_t4_pelnomocnictwo(sprawa):
 
     assert typ == "pelnomocnictwo"
     assert dane == json.loads((DANE / sprawa / "pelnomocnictwo.json").read_text(encoding="utf-8"))
+
+
+@pytest.mark.parametrize("sprawa", ["przyklad_01", "przyklad_03", "przyklad_41"])
+def test_t6_odwolanie(sprawa):
+    typ, dane = przetworz(DANE / sprawa / "odwolanie.pdf", wczytaj_typy())
+
+    assert typ == "odwolanie"
+    assert dane == json.loads((DANE / sprawa / "odwolanie.json").read_text(encoding="utf-8"))

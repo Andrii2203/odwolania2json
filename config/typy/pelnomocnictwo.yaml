@@ -30,4 +30,4 @@ pola:
     - '{POCZATEK_LINII}({OSOBA})[ \t]*\n[ \t]*(?:Prezes|Wiceprezes|Członek|Prokurent|Dyrektor|Wspólnik|Właściciel)'
     - *podpisany
   pelnomocnicy[].imie_nazwisko:
-    wzorce: ['(?:r\.\s?pr\.|adw\.|apl\.\s?adw\.|apl\.\s?radc\.|radca\s+prawny|radcy\s+prawnego|adwokat|adwokata)\s+({OSOBA})']
+    wzorce: ['{TYTUL_PRAWNIKA}\s+({OSOBA})']

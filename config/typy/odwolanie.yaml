@@ -16,3 +16,111 @@ szablon:
   - {krs: null, nazwa: null, nip: null, regon: null, prowadzacy_postepowanie: null}
   ZamowieniePubliczne: {numer_bzp: null, numer_postepowania: null, numer_ted: null,
     tytul: null}
+
+wzorce:
+  NAGLOWEK_ZAMAWIAJACEGO: 'Zamawiający(?:\s*\([^)]*\))?\s*:'
+  # Sekcja strony: od nagłówka „Odwołujący:” albo „Zamawiający:” do następnego nagłówka (także „Wykonawca wybrany …:”).
+  KONIEC_SEKCJI: '(?={POCZATEK_LINII}(?:Odwołujący\s*:|{NAGLOWEK_ZAMAWIAJACEGO}|Wykonawca|dotyczy|ODWOŁANIE|Działając)|\Z)'
+  ODWOLUJACY: '{POCZATEK_LINII}Odwołujący\s*:[\s\S]*?{KONIEC_SEKCJI}'
+  # Konsorcjum: dane Odwołującego to dane lidera, do nagłówka „Partner Konsorcjum:”.
+  LIDER: '{POCZATEK_LINII}Odwołujący\s*:[\s\S]*?(?:(?={POCZATEK_LINII}\d+\)\s*Partner)|{KONIEC_SEKCJI})'
+  ZAMAWIAJACY: '{POCZATEK_LINII}{NAGLOWEK_ZAMAWIAJACEGO}[\s\S]*?{KONIEC_SEKCJI}'
+  # Wiersz za nagłówkiem zakończonym dwukropkiem.
+  WIERSZ_ZA_NAGLOWKIEM: ':[ \t]*\n[ \t]*([^\n]+)'
+  # Pierwsza zaskarżona czynność: „Zamawiający w dniu … roku <czynność>” albo pierwszy punkt listy po „polegających na:”.
+  PIERWSZY_PUNKT: 'polegając\w*\s+na:?(?:\s+Strona[^\n]*)?\s+\d+\)'
+  CZYNNOSC: '(?:Zamawiający\s+w\s+dniu\s+{DATA}\s+(?:roku|r\.)|{PIERWSZY_PUNKT})\s+'
+  # Nagłówek pisma w jednej linii: „Kraków, dnia <data>”, „Kraków <data>”.
+  PRZED_DATA: ',?[ \t]+(?:dnia[ \t]+)?'
+  ETYKIETA_BZP: '(?:o\s+zamówieniu|BZP|Zamówień\s+Publicznych)[\s:]*(?:w\s+BZP[\s:]*)?(?:nr\s+)?'
+  ETYKIETA_TED: '(?:TED|Urzędowym\s+U\w*(?:\s+Europejskiej)?)\W*(?:nr\s+)?'
+
+pola:
+  OdwolanieKIO.data:
+    wzorce: ['{POCZATEK_LINII}{MIEJSCOWOSC}{PRZED_DATA}({DATA})']
+    format: data
+  OdwolanieKIO.miejscowosc:
+    wzorce: ['{POCZATEK_LINII}({MIEJSCOWOSC}){PRZED_DATA}{DATA}']
+  OdwolanieKIO.czynnosc_dzien:
+    wzorce: ['Zamawiający\s+w\s+dniu\s+({DATA})', '{PIERWSZY_PUNKT}[^;]*?({DATA})']
+    format: data
+  OdwolanieKIO.czynnosc_opis:
+    wzorce: &czynnosci
+    - {wzorzec: '{CZYNNOSC}(?:poinformował\w*\s+o\s+)?odrzuceni\w*\s+oferty', wartosc: Decyzja o odrzuceniu oferty}
+    - {wzorzec: '{CZYNNOSC}(?:ogłosił\w*\s+)?wyb[oó]r', wartosc: Ogłoszenie wyboru oferty}
+    - {wzorzec: '{CZYNNOSC}(?:poinformował\w*\s+o\s+)?wykluczeni', wartosc: Decyzja o wykluczeniu wykonawcy}
+    - {wzorzec: '{CZYNNOSC}(?:opublikował\w*|ustaleniu\s+treści)\s+Specyfikacj', wartosc: Publikacja specyfikacji warunków zamówienia (SWZ)}
+    - {wzorzec: '{CZYNNOSC}(?:zmodyfikował\w*|modyfikacji)\s+treś', wartosc: Modyfikacja treści SWZ}
+    - {wzorzec: '{CZYNNOSC}(?:przekazał\w*\s+wykonawcom\s+)?(?:odpowiedzi|udzieleniu)', wartosc: Odpowiedzi i wyjaśnienia do SWZ}
+    - {wzorzec: '{CZYNNOSC}(?:nie\s+odrzucił|zaniechaniu\s+odrzucenia)', wartosc: Zaniechanie odrzucenia oferty}
+    - {wzorzec: '{CZYNNOSC}(?:nie\s+wykluczył|zaniechaniu\s+wykluczenia)', wartosc: Zaniechanie wykluczenia wykonawcy}
+    - {wzorzec: '{CZYNNOSC}unieważni', wartosc: Decyzja o unieważnieniu postępowania}
+    - {wzorzec: '{CZYNNOSC}zaniecha\w*\s+unieważnienia', wartosc: Zaniechanie unieważnienia postępowania}
+    - {wzorzec: '{CZYNNOSC}(?:udostępnił\w*\s+Opis|opisaniu)\s+[Pp]rzedmiotu', wartosc: Opis przedmiotu zamówienia (OPZ)}
+    - {wzorzec: '{CZYNNOSC}[^;.]*?projektowan\w*\s+postanowie', wartosc: Projektowane postanowienia umowy}
+  OdwolanieKIO.czynnosc_powod_id:
+    wzorce: *czynnosci
+    slownik: czynnosc_powod
+
+  Odwolujacy[].nazwa:
+    sekcja: &lider '{LIDER}'
+    wzorce: ['{POCZATEK_LINII}(?:Odwołujący|\d+\)\s*Lider\s+Konsorcjum)\s*{WIERSZ_ZA_NAGLOWKIEM}']
+  Odwolujacy[].krs:
+    sekcja: *lider
+    wzorce: [&krs 'KRS{ODSTEP}({KRS})']
+  Odwolujacy[].nip:
+    sekcja: *lider
+    wzorce: [&nip 'NIP{ODSTEP}({NIP})']
+    format: cyfry
+  Odwolujacy[].regon:
+    sekcja: *lider
+    wzorce: [&regon 'REGON{ODSTEP}({REGON})']
+  Odwolujacy[].przez-pelnomocnika:
+    sekcja: &odwolujacy '{ODWOLUJACY}'
+    wzorce: [{wzorzec: 'reprezentowan\w*\s+przez', wartosc: tak}]
+    slownik: tak_nie
+  Odwolujacy[].pelnomocnik.imie_nazwisko:
+    sekcja: *odwolujacy
+    wzorce: ['{TYTUL_PRAWNIKA}\s+({OSOBA})']
+  Odwolujacy[].pelnomocnik.nazwa:
+    sekcja: *odwolujacy
+    wzorce: ['korespondencji\s*:\s*([^,]+)']
+  Odwolujacy[].pelnomocnik.mail:
+    sekcja: *odwolujacy
+    wzorce: ['korespondencji[\s\S]*?({EMAIL})']
+
+  Zamawiajacy[].nazwa:
+    sekcja: &zamawiajacy '{ZAMAWIAJACY}'
+    podzial: &zamawiajacy_podzial '{POCZATEK_LINII}(?:\d+\)\s*)?Zamawiający\b[^\n:]*:[ \t]*\n'
+    wzorce: ['{POCZATEK_LINII}(?:\d+\)\s*)?Zamawiający\b[^\n:]*{WIERSZ_ZA_NAGLOWKIEM}']
+  Zamawiajacy[].krs:
+    sekcja: *zamawiajacy
+    podzial: *zamawiajacy_podzial
+    wzorce: [*krs]
+  Zamawiajacy[].nip:
+    sekcja: *zamawiajacy
+    podzial: *zamawiajacy_podzial
+    wzorce: [*nip]
+    format: cyfry
+  Zamawiajacy[].regon:
+    sekcja: *zamawiajacy
+    podzial: *zamawiajacy_podzial
+    wzorce: [*regon]
+  Zamawiajacy[].prowadzacy_postepowanie:
+    sekcja: *zamawiajacy
+    podzial: *zamawiajacy_podzial
+    wzorce:
+    - {wzorzec: '\)\s*Zamawiający[^\n:]*(?:Lider|prowadzący)', wartosc: tak}
+    - {wzorzec: '\)\s*Zamawiający[^\n:]*Partner', wartosc: nie}
+    slownik: tak_nie
+
+  ZamowieniePubliczne.tytul:
+    wzorce: ['pn\.\s*„([^”]+)”']
+  ZamowieniePubliczne.numer_postepowania:
+    wzorce: ['(?i:nr|numer)\s+referencyjn\w*(?:\s+sprawy)?\s*:?\s*({SYGNATURA})']
+  ZamowieniePubliczne.numer_bzp:
+    wzorce: [{wzorzec: '{ETYKIETA_BZP}{BZP}', wartosc: '{rok}/BZP{nr}{korekta}'}]
+  ZamowieniePubliczne.numer_ted:
+    wzorce:
+    - {wzorzec: '{ETYKIETA_TED}{TED_S}', wartosc: '{nr}-{rok}'}
+    - {wzorzec: '{ETYKIETA_TED}{TED}', wartosc: '{nr}-{rok}'}

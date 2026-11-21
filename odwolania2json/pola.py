@@ -42,8 +42,14 @@ def _rozwin(wzorzec: str, fragmenty: dict) -> re.Pattern:
     return re.compile(wzorzec, re.MULTILINE)
 
 
-def przygotuj(pola: dict, ust: dict) -> None:
-    wspolne = {**{k: str(v) for k, v in ust["liczby"].items()}, **ust["wzorce"], "MIESIAC": "|".join(ust["miesiace"])}
+def _wartosc(format_, slownik: dict | None, m: re.Match, surowe: str, stala: str | None):
+    wartosc = format_(surowe) if stala is None else stala.format(**{k: v or "" for k, v in m.groupdict().items()})
+    return wartosc if slownik is None else slownik.get(wartosc)
+
+
+def przygotuj(pola: dict, ust: dict, fragmenty_typu: dict) -> None:
+    wspolne = {**{k: str(v) for k, v in ust["liczby"].items()}, **ust["wzorce"], **fragmenty_typu,
+               "MIESIAC": "|".join(ust["miesiace"])}
     for spec in pola.values():
         stopy = [e for s in pola.values() if s is not spec for e in s.get("etykiety", [])] + spec.get("stop", [])
         fragmenty = {**wspolne, "STOP": _etykiety(stopy) if stopy else "(?!)"}
@@ -51,7 +57,9 @@ def przygotuj(pola: dict, ust: dict) -> None:
         wzorce = [w if isinstance(w, dict) else {"wzorzec": w} for w in spec["wzorce"]]
         spec["_wzorce"] = [(_rozwin(p + w["wzorzec"], fragmenty), w.get("wartosc")) for p in przedrostki for w in wzorce]
         spec["_podzial"] = _rozwin(spec["podzial"], fragmenty) if "podzial" in spec else None
-        spec["_format"] = partial(FORMATY[spec["format"]], ust) if "format" in spec else str
+        spec["_sekcja"] = _rozwin(spec["sekcja"], fragmenty) if "sekcja" in spec else None
+        format_ = partial(FORMATY[spec["format"]], ust) if "format" in spec else str
+        spec["_wartosc"] = partial(_wartosc, format_, ust["slowniki"][spec["slownik"]] if "slownik" in spec else None)
 
 
 def pusty(ksztalt):
@@ -76,16 +84,18 @@ def _wez(obiekt, sciezka: str):
 
 
 def trafienia(tekst: str, spec: dict) -> list[tuple[int, object]]:
+    zakresy = [m.span() for m in spec["_sekcja"].finditer(tekst)] if spec["_sekcja"] else [(0, len(tekst))]
+    trafione = sorted(((m, stala) for wzorzec, stala in spec["_wzorce"] for od, do in zakresy
+                       for m in wzorzec.finditer(tekst, od, do)), key=lambda t: t[0].start())
     wyniki, widziane = [], set()
-    for wzorzec, stala in spec["_wzorce"]:
-        for m in wzorzec.finditer(tekst):
-            surowe = " ".join(m.group(1 if m.re.groups else 0).split())
-            if surowe in widziane:
-                continue
-            widziane.add(surowe)
-            wartosc = spec["_format"](surowe) if stala is None else stala
-            if wartosc not in (None, ""):
-                wyniki.append((m.start(), wartosc))
+    for m, stala in trafione:
+        surowe = " ".join(m.group(1 if m.re.groups else 0).split())
+        if surowe in widziane:
+            continue
+        widziane.add(surowe)
+        wartosc = spec["_wartosc"](m, surowe, stala)
+        if wartosc not in (None, ""):
+            wyniki.append((m.start(), wartosc))
     return wyniki
 
 
@@ -97,21 +107,24 @@ def wypelnij(wynik: dict, szablon: dict, sciezka: str, spec: dict, tekst: str, z
     if len(czesci) == 1:
         ustaw(wynik, sciezka, znalezione[0][1])
         return
-    znalezione.sort(key=lambda t: t[0])
     glowa, *srodek, reszta = czesci
     lista, wzor = _wez(wynik, glowa), _wez(szablon, glowa)[0]
-    granice = [m.start() for m in spec["_podzial"].finditer(tekst)] if spec["_podzial"] else []
+    granice = [m.start() for m in spec["_podzial"].finditer(tekst)] if spec["_podzial"] else None
     for i, (poz, wartosc) in enumerate(znalezione):
+        if granice is not None:
+            i = max(sum(g <= poz for g in granice) - 1, 0)
         if srodek:
-            i = min(max(sum(g <= poz for g in granice) - 1, 0), max(len(lista) - 1, 0))
-        if i >= len(lista):
-            if glowa in zamkniete:
-                break
+            i = min(i, max(len(lista) - 1, 0))
+        while i >= len(lista) and glowa not in zamkniete:
             lista.append(pusty(wzor))
+        if i >= len(lista):
+            break
         element = lista[i]
         if srodek:
             wewnetrzna = _wez(element, srodek[0])
             wewnetrzna.append(pusty(_wez(wzor, srodek[0])[0]))
             element = wewnetrzna[-1]
+        elif _wez(element, reszta) is not None:
+            continue
         ustaw(element, reszta.lstrip("."), wartosc)
     zamkniete.add(glowa)

@@ -28,6 +28,14 @@ Aktualizacja: 2026-11-21 noc, Claude (skany, porządki liczb, kryteria). Następ
 - Punkty LLM (Discord): średnia liczba parametrów wszystkich użytych modeli (MoE: wszystkie parametry): <=8B 20 pkt, 8–14B 18, 14–32B 12, 32–70B 8, 70–150B 4, >150B 0.
 - README UZP (21.11 12:14): obcy dokument ma dać „pusty plik .json”. Pracownik UZP na stoisku: pusty plik wejściowy -> klucze z pustymi wartościami (bez wskazania, którego typu).
 - README UZP: premiowana „transparentność procesu ekstrakcji danych” i konfiguracja nowych klas bez zmiany kodu.
+- Discord UZP (21.11 wieczorem, `docs/UZP/from discord.md`):
+  - Obcy dokument (spoza klas): plik JSON z samym `{}`, ta sama nazwa co PDF (`potwierdzenie_przelewu.pdf` -> `potwierdzenie_przelewu.json`).
+  - Rachunek: tak jak w dokumencie, z „PL”, jeśli jest. Wzorce bez „PL” to błąd UZP; w zbiorze testowym go nie będzie. Skany: `PL` + 26 cyfr bez spacji.
+  - Nazwa firmy: tak jak w dokumencie (nie z CEIDG).
+  - Czas: każde rozwiązanie ma ograniczony czas; program może nie skończyć. Liczba dokumentów i limit nieznane (uczestnik pytał o 150 dokumentów w 45 min, ok. 18 s na dokument). Rate limit API nie wpływa na ocenę.
+  - Elastyczność: liczy się też konfiguracja reguł rozpoznawania, walidacji i mapowania pól; nowa klasa tylko przez plik konfiguracyjny.
+  - Ocena na PDF cyfrowych i na skanach.
+  - LLM tylko u firmy z polityką prywatności; hosting LLM przez osobę prywatną (własny komputer) wykluczony. Nie wiadomo, czy dotyczy to małego modelu nie-LLM (GLiNER2, ok. 0,2 mld parametrów) uruchamianego lokalnie jak OCR: zapytać.
 
 ## Plan (noc 21/22.11): potok etapów, `docs/potok.md`, ADR-0012
 
@@ -39,7 +47,9 @@ Etapy podłączamy po jednym; po każdym pomiar (`ocena_f1.py`, skany, `warianty
 | 2 | Claude | 10 | Dziennik „skąd każda wartość” (etap, reguła, fragment tekstu), `--wyjasnij`, podgląd w GUI; potrzebny do szukania błędów w kolejnych etapach |
 | 3 | Claude | 5 | Bramka: stopy w środku linii (adres „ul.”, kod pocztowy, „KRS:”, „NIP:”, e-mail), reguły w YAML; cel: `laczenie_linii` (0.834) |
 | 4 | Claude | 8 | Kontekst sprawy: wartości z innych dokumentów sprawy jako kandydaci, tylko jeśli są w tekście |
-| 5 | Claude | 0 | Pusty / uszkodzony PDF, obcy dokument: format pliku (pytanie 1) |
+| 0a | Claude | 0, 10 | Obcy, pusty i uszkodzony PDF -> plik z `{}` (Discord UZP); zmiana T2, ADR. Robimy najpierw: pewny wpływ na ocenę |
+| 0b | Claude | 9 | Rachunek z „PL”, jeśli jest w dokumencie (Discord UZP); `tools/ocena_f1.py` porównuje rachunek bez „PL”, bo wzorce treningowe są tu błędne; ADR. Robimy najpierw |
+| 0c | Claude | | Czas: zmierzyć sekundy na dokument (cyfrowy, skan, z GLiNER2); JSON zapisywany zaraz po każdym dokumencie |
 | 6 | Claude | 1 | Słownik sjp.pl (CC BY 4.0) zamiast łatek `poprawki_ocr`; pomiar na skanach |
 | 7 | Claude | 9 | Mianownik (Morfeusz2, BSD-2: sprawdzić wheel dla Python 3.13), duplikaty NIP z myślnikami i bez |
 | 8 | Claude + Użytkownik | 6, 7 | Decyzja: wektory etykiet i/lub LLM dla pól, które nadal są puste (po pomiarze 1–7); nowe zamiany etykiet w `warianty`, których reguły nie widziały |
@@ -50,10 +60,10 @@ Etapy podłączamy po jednym; po każdym pomiar (`ocena_f1.py`, skany, `warianty
 
 ## Otwarte pytania
 
-1. Pusty JSON: jaki plik dla obcego dokumentu i dla pustego PDF? Kandydaci: `{}`, plik 0 bajtów, szablon jednego typu z `null` (którego? najbliższego wg znaczników?), wszystkie trzy szablony z `null`. Przy F1 liczonym tylko z niepustych wartości (`tools/ocena_f1.py`) wynik jest ten sam, ale UZP może sprawdzać format. Najlepiej przykład pliku od UZP; bez odpowiedzi: `{}`.
+1. ~~Pusty JSON~~: odpowiedź UZP: plik z `{}` dla obcego dokumentu. Pusty i uszkodzony PDF traktujemy tak samo.
 2. Ile punktów LLM, jeśli rozwiązanie w ogóle nie używa LLM? Do której części oceny wchodzą te punkty (preselekcja to 100% F1)?
 3. Brak nietkniętego zbioru: reguły dopasowane do danych treningowych i skanów. Uczciwa ocena na nowych dokumentach to skany przed dopasowaniem: 0.8696. Dlatego pomiar z planu, pkt 1.
-4. Wzorce UZP niespójne: w skanach `z_rachunku` z „PL”, w treningowych bez. Trzymamy się treningowych.
+4. ~~Rachunek z „PL” czy bez~~: odpowiedź UZP: jak w dokumencie, z „PL”. Wzorce treningowe bez „PL” są błędne.
 5. Znane błędy skanów bez reguły (kontekst): kancelaria brana za mocodawcę; ten sam NIP z myślnikami i bez daje drugiego mocodawcę; kilku Zamawiających listą numerowaną („Zamawiający wspólnie …: 1) … 2) …”); podpisujący powtarzany; nazwa kancelarii z przecinkiem.
 6. Jak UZP liczy F1: nie blokuje pracy (ADR-0005).
 

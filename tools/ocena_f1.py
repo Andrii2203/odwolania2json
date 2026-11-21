@@ -51,7 +51,7 @@ def main() -> int:
                         "--output", str(wyjscie)], cwd=ROOT, check=True, capture_output=True)
         suma, pola = Counter(), Counter()
         dokumenty = trafione_typy = 0
-        for sprawa in sorted(p for p in args.dane.iterdir() if p.is_dir()):
+        for sprawa in sorted(p for p in args.dane.iterdir() if all((p / n).exists() for n in WZORZEC.values())):
             for nazwa_pdf, nazwa_wzoru in WZORZEC.items():
                 wzor = json.loads((sprawa / nazwa_wzoru).read_text(encoding="utf-8"))
                 plik = wyjscie / sprawa.name / f"{nazwa_pdf}.json"

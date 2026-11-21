@@ -1,56 +1,64 @@
-# Odwołania2JSON — контекст для AI (Claude і Gemini/Argon)
+# Odwołania2JSON – kontekst dla AI (Claude i Gemini/Argon)
 
-HackNation 2026, завдання UZP «Odwołania2JSON». Здача: **нд 22.11.2026, 11:00**.
-З користувачем говоримо українською і **на прикладах**.
+HackNation 2026, zadanie UZP „Odwołania2JSON”. Termin oddania: niedziela 22.11.2026, 11:00.
+Z użytkownikiem rozmawiamy po ukraińsku, na przykładach.
+Wszystko, co trafia do repozytorium (kod, dokumentacja, commity), piszemy po polsku, prostym językiem, bez ozdobników.
 
-## Що робимо
-Програма бере PDF-документи справи до KIO і для кожного пише JSON.
+## Co robimy
+
+Program bierze dokumenty PDF sprawy odwoławczej do KIO i dla każdego zapisuje JSON.
 
 ```
-input/case1/odwolanie.pdf  →  output/case1/odwolanie.json
+input/case1/odwolanie.pdf  ->  output/case1/odwolanie.json
 {"OdwolanieKIO": {"miejscowosc": "Kraków", ...}, "Odwolujacy": [{"nip": "9995519382", ...}], ...}
 ```
 
-Типи: `odwolanie`, `pelnomocnictwo`, `przelew` (потвердження переказу).
-Чужий документ (напр. оголошення TED) → **жодного файлу**.
+Typy: `odwolanie`, `pelnomocnictwo`, `przelew` (potwierdzenie przelewu).
+Obcy dokument (np. ogłoszenie TED) nie daje pliku.
 
-## Вимоги UZP (не порушувати)
-- Python 3.13+, `requirements.txt`, запуск з CLI (`start.bat`).
-- `input/` і `output/` у корені; дерево папок те саме, JSON має **те саме ім'я**, що й PDF.
-- Лише open source. LLM — тільки модель з відкритими вагами через API, де **і компанія, і сервер в ЄС** (ADR-0004). Ключ API здаємо разом із рішенням.
-- Тестовий ПК — офісний, без GPU. Більшість документів — цифрові PDF, але бувають скани → потрібен OCR.
-- Значення немає в документі → `null`. Нічого не вигадувати.
-- Оцінка: F1 на прихованих справах (≥10). Фінал (топ-3): 50% F1 + 50% — нові типи документів **через конфіг, без зміни коду**.
-- Повні умови: `docs/UZP/` (лише локально, не в git).
+## Wymagania UZP
 
-## Як працюємо
-1. **Готове рішення першим** (open source, бажано MIT/BSD/Apache). Якщо з великої бібліотеки треба мала частина — пишемо своє.
-2. **Не перевіряємо руками** те, що перевіряє інструмент: тести — `pytest`, якість — `tools/ocena_f1.py`.
-3. **Кожне рішення → ADR** у `docs/adr/` (контекст, рішення, наслідки — коротко).
-4. **TDD:** опис тесту з прикладом у `docs/testy.md` → червоний тест → код → тест зелений. Тестів мінімум, кожен = пункт у `docs/testy.md`. Тестів заради тестів не пишемо.
-5. **Економія токенів:** читай лише потрібні файли й частини; без субагентів; відповідай коротко.
-6. **Кінець сесії:** онови `docs/STAN.md` (зроблено / далі / питання).
-7. **Код без коментарів.** Якщо коментар конче потрібен — польською. Повідомлення CLI — польською. Документація (`AGENTS.md`, `docs/`) — українською.
+- Python 3.13+, `requirements.txt`, uruchomienie z CLI (`start.bat`).
+- `input/` i `output/` w katalogu głównym; to samo drzewo katalogów, JSON ma tę samą nazwę co PDF.
+- Tylko open source. LLM: wyłącznie model z otwartymi wagami przez API dostawcy, którego firma i serwer są w UE (ADR-0004). Klucz API oddajemy razem z rozwiązaniem.
+- Komputer testowy jest biurowy, bez GPU. Większość dokumentów to cyfrowe PDF, ale zdarzają się skany (ADR-0007).
+- Brak wartości w dokumencie: `null`. Niczego nie wymyślamy.
+- Ocena: F1 na ukrytych sprawach (co najmniej 10). Finał (top 3): 50% F1, 50% dodawanie nowych typów dokumentów przez konfigurację, bez zmiany kodu.
+- Pełne warunki: `docs/UZP/` (tylko lokalnie, poza git).
 
-## Карта
-| Шлях | Що |
+## Jak pracujemy
+
+1. Najpierw gotowe rozwiązanie (open source, najlepiej MIT/BSD/Apache). Jeśli z dużej biblioteki potrzebna jest mała część, piszemy własne.
+2. Nie sprawdzamy ręcznie tego, co sprawdza narzędzie: testy (`pytest`), jakość (`tools/ocena_f1.py`).
+3. Każda decyzja ma ADR w `docs/adr/` (kontekst, decyzja, konsekwencje; krótko).
+4. TDD: opis testu z przykładem w `docs/testy.md`, czerwony test, kod, zielony test. Minimum testów, każdy odpowiada punktowi w `docs/testy.md`.
+5. Oszczędzamy tokeny: czytamy tylko potrzebne pliki i fragmenty, bez subagentów, krótkie odpowiedzi.
+6. Na koniec sesji aktualizujemy `docs/STAN.md` (zrobione, dalej, pytania).
+7. W kodzie bez komentarzy; jeśli komentarz jest konieczny, po polsku. Komunikaty CLI po polsku.
+8. Małe commity z krótkim opisem po polsku, push po każdym.
+
+## Mapa
+
+| Ścieżka | Co |
 |---|---|
-| `odwolania2json/` | код; CLI: `python -m odwolania2json` |
-| `config/typy/*.yaml` | тип документа: `znaczniki` (класифікація), `szablon` (форма JSON). Новий тип = новий YAML |
-| `tests/` | тести з `docs/testy.md` |
-| `tools/ocena_f1.py` | F1 на 60 тренувальних справах (ADR-0003) |
-| `data/uzp/` | клон https://github.com/Urzad-Zamowien-Publicznych/hacknation-2026 (не в git) |
-| `docs/adr/`, `docs/testy.md`, `docs/STAN.md` | рішення, тести, стан |
+| `odwolania2json/` | kod; CLI: `python -m odwolania2json` |
+| `config/typy/*.yaml` | typ dokumentu: `znaczniki` (klasyfikacja), `szablon` (kształt JSON). Nowy typ to nowy plik YAML |
+| `tests/` | testy z `docs/testy.md` |
+| `tools/ocena_f1.py` | F1 na 60 sprawach treningowych (ADR-0003) |
+| `data/uzp/` | klon https://github.com/Urzad-Zamowien-Publicznych/hacknation-2026 (poza git) |
+| `docs/adr/`, `docs/badania/`, `docs/testy.md`, `docs/STAN.md` | decyzje, badania, testy, stan |
 
-## Команди (Windows)
+## Polecenia (Windows)
+
 ```
 py -3.13 -m venv .venv && .venv\Scripts\pip install -r requirements-dev.txt
 git clone https://github.com/Urzad-Zamowien-Publicznych/hacknation-2026 data/uzp
-start.bat                                  # input\ → output\
-.venv\Scripts\python -m pytest -q          # тести
-.venv\Scripts\python tools\ocena_f1.py     # F1 і найгірші поля
+start.bat                                  # input\ -> output\
+.venv\Scripts\python -m pytest -q          # testy
+.venv\Scripts\python tools\ocena_f1.py     # F1 i najgorsze pola
 ```
 
-## Ролі
-- **Claude:** архітектура, конвеєр, складні поля, ADR.
-- **Gemini (Argon):** задачі з позначкою `[Argon]` у `docs/STAN.md`. Змінює лише файли, названі в задачі. ADR і тести — тільки після слова користувача.
+## Role
+
+- Claude: architektura, potok przetwarzania, trudne pola, ADR.
+- Gemini (Argon): zadania oznaczone `[Argon]` w `docs/STAN.md`. Zmienia tylko pliki wskazane w zadaniu. ADR i testy tylko po zgodzie użytkownika.

@@ -64,7 +64,7 @@ def test_t7_blad_jednego_dokumentu(tmp_path):
 
     wynik = run_cli(tmp_path / "input", tmp_path / "output", "--config", str(config), check=False)
 
-    assert wynik.returncode == 1
+    assert wynik.returncode == 0
     assert "błąd: przyklad_01" in wynik.stdout
     wyjscie = tmp_path / "output" / "przyklad_01"
     assert sorted(p.name for p in wyjscie.glob("*.json")) == ["odwolanie.json", "pelnomocnictwo.json", "przelew.json"]

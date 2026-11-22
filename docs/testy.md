@@ -119,7 +119,7 @@ przyklad_41 (konsorcjum, dwa podmioty po stronie Odwołującego):
 input/przyklad_01/odwolanie.pdf       -> output/przyklad_01/odwolanie.json
 input/przyklad_01/pelnomocnictwo.pdf  -> output/przyklad_01/pelnomocnictwo.json
 input/przyklad_01/przelew.pdf         -> wyjątek przy wyciąganiu pola: na ekranie „błąd: przyklad_01/przelew.pdf: …”, output/przyklad_01/przelew.json: {}
-kod wyjścia CLI: 1 (był błąd), ale dwa pozostałe pliki są zapisane
+kod wyjścia CLI: 0 (każdy PDF ma swój JSON; UZP uruchamia komendę bez nas, kod 1 mógłby oznaczać nieudany przebieg), dwa pozostałe pliki są zapisane
 ```
 
 - Dane: `data/uzp/dane/przyklad_01` i kopia `config/` z zepsutym polem `przelew_bankowy.kwota` (`format: liczba` na słowie bez cyfr daje `ValueError`).

@@ -10,7 +10,7 @@ UZP na Discordzie (21.11 wieczorem): dla dokumentu spoza klas oczekiwany jest pl
 
 1. Każdy PDF z `input/` ma swój plik w `output/`.
 2. Nieznany typ: `{}`.
-3. Błąd przetwarzania (uszkodzony PDF, wyjątek w regule): `{}`, komunikat „błąd: …” na ekranie, kod wyjścia 1 jak dotąd (T7).
+3. Błąd przetwarzania (uszkodzony PDF, wyjątek w regule): `{}`, komunikat „błąd: …” na ekranie, kod wyjścia 0 (T7). Zmiana 22.11: test na VM jak UZP pokazał kod 1 przy pustym PDF; UZP uruchamia komendę bez nas i kod różny od 0 może uznać za nieudany przebieg, choć każdy PDF ma swój JSON.
 4. Pusty PDF (bez tekstu i obrazu) nie ma typu, więc też `{}`.
 
 ## Konsekwencje

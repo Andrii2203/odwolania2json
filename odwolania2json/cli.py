@@ -62,5 +62,5 @@ def main(argv: list[str] | None = None) -> int:
             wyjasnij(dane, dzienniki.get(pdf, []))
         zapisz(pdf, wynik, blad)
     if bledy:
-        print(f"Błędy: {bledy}. Pozostałe pliki zapisane.")
-    return 1 if bledy else 0
+        print(f"Błędy: {bledy}. Dla nich zapisano {{}}, pozostałe pliki zapisane.")
+    return 0

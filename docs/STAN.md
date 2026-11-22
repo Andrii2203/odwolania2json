@@ -1,6 +1,6 @@
 # Stan
 
-Aktualizacja: 2026-11-22 05:35, Claude (pkt 6: GUI i kreator z przykładu, T26, ADR-0026; czeka na uwagi użytkownika). Następny czat zaczyna od „Plan” niżej.
+Aktualizacja: 2026-11-22 06:45, Claude (pkt 6: GUI i kreator z przykładu, zakreślacz w podglądzie, faktura jako przykład, ikony Material; T26, T27, ADR-0026). Dalej: pkt 8 (ostatni test na VM) najpóźniej o 10:00. Następny czat zaczyna od „Plan” niżej.
 
 ## Zrobione
 

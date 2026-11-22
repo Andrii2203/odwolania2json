@@ -22,3 +22,7 @@ Oba punkty są w planie z wykonawcą i terminem (`docs/STAN.md`), a nie „jeśl
 ## Konsekwencje
 
 - Streamlit jest ciężki (ponad 100 MB zależności), dlatego osobny `requirements-gui.txt`.
+
+## Aktualizacja 2026-11-22
+
+GUI: wszystkie wgrane pliki to jedna sprawa (kontekst sprawy jak w CLI); wynik w pamięci podręcznej (edycja nie uruchamia OCR ponownie); JSON można poprawić ręcznie (sprawdzenie składni, znacznik „Zmieniono ręcznie”); pobieranie JSON każdego dokumentu i ZIP wszystkich.

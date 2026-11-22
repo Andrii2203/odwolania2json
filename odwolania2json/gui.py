@@ -1,5 +1,8 @@
+import io
+import json
 import sys
 import tempfile
+import zipfile
 from pathlib import Path
 
 import pypdfium2 as pdfium
@@ -17,50 +20,81 @@ def obrazy_stron(pdf: Path) -> list:
         dokument.close()
 
 
+@st.cache_data(show_spinner=False)
+def przetworz(pliki: tuple[tuple[str, bytes], ...]) -> list[dict]:
+    # wszystkie wgrane pliki to jedna sprawa: działa kontekst sprawy, jak w CLI dla jednego katalogu
+    typy, ust = wczytaj_typy(), ustawienia()
+    with tempfile.TemporaryDirectory() as katalog:
+        sciezki = []
+        for nazwa, zawartosc in pliki:
+            sciezka = Path(katalog) / Path(nazwa).name
+            sciezka.write_bytes(zawartosc)
+            sciezki.append(sciezka)
+        dzienniki, wyniki = {}, []
+        for pdf, wynik, blad in przetworz_wszystkie(sciezki, typy, ust, dzienniki):
+            wyniki.append({"nazwa": pdf.name, "typ": wynik[0] if wynik else None, "dane": wynik[1] if wynik else {},
+                           "blad": f"{type(blad).__name__}: {blad}" if blad else None,
+                           "dziennik": dzienniki.get(pdf, []), "obrazy": obrazy_stron(pdf) if blad is None else []})
+    return wyniki
+
+
+def plik_zip(dokumenty: dict[str, str]) -> bytes:
+    bufor = io.BytesIO()
+    with zipfile.ZipFile(bufor, "w", zipfile.ZIP_DEFLATED) as archiwum:
+        for nazwa, tekst in dokumenty.items():
+            archiwum.writestr(nazwa, tekst)
+    return bufor.getvalue()
+
+
 def main() -> None:
     st.set_page_config(page_title="Odwołania2JSON", layout="wide")
     st.title("Odwołania2JSON")
 
-    typy, ust = wczytaj_typy(), ustawienia()
-    pliki = st.file_uploader(
-        "Wgraj jeden lub kilka plików PDF",
-        type=["pdf"],
-        accept_multiple_files=True,
-    )
-
+    wciecie = ustawienia()["liczby"]["WCIECIE_JSON"]
+    pliki = st.file_uploader("Wgraj dokumenty jednej sprawy (PDF)", type=["pdf"], accept_multiple_files=True)
     if not pliki:
         st.info("Wybierz pliki PDF, aby rozpocząć analizę.")
         return
 
-    with tempfile.TemporaryDirectory() as katalog:
-        for plik in pliki:
-            sciezka = Path(katalog) / Path(plik.name).name
-            sciezka.write_bytes(plik.getvalue())
+    with st.spinner("Przetwarzanie (skany: kilka sekund na stronę)..."):
+        wyniki = przetworz(tuple((p.name, p.getvalue()) for p in pliki))
 
-            st.subheader(plik.name)
-            with st.spinner(f"Przetwarzanie pliku {plik.name}..."):
-                obrazy = obrazy_stron(sciezka)
-                dzienniki = {}
-                _, wynik, blad = next(przetworz_wszystkie([sciezka], typy, ust, dzienniki))
+    gotowe = {}
+    miejsce_zip = st.empty()
+    for w in wyniki:
+        nazwa_json = Path(w["nazwa"]).with_suffix(".json").name
+        st.subheader(w["nazwa"])
+        lewa, prawa = st.columns([1, 1])
+        with lewa:
+            for nr, obraz in enumerate(w["obrazy"], start=1):
+                st.image(obraz, caption=f"Strona {nr}", width="stretch")
+        with prawa:
+            if w["blad"]:
+                st.error(f"Błąd przetwarzania: {w['blad']}")
+            elif w["typ"] is None:
+                st.warning("Nieznany typ dokumentu: plik JSON z {}")
+            else:
+                st.markdown(f"**Typ dokumentu:** `{w['typ']}`")
+            pierwotny = json.dumps(w["dane"], ensure_ascii=False, indent=wciecie)
+            tekst = st.text_area("JSON (można poprawić ręcznie)", pierwotny, key=f"json_{w['nazwa']}",
+                                 height="content")
+            try:
+                dane = json.loads(tekst)
+            except json.JSONDecodeError as blad:
+                st.error(f"Niepoprawny JSON: {blad}")
+            else:
+                if dane != w["dane"]:
+                    st.caption("Zmieniono ręcznie.")
+                gotowe[nazwa_json] = json.dumps(dane, ensure_ascii=False, indent=wciecie)
+                st.download_button("Pobierz JSON", gotowe[nazwa_json], file_name=nazwa_json,
+                                   mime="application/json", key=f"pobierz_{w['nazwa']}")
+            if w["dziennik"]:
+                with st.expander("Skąd każda wartość (reguła i fragment tekstu)"):
+                    st.table([{"pole": z["pole"], "wartość": str(z["wartosc"]), "reguła": z["regula"],
+                               "tekst": z["fragment"]} for z in w["dziennik"]])
 
-            lewa, prawa = st.columns([1, 1])
-
-            with lewa:
-                for nr, obraz in enumerate(obrazy, start=1):
-                    st.image(obraz, caption=f"Strona {nr}", use_container_width=True)
-
-            with prawa:
-                if blad is not None:
-                    st.error(f"Błąd przetwarzania: {type(blad).__name__}: {blad}")
-                elif wynik is None:
-                    st.warning("Nieznany typ dokumentu: plik JSON z {}")
-                else:
-                    typ, dane = wynik
-                    st.markdown(f"**Typ dokumentu:** `{typ}`")
-                    st.json(dane)
-                    with st.expander("Skąd każda wartość (reguła i fragment tekstu)"):
-                        st.table([{"pole": w["pole"], "wartość": str(w["wartosc"]), "reguła": w["regula"],
-                                   "tekst": w["fragment"]} for w in dzienniki.get(sciezka, [])])
+    miejsce_zip.download_button(f"Pobierz wszystkie ({len(gotowe)} JSON, ZIP)", plik_zip(gotowe),
+                                file_name="output.zip", mime="application/zip", disabled=not gotowe)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 import io
 import json
+import shutil
 import sys
 import tempfile
 import zipfile
@@ -7,9 +8,12 @@ from pathlib import Path
 
 import pypdfium2 as pdfium
 import streamlit as st
+import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from odwolania2json.pipeline import przetworz_wszystkie, ustawienia, wczytaj_typy
+from odwolania2json.pipeline import KONFIG, ROOT, przetworz_wszystkie, ustawienia, wczytaj_typy
+
+PRZYKLADY = ROOT / "docs" / "przyklady"
 
 
 def obrazy_stron(pdf: Path) -> list:
@@ -21,13 +25,21 @@ def obrazy_stron(pdf: Path) -> list:
 
 
 @st.cache_data(show_spinner=False)
-def przetworz(pliki: tuple[tuple[str, bytes], ...]) -> list[dict]:
+def przetworz(pliki: tuple[tuple[str, bytes], ...], nowe_typy: tuple[tuple[str, str], ...]) -> list[dict]:
     # wszystkie wgrane pliki to jedna sprawa: działa kontekst sprawy, jak w CLI dla jednego katalogu
-    typy, ust = wczytaj_typy(), ustawienia()
     with tempfile.TemporaryDirectory() as katalog:
+        config = KONFIG
+        if nowe_typy:
+            # nowy typ = dodatkowy plik YAML w kopii config/typy/, kod bez zmian (README, T21)
+            config = Path(katalog) / "config"
+            shutil.copytree(KONFIG, config)
+            for nazwa, tekst in nowe_typy:
+                (config / "typy" / nazwa).write_text(tekst, encoding="utf-8")
+        typy, ust = wczytaj_typy(config), ustawienia(config)
         sciezki = []
+        (Path(katalog) / "pdf").mkdir()
         for nazwa, zawartosc in pliki:
-            sciezka = Path(katalog) / Path(nazwa).name
+            sciezka = Path(katalog) / "pdf" / Path(nazwa).name
             sciezka.write_bytes(zawartosc)
             sciezki.append(sciezka)
         dzienniki, wyniki = {}, []
@@ -46,9 +58,30 @@ def plik_zip(dokumenty: dict[str, str]) -> bytes:
     return bufor.getvalue()
 
 
+def panel_typow() -> tuple[tuple[str, str], ...]:
+    st.sidebar.header("Typy dokumentów")
+    st.sidebar.caption("Z `config/typy/`: " + ", ".join(p.stem for p in sorted((KONFIG / "typy").glob("*.yaml"))))
+    wybrane = []
+    for plik in sorted(PRZYKLADY.glob("*.yaml")):
+        tekst = plik.read_text(encoding="utf-8")
+        opis = yaml.safe_load(tekst).get("opis", plik.stem)
+        if not st.sidebar.toggle(f"Nowy typ (przykład): {opis}", key=f"typ_{plik.name}"):
+            continue
+        with st.sidebar.expander("Plik typu: cały nowy typ to ten plik YAML, kod bez zmian", expanded=True):
+            tekst = st.text_area(f"docs/przyklady/{plik.name}", tekst, key=f"yaml_{plik.name}", height="content")
+        try:
+            yaml.safe_load(tekst)
+        except yaml.YAMLError as blad:
+            st.sidebar.error(f"Niepoprawny YAML: {blad}")
+            continue
+        wybrane.append((plik.name, tekst))
+    return tuple(wybrane)
+
+
 def main() -> None:
     st.set_page_config(page_title="Odwołania2JSON", layout="wide")
     st.title("Odwołania2JSON")
+    nowe_typy = panel_typow()
 
     wciecie = ustawienia()["liczby"]["WCIECIE_JSON"]
     pliki = st.file_uploader("Wgraj dokumenty jednej sprawy (PDF)", type=["pdf"], accept_multiple_files=True)
@@ -57,7 +90,11 @@ def main() -> None:
         return
 
     with st.spinner("Przetwarzanie (skany: kilka sekund na stronę)..."):
-        wyniki = przetworz(tuple((p.name, p.getvalue()) for p in pliki))
+        try:
+            wyniki = przetworz(tuple((p.name, p.getvalue()) for p in pliki), nowe_typy)
+        except Exception as blad:
+            st.error(f"Błąd konfiguracji typu: {type(blad).__name__}: {blad}")
+            return
 
     gotowe = {}
     miejsce_zip = st.empty()
@@ -76,7 +113,7 @@ def main() -> None:
             else:
                 st.markdown(f"**Typ dokumentu:** `{w['typ']}`")
             pierwotny = json.dumps(w["dane"], ensure_ascii=False, indent=wciecie)
-            tekst = st.text_area("JSON (można poprawić ręcznie)", pierwotny, key=f"json_{w['nazwa']}",
+            tekst = st.text_area("JSON (można poprawić ręcznie)", pierwotny, key=f"json_{w['nazwa']}_{hash(pierwotny)}",
                                  height="content")
             try:
                 dane = json.loads(tekst)

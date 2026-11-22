@@ -92,3 +92,13 @@ def test_t18_ta_sama_wartosc():
     dane = wyciagnij(tekst, typ)
 
     assert [m["data"]["nip"] for m in dane["mocodawca"]] == ["9995090281"]
+
+
+def test_t24_mianownik():
+    typ = next(t for t in wczytaj_typy() if t["typ"] == "pelnomocnictwo")
+    tekst = ("PEŁNOMOCNICTWO\nUdzielam pełnomocnictwa adwokatowi Pawłowi Wróblowi oraz r.pr. Annie Nowak-Kowalskiej "
+             "do reprezentowania Wykonawcy przed Krajową Izbą Odwoławczą.\n")
+
+    dane = wyciagnij(tekst, typ)
+
+    assert [p["imie_nazwisko"] for p in dane["pelnomocnicy"]] == ["Paweł Wróbel", "Anna Nowak-Kowalska"]

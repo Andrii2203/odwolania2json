@@ -21,7 +21,7 @@ Typy: odwołanie, pełnomocnictwo, potwierdzenie przelewu. Brak wartości w doku
 
 - Wejście: wszystkie PDF z `input/` (także w podkatalogach, także `.PDF`). Wynik: `output/` z tym samym drzewem katalogów.
 - `--wyjasnij`: dla każdego pola reguła z konfiguracji i fragment tekstu, z którego pochodzi wartość.
-- Python 3.13+. Zależności: `requirements.txt` (pypdf, pypdfium2, RapidOCR, onnxruntime, PyYAML; licencje BSD, Apache, MIT).
+- Python 3.13+. Zależności: `requirements.txt` (pypdf, pypdfium2, RapidOCR, onnxruntime, PyYAML, Morfeusz2 ze słownikiem SGJP; licencje BSD, Apache, MIT).
 
 ## Jak to działa
 
@@ -29,7 +29,7 @@ Potok etapów (szczegóły: `docs/potok.md`):
 
 1. **Tekst.** Strona z tekstem: `pypdf`. Strona bez tekstu (skan): render (`pypdfium2`) i OCR (RapidOCR, lokalnie na CPU), ramki składane w wiersze. Do OCR idą 3 pierwsze strony i ostatnia.
 2. **Klasyfikacja.** Typ ma `znaczniki`; wygrywa typ z największą częścią znaczników w tekście, jeśli przekracza próg. `wykluczenia` odrzucają obce dokumenty (np. ogłoszenia TED). Brak typu: `{}`.
-3. **Pola.** Dla każdego pola: etykiety, wzorzec wartości, sekcja dokumentu, format (data ISO, kwota, cyfry, tekst), słownik (słowo -> id).
+3. **Pola.** Dla każdego pola: etykiety, wzorzec wartości, sekcja dokumentu, format (data ISO, kwota, cyfry, tekst, imię i nazwisko w mianowniku przez Morfeusz2), słownik (słowo -> id).
 4. **Bramka.** Wartość kończy się przed następną etykietą, adresem, numerem z etykietą, e-mailem (`utnij`, `stop`).
 5. **Kontekst sprawy.** Puste pole może dostać wartość z innego dokumentu tej samej sprawy, ale tylko jeśli ta wartość jest w tekście tego dokumentu.
 6. **Zapis.** JSON zaraz po każdym dokumencie. Limit czasu: po `CZAS_OCR_S` nowe skany nie idą do OCR, więc program kończy się w czasie.

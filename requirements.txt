@@ -3,3 +3,4 @@ PyYAML==6.0.4
 pypdfium2==5.15.2
 rapidocr==3.10.0
 onnxruntime==1.32.0
+morfeusz2==1.99.15

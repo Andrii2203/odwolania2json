@@ -106,6 +106,7 @@ pola:
     - {wzorzec: 'Działając\s+w\s+imieniu\s+własnym', wartosc: nie, sekcja: '[\s\S]+'}
     slownik: tak_nie
   Odwolujacy[].pelnomocnik.imie_nazwisko:
+    format: mianownik
     sekcja: *odwolujacy
     wzorce: ['{PRAWNIK}']
   Odwolujacy[].pelnomocnik.nazwa:

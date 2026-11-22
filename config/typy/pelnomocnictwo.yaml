@@ -37,14 +37,17 @@ pola:
     - {wzorzec: '{KRS_Z_ETYKIETA}', wartosc: osoba_prawna}
     - {wzorzec: 'prowadząc\w*\s+działalność\s+gospodarczą', wartosc: osoba_fizyczna}
   mocodawca[].data.imie_nazwisko:
+    format: mianownik
     wzorce: [&podpisany 'niżej\s+podpisan\w*\s+({OSOBA})']
   mocodawca[].podpisujacy[].imie_nazwisko:
+    format: mianownik
     podzial: '{POCZATEK_LINII}W imieniu'
     wzorce:
     - '{POCZATEK_LINII}({OSOBA})[ \t]*\n[ \t]*{FUNKCJA}'
     - '({OSOBA})\s*[-–]\s*{FUNKCJA}'
     - *podpisany
   pelnomocnicy[].imie_nazwisko:
+    format: mianownik
     wzorce:
     - '{PRAWNIK}'
     - {wzorzec: '({OSOBA})', sekcja: '{LISTA_PELNOMOCNIKOW}'}

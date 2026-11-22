@@ -1,6 +1,6 @@
 import re
 from datetime import datetime
-from functools import partial
+from functools import cache, partial
 
 
 def _cyfry(ust: dict, s: str) -> str:
@@ -33,7 +33,40 @@ def _bez_spacji(ust: dict, s: str) -> str:
     return re.sub(r"\s", "", s)
 
 
-FORMATY = {"cyfry": _cyfry, "liczba": _liczba, "data": _data, "tekst": _tekst, "bez_spacji": _bez_spacji}
+@cache
+def _morfeusz():
+    import morfeusz2
+    return morfeusz2.Morfeusz(generate=False)
+
+
+def _formy(slowo: str) -> dict[tuple[str, str], str]:
+    # (rodzaj, przypadek) -> forma podstawowa; tylko nazwy własne (rzeczownik z wielkiej litery)
+    formy = {}
+    for *_, (_, lemat, tag, *_) in _morfeusz().analyse(slowo):
+        if not tag.startswith("subst:") or not lemat[:1].isupper():
+            continue
+        _, _, przypadki, rodzaje, *_ = tag.split(":")
+        for przypadek in przypadki.split("."):
+            for rodzaj in rodzaje.split("."):
+                formy.setdefault((rodzaj, przypadek), lemat.split(":")[0])
+    return formy
+
+
+def _mianownik(ust: dict, s: str) -> str:
+    # rodzaj i przypadek wspólne dla wszystkich znanych słów; słowo spoza słownika SGJP bez zmian (T24)
+    formy = {w: _formy(w) for w in re.findall(r"[^\s-]+", s)}
+    znane = [f for f in formy.values() if f]
+    if not znane or all(any(p == "nom" for _, p in f) for f in znane):
+        return s
+    wspolne = set.intersection(*map(set, znane))
+    if not wspolne:
+        return s
+    klucz = min(wspolne)
+    return re.sub(r"[^\s-]+", lambda m: formy[m.group()].get(klucz, m.group()), s)
+
+
+FORMATY = {"cyfry": _cyfry, "liczba": _liczba, "data": _data, "tekst": _tekst, "bez_spacji": _bez_spacji,
+           "mianownik": _mianownik}
 
 
 def fraza(s: str) -> str:

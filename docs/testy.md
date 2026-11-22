@@ -324,6 +324,18 @@ tests/dane/pisma/wezwanie_kio.txt            („wzywa Odwołującego do uzupeł
 - Teksty pism napisane na wzór prawdziwych (krótkie fragmenty), bo prawdziwych pism z akt KIO nie ma w danych.
 - Test: `tests/test_konfiguracja.py::test_t23_inne_pisma_z_akt`
 
+## T24. Imiona i nazwiska w mianowniku
+
+```
+„Udzielam pełnomocnictwa adwokatowi Pawłowi Wróblowi oraz r.pr. Annie Nowak-Kowalskiej do reprezentowania …”
+  -> pelnomocnicy[].imie_nazwisko: ["Paweł Wróbel", "Anna Nowak-Kowalska"]
+„Anna Kowalska”, „Jan Kowalski” (już w mianowniku) -> bez zmian
+```
+
+- Źródło: wymaganie UZP („Mateusz Szymański”, nie „Mateusza Szymańskiego”). W danych treningowych odmian nie ma, więc F1 tego nie pokazuje; w prawdziwych pełnomocnictwach „udzielam … adwokatowi Janowi Kowalskiemu” jest częste.
+- `format: mianownik` w polach z imieniem i nazwiskiem: Morfeusz2 (słownik SGJP) podaje formę podstawową; rodzaj i przypadek wspólne dla wszystkich słów („Aleksandrze Marciniak” -> „Aleksandra Marciniak”). Słowo spoza słownika zostaje bez zmian. Tytuł pełnomocnika także w celowniku („adwokatowi”, „radcy prawnemu”).
+- Test: `tests/test_pola.py::test_t24_mianownik`
+
 ## Pomiar jakości (to nie jest test)
 
 `tools/ocena_f1.py` przepuszcza wszystkie 60 spraw treningowych przez CLI i liczy F1 według ADR-0003. Przykładowy wynik:

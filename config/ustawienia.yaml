@@ -215,8 +215,8 @@ wzorce:
   DALSZE_SLOWO_FIRMY: '(?:[i&]\s+)?{WIELKA}[\w&-]*'
   FORMA_PRAWNA: '(?i:S\.\s?A\.|sp\.\s?z\s?o\.\s?o\.|sp\.\s?k\.|sp\.\s?j\.|sp\.\s?p\.|S\.K\.A\.|spółka z ograniczoną odpowiedzialnością|spółka akcyjna|spółka jawna|spółka komandytowa)'
   FIRMA: '{SLOWO_FIRMY}(?:\s+{DALSZE_SLOWO_FIRMY})*\s+{FORMA_PRAWNA}(?:\s+{FORMA_PRAWNA})?'
-  # Tytuł zawodowy pełnomocnika przed imieniem i nazwiskiem.
-  TYTUL_PRAWNIKA: '(?:r\.\s?pr\.|adw\.|apl\.\s?adw\.|apl\.\s?radc\.|radca\s+prawny|radcy\s+prawnego|adwokat|adwokata)'
+  # Tytuł zawodowy pełnomocnika przed imieniem i nazwiskiem, także w celowniku („udzielam … adwokatowi”, T24).
+  TYTUL_PRAWNIKA: '(?:r\.\s?pr\.|adw\.|apl\.\s?adw\.|apl\.\s?radc\.|radca\s+prawny|radcy\s+prawnego|radcy\s+prawnemu|adwokat|adwokata|adwokatowi)'
   # Pełnomocnik z tytułem („radca prawny Jan Kowalski”); grupa 1 to imię i nazwisko.
   PRAWNIK: '{TYTUL_PRAWNIKA}\s+({OSOBA})'
   # Nazwa miejscowości, także wieloczłonowa (Grabów Nadrzeczny, Bielsko-Biała).

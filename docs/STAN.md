@@ -1,6 +1,6 @@
 # Stan
 
-Aktualizacja: 2026-11-22 05:45, Claude (plan 1–5 zrobione: test VM, inne pisma z akt, mianownik, sklejone linie, dokumenty). Następny czat zaczyna od „Plan” niżej.
+Aktualizacja: 2026-11-22 05:35, Claude (pkt 6: GUI i kreator z przykładu, T26, ADR-0026; czeka na uwagi użytkownika). Następny czat zaczyna od „Plan” niżej.
 
 ## Zrobione
 
@@ -60,7 +60,7 @@ Plan od 22.11 03:30 (połączony nocny plan etapów z planem VM; punkty nocnego 
 | 3 | Claude | **zrobione** (T24, ADR-0024: `format: mianownik`, Morfeusz2 BSD; „adwokatowi”, „radcy prawnemu”; F1 bez zmian) Mianownik imion i nazwisk (nocny plan, pkt 7): reguły albo Morfeusz2 | wymaganie UZP; w danych treningowych odmian nie ma, F1 tego nie pokazuje |
 | 4 | Claude | **zrobione** (T25, ADR-0025: podpisujący i nagłówki stron w sklejonych liniach, `nowa_linia`; warianty 0.9798 -> 0.9870, treningowe 0.9990 i skany 0.9508 bez zmian) Bramka w środku linii (nocny plan, pkt 3): adres, „KRS:”, e-mail za wartością | `laczenie_linii` 0.851, najsłabszy wariant |
 | 5 | Claude | **zrobione** Dokumenty zgodne ze stanem (`docs/kryteria.md`: nieaktualne „brak instrukcji dla jury”, „plan, pkt 7”), STAN | porządek |
-| 6 | Claude | GUI przyjazne dla użytkownika (na końcu; użytkownik 22.11 05:50: nie robić przed jego decyzją). Co przeszkadza (użytkownik): nie wiadomo, od czego zacząć (brak krótkiej instrukcji 1–2–3); kreator typu trudny (co wpisać w tabeli, „wspólne wykluczenia” to żargon, puste wiersze bez przykładu); za dużo naraz na ekranie (dziennik, edycja JSON i YAML: schować w rozwijane bloki); napisy i przyciski techniczne, potrzebne prostsze | prezentacja |
+| 6 | Claude | **zrobione 22.11 05:30, czeka na uwagi użytkownika** (T26, ADR-0026: trzy kroki, przyciski „Pokaż na przykładzie”, nazwa typu i status zwykłymi słowami, szczegóły w zwiniętych blokach; kreator: nazwa pola + wartość z dokumentu, etykietę i rodzaj znajduje sam i sprawdza na przykładzie; typ z kreatora od razu w pierwszej zakładce; GUI na VM uruchomione ponownie) GUI przyjazne dla użytkownika. Przykład sprawy tylko, gdy jest `data/uzp` (na VM nie ma) | prezentacja |
 | 7 | [Argon] | Prezentacja PDF <= 10 MB wg ADR-0006; Regulamin: wskazać rozwiązania zewnętrzne (RapidOCR, pypdfium2, pypdf, Morfeusz2, Streamlit, PyYAML, uv) | |
 | 8 | Claude | Ostatni test na VM jak UZP po ostatniej zmianie kodu (pkt 1), `input/` i `output/` puste; dostęp do VM do 11:00 | |
 
@@ -68,7 +68,7 @@ Uwagi 22.11 w nocy: na 2 rdzeniach z 2 wątkami OCR odwołanie (5 stron) 23 s, p
 
 Decyzje użytkownika 22.11 w nocy: kreatora typu nie rozbudowujemy (kilka przykładów, wykrywanie etykiet z dokumentu, podpowiedzi w polach); znane słabe strony: puste pola bez przykładów, „wspólne wykluczenia” to żargon, nie wiadomo, co wpisać w tabeli. LLM nie używamy (ADR-0022).
 
-Odłożone: wektory etykiet (etap 6, `docs/badania/wektory-etykiet.md`): na 2 vCPU z limitem czasu i bez zysku na znanych etykietach ryzyko większe niż zysk; opis w prezentacji. Słownik sjp.pl, Morfeusz.
+Odłożone: wektory etykiet (etap 6, `docs/badania/wektory-etykiet.md`): na 2 vCPU z limitem czasu i bez zysku na znanych etykietach ryzyko większe niż zysk; opis w prezentacji. Słownik sjp.pl, Morfeusz. Nieczytelne dopasowanie etykiet OCR (`RapidFuzz`, hipoteza 7 w `docs/badania/hipotezy-70-podejsc.md`, plik poza git): zmienia ekstrakcję tuż przed oddaniem, ryzyko dla F1.
 
 ## Otwarte pytania
 

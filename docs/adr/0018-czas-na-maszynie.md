@@ -17,3 +17,4 @@ README UZP: 150 PDF w 45 min na maszynie z 2 vCPU (ADR-0017). Dokument cyfrowy t
 
 - Przerwanie programu zostawia JSON wszystkich przetworzonych dokumentów.
 - Pole z dalszej strony długiego skanu (np. 5 z 20) zostanie `null`. PDF cyfrowe bez zmian.
+- 22.11 UZP wydłużył limit z 45 do 60 min na 150 PDF: `CZAS_OCR_S` 2400 -> 3300 (ta sama reguła: limit minus 5 min zapasu).

@@ -30,7 +30,7 @@ Dokumenty UZP różnią się w finale: Regulamin (§ 2) i README: F1 50%, elasty
 | Obcy dokument: plik JSON z `{}` (Discord UZP) | tak, także pusty i uszkodzony PDF (T2, T7, ADR-0013) oraz inne pisma z akt: odpowiedź na odwołanie, przystąpienie, SWZ, umowa, faktura (T23, ADR-0023) |
 | LLM tylko przez API firmy z polityką prywatności, serwer w UE/EOG; klucz w zgłoszeniu | nie używamy LLM (ADR-0022) |
 | Rachunek jak w dokumencie, z kodem kraju, bez spacji (Discord UZP) | tak (T11, T15, ADR-0014) |
-| 150 PDF w 45 min na maszynie UZP (2 vCPU, `data/uzp/VM.md`) | na maszynie UZP 226 PDF (w tym 30 skanów) w 5 min 36 s; test jak UZP (z `sudo`, po restarcie): 52 PDF w 104 s, kod wyjścia 0; JSON zaraz po każdym dokumencie, limit OCR, 3 pierwsze strony skanu i ostatnia (ADR-0018) |
+| 150 PDF w 60 min (22.11 wydłużone z 45) na maszynie UZP (2 vCPU, `data/uzp/VM.md`) | na maszynie UZP 226 PDF (w tym 30 skanów) w 5 min 36 s; test jak UZP (z `sudo`, po restarcie): 52 PDF w 104 s, kod wyjścia 0; JSON zaraz po każdym dokumencie, limit OCR, 3 pierwsze strony skanu i ostatnia (ADR-0018) |
 
 ## Zgłoszenie
 

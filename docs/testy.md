@@ -243,7 +243,7 @@ kolejność: tekst odwolanie -> zapis odwolanie -> tekst pelnomocnictwo -> zapis
 CZAS_OCR_S = 0, skan przelewu  ->  {} (bez OCR nie ma tekstu), dziennik: „OCR pominięty: limit czasu”
 ```
 
-- Źródło: README UZP: 150 PDF w 45 min na maszynie z 2 vCPU. Skan odwołania (5 stron) to dziesiątki sekund; bez limitu wiele skanów może przekroczyć czas całego zbioru. PDF cyfrowe i tak zdążą (setne części sekundy).
+- Źródło: README UZP: 150 PDF w 45 min na maszynie z 2 vCPU (22.11 UZP wydłużył limit do 60 min). Skan odwołania (5 stron) to dziesiątki sekund; bez limitu wiele skanów może przekroczyć czas całego zbioru. PDF cyfrowe i tak zdążą (setne części sekundy).
 - Test: `tests/test_e2e.py::test_t17_limit_czasu`
 
 ## T18. Ta sama wartość zapisana inaczej nie tworzy drugiego elementu listy

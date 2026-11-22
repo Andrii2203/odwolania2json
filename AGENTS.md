@@ -19,7 +19,7 @@ Obcy, pusty albo uszkodzony dokument (np. ogłoszenie TED) daje plik z `{}` (ADR
 ## Wymagania UZP
 
 - Python 3.13+, `requirements.txt`, uruchomienie z CLI (`start.bat`; na maszynie UZP `sh instaluj.sh`, potem komenda z `RUN.md`, ADR-0017).
-- Ocena na maszynie UZP (`data/uzp/VM.md`): Ubuntu 24.04, 2 vCPU, bez GPU; 150 PDF w 45 min; dostęp do maszyny do 22.11 11:00.
+- Ocena na maszynie UZP (`data/uzp/VM.md`): Ubuntu 24.04, 2 vCPU, bez GPU; 150 PDF w 60 min (22.11 wydłużone z 45); dostęp do maszyny do 22.11 11:00.
 - `input/` i `output/` w katalogu głównym; to samo drzewo katalogów, JSON ma tę samą nazwę co PDF.
 - Tylko open source. LLM: wyłącznie model z otwartymi wagami przez API firmy, która w polityce prywatności podaje zakres i miejsce przetwarzania, z serwerem w UE/EOG; hosting przez osobę prywatną zabroniony (ADR-0004). Klucz API oddajemy razem z rozwiązaniem.
 - Komputer testowy jest biurowy, bez GPU. Większość dokumentów to cyfrowe PDF, ale zdarzają się skany (ADR-0007, przykłady w `data/uzp/dane/skany/`).

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Faktura VAT (przykład)</title>
+<style>
+  @page { size: A4; margin: 20mm; }
+  body { font-family: "Segoe UI", Arial, sans-serif; font-size: 11pt; color: #222; }
+  h1 { font-size: 18pt; margin: 0 0 4mm; }
+  .uwaga { color: #888; font-size: 9pt; margin-bottom: 8mm; }
+  p { margin: 1.5mm 0; }
+  h2 { font-size: 12pt; margin: 7mm 0 2mm; border-bottom: 1px solid #ccc; }
+  table { border-collapse: collapse; width: 100%; margin-top: 3mm; }
+  th, td { border: 1px solid #bbb; padding: 2mm; text-align: left; }
+  .suma { font-size: 13pt; font-weight: bold; margin-top: 6mm; }
+</style>
+</head>
+<body>
+<h1>Faktura VAT</h1>
+<div class="uwaga">Dokument przykładowy do kreatora typu w Odwołania2JSON. Dane fikcyjne.</div>
+<p>Numer faktury: FV/2026/04/117</p>
+<p>Data wystawienia: 14.04.2026</p>
+<p>Miejsce wystawienia: Kraków</p>
+
+<h2>Sprzedawca</h2>
+<p>Nazwa sprzedawcy: Korvana Systemy Sp. z o.o.</p>
+<p>Adres: ul. Lipowa 12, 31-001 Kraków</p>
+<p>NIP sprzedawcy: 9998123456</p>
+
+<h2>Nabywca</h2>
+<p>Nazwa nabywcy: Belmoria Rozwiązania S.A.</p>
+<p>Adres: ul. Zaczarowana 78, 90-803 Łódź</p>
+<p>NIP nabywcy: 9999284065</p>
+
+<h2>Pozycje</h2>
+<table>
+  <tr><th>Nazwa usługi</th><th>Ilość</th><th>Cena netto</th><th>VAT</th><th>Wartość brutto</th></tr>
+  <tr><td>Wdrożenie systemu obiegu dokumentów</td><td>1</td><td>8 000,00</td><td>23%</td><td>9 840,00</td></tr>
+</table>
+
+<p class="suma">Do zapłaty: 9 840,00 PLN</p>
+<p>Termin płatności: 28.04.2026</p>
+<p>Numer rachunku: PL61 1090 1014 0000 0712 1981 2874</p>
+</body>
+</html>

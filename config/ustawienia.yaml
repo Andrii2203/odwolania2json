@@ -35,6 +35,12 @@ liczby:
   PORT_GUI: 8080
   # Standard PDF: 1 punkt = 1/72 cala (rozmiar strony w PDF jest w punktach).
   PUNKTY_NA_CAL: 72
+  # Podgląd stron w GUI: dwa piksele na punkt PDF (2 x 72), ostro także na ekranach o podwójnej gęstości.
+  PODGLAD_DPI: 144
+  # Numer przy podświetleniu w podglądzie (px przy PODGLAD_DPI): wielkość zwykłego tekstu dokumentu przy tej skali.
+  ROZMIAR_NUMERU: 22
+  # Margines wokół numeru (px): cyfra nie dotyka krawędzi plakietki.
+  ODSTEP_NUMERU: 3
   # Ramki OCR w jednym wierszu: środki różnią się o mniej niż tyle wysokości ramki. Środek zakresu z najlepszym F1
   # na skanach UZP (tools/przeglad.py TOLERANCJA_WIERSZA 0.3 0.5 0.7 1 --dane data/uzp/dane/skany/*); więcej skleja wiersze.
   TOLERANCJA_WIERSZA: 0.5
@@ -272,3 +278,12 @@ kreator:
     nazwa firmy: {wzorce: ['({FIRMA})'], utnij: ['{KONIEC_NAZWY}']}
     tekst do końca linii: {wzorce: ['{DO_KONCA_LINII}']}
     tekst w kilku liniach: {wzorce: ['{WIERSZE_WARTOSCI}']}
+
+# Wygląd GUI (T27): zakreślacz w podglądzie dokumentu. Kolor RGBA: ostatnie dwie cyfry to przezroczystość (80 = połowa).
+gui:
+  kolor_fragmentu: '#FFE06680'  # żółty zakreślacz: etykieta i wartość
+  kolor_wartosci: '#FF980080'  # pomarańczowy: sama wartość
+  kolor_numeru: '#E65100'  # ciemnopomarańczowy, kontrast z białą cyfrą
+  kolor_tekstu_numeru: white
+  # Szerokości kolumn wiersza pola w kreatorze: nazwa pola, wartość (bywa długa), wynik, przycisk usuń.
+  kolumny_pola: [3, 5, 3, 1]

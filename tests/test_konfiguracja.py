@@ -4,7 +4,9 @@ import re
 import shutil
 
 import yaml
+from pypdf import PdfReader
 
+from odwolania2json.podglad import miejsce
 from odwolania2json.kreator import jako_yaml, pole_z_przykladu, sprobuj, typ_z_formularza
 from odwolania2json.pipeline import KONFIG, ROOT, USTAWIENIA, klasyfikuj, przetworz_wszystkie, tekst_pdf, ustawienia, wczytaj_typy
 
@@ -77,6 +79,23 @@ def test_t26_pole_z_przykladu():
         {"pole": "OgloszenieTED.cpv", "etykiety": ["Główna klasyfikacja (cpv)"], "rodzaj": "numer / identyfikator"},
         {"pole": "Nabywca.nazwa", "etykiety": ["Oficjalna nazwa"], "rodzaj": "tekst do końca linii"},
         None]
+
+
+def _wewnatrz(w: tuple, f: tuple) -> bool:
+    (wl, wd, wp, wg), (fl, fd, fp, fg) = w, f
+    return fl <= wl and wp <= fp and fd <= wd and wg <= fg
+
+
+def test_t27_podswietlenie():
+    pdf = ROOT / "tests" / "dane" / "ted" / "ogloszenie.pdf"
+    strony = [s.extract_text() for s in PdfReader(pdf).pages]
+
+    strona, fragment, wartosc = miejsce(pdf.read_bytes(), "Główna klasyfikacja (cpv): 24111900", "24111900")
+
+    assert "24111900" in strony[strona]
+    assert fragment and wartosc
+    assert all(any(_wewnatrz(w, f) for f in fragment) for w in wartosc)
+    assert miejsce(pdf.read_bytes(), "Nr ref. CEN2604016344389", "CEN2604016344389") is None
 
 
 def test_t23_inne_pisma_z_akt():

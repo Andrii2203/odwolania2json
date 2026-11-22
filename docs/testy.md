@@ -365,6 +365,17 @@ tests/dane/ted/ogloszenie.pdf, użytkownik podaje tylko pole JSON i wartość sk
 - Źródło: użytkownik nie wie, co wpisać w kolumnach „etykieta” i „rodzaj” (uwaga użytkownika 22.11). Wartość widać w dokumencie; etykietę i rodzaj program znajduje sam i sprawdza na przykładzie.
 - Test: `tests/test_konfiguracja.py::test_t26_pole_z_przykladu`
 
+## T27. Podgląd: wartość podświetlona w dokumencie
+
+```
+tests/dane/ted/ogloszenie.pdf, wpis dziennika: fragment „Główna klasyfikacja (cpv): 24111900”, wartość „24111900”
+  -> strona, na której jest ten tekst; prostokąty fragmentu (etykieta i wartość) i w nich prostokąt samej wartości
+fragment z innego dokumentu sprawy albo ze skanu (tekstu nie ma w PDF) -> None, bez podświetlenia
+```
+
+- Źródło: tabela „Skąd te wartości” nie wystarcza, część wartości trudno znaleźć w dokumencie (uwaga użytkownika 22.11). Odstępy i końce linii bez znaczenia (tekst z pypdf i z pdfium łamie się inaczej).
+- Test: `tests/test_konfiguracja.py::test_t27_podswietlenie`
+
 ## Pomiar jakości (to nie jest test)
 
 `tools/ocena_f1.py` przepuszcza wszystkie 60 spraw treningowych przez CLI i liczy F1 według ADR-0003. Przykładowy wynik:

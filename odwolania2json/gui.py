@@ -6,28 +6,22 @@ import tempfile
 import zipfile
 from pathlib import Path
 
-import pypdfium2 as pdfium
 import streamlit as st
 import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from odwolania2json.kreator import jako_yaml, pole_z_przykladu, sprobuj, typ_z_formularza
-from odwolania2json.pipeline import ROOT, przetworz_wszystkie, tekst_pdf, ustawienia, wczytaj_typy
+from odwolania2json.pipeline import ROOT, przetworz_wszystkie, przygotuj_typ, tekst_pdf, ustawienia, wczytaj_typy, wyciagnij
+from odwolania2json.podglad import podglad
 
 PRZYKLADY = ROOT / "docs" / "przyklady"
-PRZYKLAD_KREATORA = PRZYKLADY / "kreator" / "ogloszenie_ted.yaml"
+PRZYKLAD_KREATORA = PRZYKLADY / "kreator" / "faktura.yaml"
 PRZYKLAD_SPRAWY = ROOT / "data" / "uzp" / "dane" / "przyklad_01"
 KROKI = [("1. Wgraj", "PDF jednej sprawy: odwołanie, pełnomocnictwo, potwierdzenie przelewu. Można kilka naraz."),
-         ("2. Sprawdź", "Obok podglądu dokumentu widać odczytane dane i skąd pochodzi każda wartość."),
+         ("2. Sprawdź", "Odczytane dane są podświetlone w dokumencie, a obok jest ich lista."),
          ("3. Pobierz", "JSON dla każdego pliku albo wszystkie naraz w ZIP.")]
-
-
-def obrazy_stron(pdf: Path) -> list:
-    dokument = pdfium.PdfDocument(str(pdf))
-    try:
-        return [strona.render().to_pil() for strona in dokument]
-    finally:
-        dokument.close()
+LEGENDA = ("Na żółto etykieta, na pomarańczowo odczytana wartość. Numer to wiersz w „Skąd te wartości”. "
+           "Skan (PDF bez tekstu) jest bez podświetlenia.")
 
 
 @st.cache_data(show_spinner=False)
@@ -43,49 +37,16 @@ def przetworz(pliki: tuple[tuple[str, bytes], ...], nowe_typy: tuple[str, ...]) 
             sciezki.append(sciezka)
         dzienniki, wyniki = {}, []
         for pdf, wynik, blad in przetworz_wszystkie(sciezki, typy, ust, dzienniki):
+            dziennik = dzienniki.get(pdf, [])
+            obrazy = podglad(pdf.read_bytes(), [(z["fragment"], z["wartosc"]) for z in dziennik], ust) if blad is None else []
             wyniki.append({"nazwa": pdf.name, "typ": wynik and opisy[wynik[0]], "dane": wynik[1] if wynik else {},
-                           "blad": f"{type(blad).__name__}: {blad}" if blad else None,
-                           "dziennik": dzienniki.get(pdf, []), "obrazy": obrazy_stron(pdf) if blad is None else []})
+                           "blad": f"{type(blad).__name__}: {blad}" if blad else None, "dziennik": dziennik, "obrazy": obrazy})
     return wyniki
 
 
-def plik_zip(dokumenty: dict[str, str]) -> bytes:
-    bufor = io.BytesIO()
-    with zipfile.ZipFile(bufor, "w", zipfile.ZIP_DEFLATED) as archiwum:
-        for nazwa, tekst in dokumenty.items():
-            archiwum.writestr(nazwa, tekst)
-    return bufor.getvalue()
-
-
-def panel_typow() -> tuple[str, ...]:
-    st.sidebar.header("Rozpoznawane dokumenty")
-    st.sidebar.markdown("\n".join(f"- {t.get('opis', t['typ'])}" for t in wczytaj_typy()))
-    st.sidebar.caption("Każdy inny dokument dostaje pusty JSON: {}")
-    st.sidebar.subheader("Dodatkowe typy")
-    st.sidebar.caption("Włącz, aby program rozpoznawał też te dokumenty. Każdy typ to jeden plik YAML, kod się nie zmienia.")
-    z_kreatora = st.session_state.get("typy_z_kreatora", {})
-    zrodla = {**{p.stem: p.read_text(encoding="utf-8") for p in sorted(PRZYKLADY.glob("*.yaml"))}, **z_kreatora}
-    wybrane = []
-    for klucz, tekst in zrodla.items():
-        opis = yaml.safe_load(tekst).get("opis", klucz)
-        if not st.sidebar.toggle(opis + (" (z kreatora)" if klucz in z_kreatora else ""), value=klucz in z_kreatora,
-                                 key=f"typ_{klucz}"):
-            continue
-        with st.sidebar.expander("Plik typu (YAML), można zmienić"):
-            tekst = st.text_area(klucz, tekst, key=f"yaml_{klucz}", height="content", label_visibility="collapsed")
-        try:
-            yaml.safe_load(tekst)
-        except yaml.YAMLError as blad:
-            st.sidebar.error(f"Niepoprawny YAML: {blad}")
-            continue
-        wybrane.append(tekst)
-    return tuple(wybrane)
-
-
-def tabela_dziennika(dziennik: list[dict]) -> None:
-    with st.expander("Skąd te wartości (reguła i fragment dokumentu)"):
-        st.dataframe([{"pole": z["pole"], "wartość": str(z["wartosc"]), "reguła": z["regula"], "fragment": z["fragment"]}
-                      for z in dziennik], hide_index=True)
+@st.cache_data(show_spinner=False)
+def podglad_dokumentu(zawartosc: bytes, zrodla: tuple[tuple[str, str], ...]) -> list:
+    return podglad(zawartosc, list(zrodla), ustawienia())
 
 
 @st.cache_data(show_spinner=False)
@@ -96,116 +57,43 @@ def tekst_dokumentu(nazwa: str, zawartosc: bytes) -> str:
         return tekst_pdf(pdf, ustawienia())
 
 
-def pole_z_wiersza(w: dict, tekst: str, rodzaje: dict, ust: dict) -> tuple[dict | None, str]:
-    pole, wartosc = (w.get("pole") or "").strip(), (w.get("wartosc") or "").strip()
-    etykieta, rodzaj = (w.get("etykieta") or "").strip() or None, w.get("rodzaj") or None
-    if not wartosc:
-        if rodzaj:
-            return {"pole": pole, "etykiety": [etykieta] if etykieta else [], "rodzaj": rodzaj}, "ustawione ręcznie"
-        return None, "❌ wklej wartość z dokumentu"
-    znalezione = pole_z_przykladu(pole, wartosc, tekst, rodzaje, ust, etykieta, rodzaj)
-    if znalezione is None:
-        return None, "❌ nie ma tej wartości w dokumencie: skopiuj ją z tekstu dokumentu"
-    if znalezione["rodzaj"] is None:
-        if rodzaj:
-            return {**znalezione, "rodzaj": rodzaj}, "⚠️ ten rodzaj nie odczytuje tej wartości"
-        return None, "⚠️ wybierz rodzaj wartości"
-    return znalezione, "✅ odczytane"
+def plik_zip(dokumenty: dict[str, str]) -> bytes:
+    bufor = io.BytesIO()
+    with zipfile.ZipFile(bufor, "w", zipfile.ZIP_DEFLATED) as archiwum:
+        for nazwa, tekst in dokumenty.items():
+            archiwum.writestr(nazwa, tekst)
+    return bufor.getvalue()
 
 
-def wczytaj_przyklad_kreatora() -> None:
-    przyklad = yaml.safe_load(PRZYKLAD_KREATORA.read_text(encoding="utf-8"))
-    st.session_state.update({"kreator_nazwa": przyklad["nazwa"], "kreator_znaczniki": przyklad["znaczniki"],
-                             "kreator_wykluczenia": przyklad["wspolne_wykluczenia"],
-                             "kreator_przyklad_pdf": str(ROOT / przyklad["pdf"]), "kreator_wiersze": przyklad["pola"],
-                             "kreator_wersja": st.session_state.get("kreator_wersja", 0) + 1})
+def strony(obrazy: list) -> None:
+    lista = list(enumerate(obrazy, start=1))
+    for nr, obraz in lista[:1]:
+        st.image(obraz, caption=f"Strona {nr} z {len(lista)}", width="stretch")
+    if lista[1:]:
+        with st.expander("Pozostałe strony"):
+            for nr, obraz in lista[1:]:
+                st.image(obraz, caption=f"Strona {nr}", width="stretch")
 
 
-def kreator() -> None:
-    ust = ustawienia()
-    rodzaje = ust["kreator"]["rodzaje"]
-    st.markdown("Naucz program nowego rodzaju dokumentu, bez programowania. Wystarczy jeden przykładowy PDF.")
-    st.button("Pokaż na przykładzie (ogłoszenie TED)", on_click=wczytaj_przyklad_kreatora)
+def tabela_dziennika(dziennik: list[dict]) -> None:
+    with st.expander("Skąd te wartości (numery jak w podglądzie dokumentu)"):
+        st.dataframe([{"nr": nr, "pole": z["pole"], "wartość": str(z["wartosc"]), "reguła": z["regula"],
+                       "fragment dokumentu": z["fragment"]} for nr, z in enumerate(dziennik, start=1)], hide_index=True)
 
-    st.subheader("1. Wgraj przykładowy dokument")
-    pdf = st.file_uploader("Jeden PDF nowego typu", type=["pdf"], key="kreator_pdf")
-    if pdf:
-        zrodlo = (pdf.name, pdf.getvalue())
-    elif przyklad := st.session_state.get("kreator_przyklad_pdf"):
-        zrodlo = (Path(przyklad).name, Path(przyklad).read_bytes())
-        st.caption(f"Przykładowy dokument: {zrodlo[0]}")
-    else:
-        st.info("Zacznij od wgrania jednego przykładowego dokumentu albo kliknij „Pokaż na przykładzie”.")
-        return
-    tekst = tekst_dokumentu(*zrodlo)
-    with st.expander("Tekst dokumentu: stąd kopiuj wartości do kroku 3"):
-        st.code(tekst, language=None, wrap_lines=True)
 
-    st.subheader("2. Nazwij typ")
-    lewa, prawa = st.columns([1, 1])
-    nazwa = lewa.text_input("Nazwa typu", placeholder="np. Faktura VAT", key="kreator_nazwa").strip()
-    znaczniki = [z.strip() for z in prawa.text_input(
-        "Słowa, po których program rozpozna ten dokument", placeholder="np. faktura VAT, sprzedawca, nabywca",
-        help="Słowa, które są w każdym takim dokumencie, a w innych nie. Oddziel przecinkami.",
-        key="kreator_znaczniki").split(",") if z.strip()]
-
-    st.subheader("3. Wskaż dane do odczytania")
-    st.markdown("W każdym wierszu: **nazwa pola** i **wartość skopiowana z dokumentu**. "
-                "Etykietę i rodzaj wartości program znajdzie sam; można je poprawić.")
-    st.caption("Przykład wiersza: `Faktura.numer` | `FV/12/2026`. Kropka tworzy grupę w JSON: "
-               "{\"Faktura\": {\"numer\": \"FV/12/2026\"}}.")
-    wiersze = st.data_editor(
-        [{"pole": "", "wartosc": "", "etykieta": None, "rodzaj": None, **w}
-         for w in st.session_state.get("kreator_wiersze", [{}])], num_rows="dynamic", width="stretch",
-        key=f"kreator_pola_{st.session_state.get('kreator_wersja', 0)}",
-        column_order=["pole", "wartosc", "etykieta", "rodzaj"], column_config={
-            "pole": st.column_config.TextColumn("Nazwa pola w JSON", help="np. Faktura.numer"),
-            "wartosc": st.column_config.TextColumn("Wartość z dokumentu", help="Skopiuj z tekstu dokumentu (krok 1)"),
-            "etykieta": st.column_config.TextColumn("Etykieta (opcjonalnie)",
-                                                    help="Napis przed wartością w dokumencie, np. „Numer faktury”"),
-            "rodzaj": st.column_config.SelectboxColumn("Rodzaj (opcjonalnie)", options=list(rodzaje))})
-    wykryte = [(w, *pole_z_wiersza(w, tekst, rodzaje, ust)) for w in wiersze if (w.get("pole") or "").strip()]
-    if wykryte:
-        st.dataframe([{"pole": w["pole"], "etykieta": "; ".join(p["etykiety"]) if p and p["etykiety"] else "",
-                       "rodzaj": p["rodzaj"] if p else "", "wynik": status} for w, p, status in wykryte],
-                     hide_index=True, width="stretch")
-    pola = [p for _, p, _ in wykryte if p]
-
-    st.subheader("4. Sprawdź wynik i zapisz")
-    if not (nazwa and znaczniki and pola):
-        st.info("Uzupełnij krok 2 (nazwa i słowa rozpoznające) i co najmniej jedno pole w kroku 3.")
-        return
-    st.session_state.setdefault("kreator_wykluczenia", True)
-    with st.expander("Ustawienia zaawansowane"):
-        wspolne = st.checkbox("Nie rozpoznawaj jako ten typ wyroków KIO, ogłoszeń TED i innych pism z akt (zalecane)",
-                              key="kreator_wykluczenia")
-    typ_id = re.sub(r"\W+", "_", nazwa.lower()).strip("_")
-    tekst_yaml = jako_yaml(typ_z_formularza(typ_id, nazwa, znaczniki, pola, rodzaje, wspolne))
-    try:
-        wynik = sprobuj(tekst_yaml, tekst)
-    except Exception as blad:
-        st.error(f"Błąd typu: {type(blad).__name__}: {blad}")
-        return
-    if wynik["rozpoznany"] == typ_id:
-        st.success("Program rozpoznaje przykład jako nowy typ.")
-    else:
-        st.warning(f"Program rozpoznaje przykład jako: {wynik['rozpoznany'] or 'nieznany dokument'}. "
-                   "Dodaj w kroku 2 słowa, które są tylko w tym dokumencie.")
-    lewa, prawa = st.columns([1, 1])
-    with lewa:
-        st.markdown("**Odczytane dane**")
-        st.json(wynik["dane"])
-        tabela_dziennika(wynik["dziennik"])
-    with prawa:
-        st.download_button("Pobierz plik typu (YAML)", tekst_yaml, file_name=f"{typ_id}.yaml", mime="application/x-yaml",
-                           type="primary")
-        if st.button("Użyj tego typu w zakładce „Zamień PDF na JSON”"):
-            st.session_state.setdefault("typy_z_kreatora", {})[typ_id] = tekst_yaml
-            st.session_state.pop(f"typ_{typ_id}", None)
-            st.rerun()
-        st.caption("Na stałe (także w CLI): zapisz pobrany plik w folderze config/typy/. Kod się nie zmienia.")
-        with st.expander("Plik typu (YAML)"):
-            st.code(tekst_yaml, language="yaml")
+def wybor_typow() -> tuple[str, ...]:
+    opisy = [t.get("opis", t["typ"]) for t in wczytaj_typy()]
+    st.caption(f"Rozpoznaje: {' · '.join(opisy)}. Każdy inny dokument dostaje pusty JSON: {{}}")
+    z_kreatora = st.session_state.get("typy_z_kreatora", {})
+    zrodla = {**{p.stem: p.read_text(encoding="utf-8") for p in sorted(PRZYKLADY.glob("*.yaml"))}, **z_kreatora}
+    wybrane = []
+    for kolumna, (klucz, tekst) in zip(st.columns(len(zrodla)), zrodla.items()):
+        opis = yaml.safe_load(tekst).get("opis", klucz)
+        if kolumna.toggle(f"Rozpoznawaj też: {opis}", value=klucz in z_kreatora, key=f"typ_{klucz}",
+                          help="Dodatkowy typ dokumentu: jeden plik YAML, bez zmiany kodu. "
+                               "Nowy typ można zrobić w zakładce „Dodaj nowy typ dokumentu”."):
+            wybrane.append(tekst)
+    return tuple(wybrane)
 
 
 def dokument(w: dict, wciecie: int, gotowe: dict) -> None:
@@ -215,19 +103,14 @@ def dokument(w: dict, wciecie: int, gotowe: dict) -> None:
             st.error(f"**{w['nazwa']}**: nie udało się odczytać pliku. Zapisany będzie pusty JSON: {{}}")
             st.caption(w["blad"])
         elif w["typ"] is None:
-            st.warning(f"**{w['nazwa']}**: to nie jest żaden z rozpoznawanych dokumentów. "
-                       "Zapisany będzie pusty JSON: {}")
+            st.warning(f"**{w['nazwa']}**: to nie jest żaden z rozpoznawanych dokumentów. Zapisany będzie pusty JSON: {{}}")
         else:
             st.markdown(f"### {w['nazwa']}  \n✅ {w['typ']}")
         lewa, prawa = st.columns([1, 1])
         with lewa:
-            strony = list(enumerate(w["obrazy"], start=1))
-            for nr, obraz in strony[:1]:
-                st.image(obraz, caption=f"Strona {nr} z {len(strony)}", width="stretch")
-            if strony[1:]:
-                with st.expander("Pozostałe strony"):
-                    for nr, obraz in strony[1:]:
-                        st.image(obraz, caption=f"Strona {nr}", width="stretch")
+            strony(w["obrazy"])
+            if w["dziennik"]:
+                st.caption(LEGENDA)
         with prawa:
             st.markdown("**Odczytane dane**")
             miejsce_danych, miejsce_pobrania = st.empty(), st.empty()
@@ -250,12 +133,14 @@ def dokument(w: dict, wciecie: int, gotowe: dict) -> None:
                                              mime="application/json", key=f"pobierz_{w['nazwa']}")
 
 
-def analiza(nowe_typy: tuple[str, ...]) -> None:
+def analiza() -> None:
     wciecie = ustawienia()["liczby"]["WCIECIE_JSON"]
     for kolumna, (tytul, opis) in zip(st.columns(len(KROKI)), KROKI):
         with kolumna.container(border=True):
             st.markdown(f"**{tytul}**  \n{opis}")
-    pliki = st.file_uploader("Wgraj pliki PDF jednej sprawy", type=["pdf"], accept_multiple_files=True)
+    nowe_typy = wybor_typow()
+    pliki = st.file_uploader("Wgraj pliki jednej sprawy: tylko PDF (z tekstem albo skan)", type=["pdf"],
+                             accept_multiple_files=True)
     if pliki:
         wejscie = [(p.name, p.getvalue()) for p in pliki]
     elif PRZYKLAD_SPRAWY.is_dir() and (st.session_state.get("przyklad_sprawy") or st.button("Pokaż na przykładowej sprawie UZP")):
@@ -281,14 +166,160 @@ def analiza(nowe_typy: tuple[str, ...]) -> None:
                                 file_name="output.zip", mime="application/zip", type="primary", disabled=not gotowe)
 
 
+def dodaj_wiersz() -> None:
+    s = st.session_state
+    s["kreator_nastepny"] = s.get("kreator_nastepny", 0) + 1
+    s["kreator_wiersze"] = s.get("kreator_wiersze", []) + [s["kreator_nastepny"]]
+
+
+def usun_wiersz(i: int) -> None:
+    st.session_state["kreator_wiersze"] = [w for w in st.session_state["kreator_wiersze"] if w != i]
+
+
+def wczytaj_przyklad_kreatora() -> None:
+    przyklad, s = yaml.safe_load(PRZYKLAD_KREATORA.read_text(encoding="utf-8")), st.session_state
+    s.update({"kreator_nazwa": przyklad["nazwa"], "kreator_znaczniki": przyklad["znaczniki"],
+              "kreator_przyklad_pdf": str(ROOT / przyklad["pdf"]), "kreator_wiersze": []})
+    for p in przyklad["pola"]:
+        dodaj_wiersz()
+        s[f"pole_{s['kreator_nastepny']}"], s[f"wartosc_{s['kreator_nastepny']}"] = p["pole"], p["wartosc"]
+
+
+def pole_z_wiersza(i: int, tekst: str, rodzaje: dict, ust: dict) -> tuple[dict | None, str, str]:
+    # (pole do typu albo None, krótki wynik, opis w okienku „popraw”)
+    s = st.session_state
+    pole = re.sub(r"\s+", "_", (s.get(f"pole_{i}") or "").strip())
+    wartosc = (s.get(f"wartosc_{i}") or "").strip()
+    etykieta, rodzaj = (s.get(f"etykieta_{i}") or "").strip() or None, s.get(f"rodzaj_{i}")
+    if not (pole or wartosc):
+        return None, "", ""
+    if not pole:
+        return None, "✏️ wpisz nazwę pola", "Nazwa pola to klucz w JSON, np. numer_faktury."
+    if not wartosc:
+        if etykieta and rodzaj:
+            return {"pole": pole, "etykiety": [etykieta], "rodzaj": rodzaj}, "✅ ręcznie", "Etykieta i rodzaj ustawione ręcznie."
+        return None, "✏️ wklej wartość", "Skopiuj wartość z tekstu dokumentu (pod podglądem)."
+    znalezione = pole_z_przykladu(pole, wartosc, tekst, rodzaje, ust, etykieta, rodzaj)
+    if znalezione is None:
+        return None, "❌ brak w dokumencie", "Tej wartości nie ma w tekście dokumentu. Skopiuj ją z tekstu pod podglądem."
+    opis = f"Etykieta: „{'; '.join(znalezione['etykiety']) or 'brak'}”."
+    if znalezione["rodzaj"] is None:
+        return None, "⚠️ wybierz rodzaj", f"{opis} Żaden rodzaj nie odczytuje tej wartości: wybierz rodzaj albo zmień etykietę."
+    return {**znalezione, "przyklad": wartosc}, f"✅ {znalezione['rodzaj']}", f"{opis} Rodzaj: {znalezione['rodzaj']}."
+
+
+def wiersze_pol(tekst: str, rodzaje: dict, ust: dict) -> list[dict]:
+    if not st.session_state.get("kreator_wiersze"):
+        dodaj_wiersz()
+    pola = []
+    for n, i in enumerate(st.session_state["kreator_wiersze"]):
+        pole, krotko, opis = pole_z_wiersza(i, tekst, rodzaje, ust)
+        k_pole, k_wartosc, k_wynik, k_usun = st.columns(ust["gui"]["kolumny_pola"], vertical_alignment="bottom")
+        widoczne = "collapsed" if n else "visible"
+        k_pole.text_input("Nazwa pola", placeholder="np. numer_faktury", key=f"pole_{i}", label_visibility=widoczne,
+                          help="Klucz w JSON. Kropka tworzy grupę: Sprzedawca.nip -> {\"Sprzedawca\": {\"nip\": ...}}")
+        k_wartosc.text_input("Wartość skopiowana z dokumentu", placeholder="np. FV/2026/04/117", key=f"wartosc_{i}",
+                             label_visibility=widoczne, help="Skopiuj z tekstu dokumentu: program sam znajdzie etykietę i rodzaj.")
+        with k_wynik.popover(krotko or "Wynik", disabled=not krotko, width="stretch"):
+            st.markdown(opis)
+            st.text_input("Etykieta (napis przed wartością)", placeholder="np. Numer faktury", key=f"etykieta_{i}",
+                          help="Puste: program znajdzie sam.")
+            st.selectbox("Rodzaj wartości", [None, *rodzaje], key=f"rodzaj_{i}",
+                         format_func=lambda r: "program wybierze sam" if r is None else r)
+        k_usun.button("🗑", key=f"usun_{i}", on_click=usun_wiersz, args=(i,), help="Usuń to pole")
+        if pole:
+            pola.append(pole)
+    st.button("➕ Dodaj pole", on_click=dodaj_wiersz)
+    return pola
+
+
+def kreator() -> None:
+    ust = ustawienia()
+    rodzaje = ust["kreator"]["rodzaje"]
+    st.markdown("Naucz program nowego rodzaju dokumentu, bez programowania. Wystarczy jeden przykładowy PDF.")
+    st.button("Pokaż na przykładzie (faktura)", on_click=wczytaj_przyklad_kreatora)
+
+    st.subheader("1. Wgraj przykładowy dokument")
+    pdf = st.file_uploader("Jeden plik PDF nowego typu (z tekstem albo skan)", type=["pdf"], key="kreator_pdf")
+    if pdf:
+        zrodlo = (pdf.name, pdf.getvalue())
+    elif przyklad := st.session_state.get("kreator_przyklad_pdf"):
+        zrodlo = (Path(przyklad).name, Path(przyklad).read_bytes())
+        st.caption(f"Przykładowy dokument: {zrodlo[0]}")
+    else:
+        st.info("Zacznij od wgrania jednego przykładowego dokumentu albo kliknij „Pokaż na przykładzie”.")
+        return
+    tekst = tekst_dokumentu(*zrodlo)
+
+    lewa, prawa = st.columns([1, 1])
+    with lewa:
+        st.subheader("2. Nazwij typ")
+        nazwa = st.text_input("Nazwa typu", placeholder="np. Faktura VAT", key="kreator_nazwa").strip()
+        znaczniki = [z.strip() for z in st.text_input(
+            "Słowa, po których program rozpozna ten dokument", placeholder="np. faktura VAT, sprzedawca, nabywca",
+            help="Słowa, które są w każdym takim dokumencie, a w innych nie. Oddziel przecinkami.",
+            key="kreator_znaczniki").split(",") if z.strip()]
+
+        st.subheader("3. Wskaż dane do odczytania")
+        st.markdown("Dla każdej danej: wymyśl **nazwę pola** i wklej **wartość skopiowaną z dokumentu**. "
+                    "Program sam znajdzie ją w dokumencie i podświetli w podglądzie obok.")
+        pola = wiersze_pol(tekst, rodzaje, ust)
+
+    dziennik = []
+    if pola:
+        wyciagnij(tekst, przygotuj_typ(typ_z_formularza("podglad", "", [], pola, rodzaje), ust), dziennik)
+    fragmenty = {z["pole"]: z["fragment"] for z in dziennik}
+    with prawa:
+        st.subheader("Podgląd dokumentu")
+        strony(podglad_dokumentu(zrodlo[1], tuple((fragmenty.get(p["pole"], ""), p.get("przyklad", "")) for p in pola)))
+        st.caption("Na pomarańczowo odczytane wartości; numer to kolejne pole z kroku 3.")
+        with st.expander("Tekst dokumentu: stąd kopiuj wartości"):
+            st.code(tekst, language=None, wrap_lines=True)
+
+    with lewa:
+        st.subheader("4. Sprawdź wynik i zapisz")
+        if not (nazwa and znaczniki and pola):
+            st.info("Uzupełnij krok 2 (nazwa i słowa rozpoznające) i co najmniej jedno pole w kroku 3.")
+            return
+        st.session_state.setdefault("kreator_wykluczenia", True)
+        with st.expander("Ustawienia zaawansowane"):
+            wspolne = st.checkbox("Nie rozpoznawaj jako ten typ wyroków KIO, ogłoszeń TED i innych pism z akt (zalecane)",
+                                  key="kreator_wykluczenia")
+        typ_id = re.sub(r"\W+", "_", nazwa.lower()).strip("_")
+        tekst_yaml = jako_yaml(typ_z_formularza(typ_id, nazwa, znaczniki, pola, rodzaje, wspolne))
+        try:
+            wynik = sprobuj(tekst_yaml, tekst)
+        except Exception as blad:
+            st.error(f"Błąd typu: {type(blad).__name__}: {blad}")
+            return
+        if wynik["rozpoznany"] == typ_id:
+            st.success("Program rozpoznaje przykład jako nowy typ.")
+        else:
+            st.warning(f"Program rozpoznaje przykład jako: {wynik['rozpoznany'] or 'nieznany dokument'}. "
+                       "Dodaj w kroku 2 słowa, które są tylko w tym dokumencie.")
+        st.markdown("**Odczytane dane**")
+        st.json(wynik["dane"])
+        przyciski = st.columns([1, 1])
+        przyciski[0].download_button("Pobierz plik typu (YAML)", tekst_yaml, file_name=f"{typ_id}.yaml",
+                                     mime="application/x-yaml", type="primary", width="stretch")
+        if przyciski[-1].button("Użyj w zakładce „Zamień PDF na JSON”", width="stretch"):
+            st.session_state.setdefault("typy_z_kreatora", {})[typ_id] = tekst_yaml
+            st.session_state.pop(f"typ_{typ_id}", None)
+            st.rerun()
+        if st.session_state.get("typy_z_kreatora", {}).get(typ_id) == tekst_yaml:
+            st.success("Ten typ jest włączony w zakładce „Zamień PDF na JSON”.")
+        st.caption("Na stałe (także w CLI): zapisz pobrany plik w folderze config/typy/. Kod się nie zmienia.")
+        with st.expander("Plik typu (YAML)"):
+            st.code(tekst_yaml, language="yaml")
+
+
 def main() -> None:
     st.set_page_config(page_title="Odwołania2JSON", page_icon="📄", layout="wide")
     st.title("Odwołania2JSON")
     st.caption("Zamienia dokumenty sprawy odwoławczej do KIO (PDF, także skany) na dane JSON.")
-    nowe_typy = panel_typow()
     zakladka_analizy, zakladka_kreatora = st.tabs(["📄 Zamień PDF na JSON", "➕ Dodaj nowy typ dokumentu"])
     with zakladka_analizy:
-        analiza(nowe_typy)
+        analiza()
     with zakladka_kreatora:
         kreator()
 

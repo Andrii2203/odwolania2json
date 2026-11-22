@@ -68,7 +68,7 @@ Uwagi 22.11 w nocy: na 2 rdzeniach z 2 wątkami OCR odwołanie (5 stron) 23 s, p
 
 Decyzje użytkownika 22.11 w nocy: kreatora typu nie rozbudowujemy (kilka przykładów, wykrywanie etykiet z dokumentu, podpowiedzi w polach); znane słabe strony: puste pola bez przykładów, „wspólne wykluczenia” to żargon, nie wiadomo, co wpisać w tabeli. LLM nie używamy (ADR-0022).
 
-Odłożone: wektory etykiet (etap 6, `docs/badania/wektory-etykiet.md`): na 2 vCPU z limitem czasu i bez zysku na znanych etykietach ryzyko większe niż zysk; opis w prezentacji. Słownik sjp.pl, Morfeusz. Nieczytelne dopasowanie etykiet OCR (`RapidFuzz`, hipoteza 7 w `docs/badania/hipotezy-70-podejsc.md`, plik poza git): zmienia ekstrakcję tuż przed oddaniem, ryzyko dla F1.
+Odłożone: wektory etykiet (etap 6, `docs/badania/wektory-etykiet.md`): na 2 vCPU z limitem czasu i bez zysku na znanych etykietach ryzyko większe niż zysk; opis w prezentacji. Słownik sjp.pl, Morfeusz. Przybliżone dopasowanie etykiet OCR (`RapidFuzz`, hipoteza 7 w `docs/badania/hipotezy-70-podejsc.md`, plik poza git): zmienia ekstrakcję tuż przed oddaniem, ryzyko dla F1.
 
 ## Otwarte pytania
 

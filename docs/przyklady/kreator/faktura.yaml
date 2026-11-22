@@ -1,0 +1,13 @@
+# Przykład dla kreatora typu w GUI (przycisk „Pokaż na przykładzie”): dokument, nazwa typu, słowa rozpoznające
+# i wartości skopiowane z dokumentu. Etykiety i rodzaje kreator znajduje sam (T26).
+# faktura.pdf to wydruk faktura.html (Microsoft Edge: --headless --no-pdf-header-footer --print-to-pdf); dane fikcyjne.
+pdf: docs/przyklady/kreator/faktura.pdf
+nazwa: Faktura VAT
+znaczniki: faktura VAT, sprzedawca, nabywca
+pola:
+  - {pole: numer_faktury, wartosc: FV/2026/04/117}
+  - {pole: data_wystawienia, wartosc: 14.04.2026}
+  - {pole: sprzedawca, wartosc: Korvana Systemy Sp. z o.o.}
+  - {pole: nip_sprzedawcy, wartosc: '9998123456'}
+  - {pole: do_zaplaty, wartosc: '9 840,00 PLN'}
+  - {pole: termin_platnosci, wartosc: 28.04.2026}

@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 import yaml
+from pypdf import PdfReader
 
 from odwolania2json import pipeline
 from odwolania2json.pipeline import KONFIG, ROOT, przetworz_wszystkie, ustawienia, wczytaj_typy
@@ -125,3 +126,24 @@ def test_t17_limit_czasu(tmp_path):
 
     assert (wynik, blad) == (None, None)
     assert "OCR pominięty: limit czasu" in [w["regula"] for w in dzienniki[pdf]]
+
+
+def test_t19_strony_ocr(tmp_path, monkeypatch):
+    skan = DANE / "skany" / "odwolania" / "0001" / "0001.pdf"
+    ust = ustawienia()
+    ust["liczby"]["STRONY_OCR"] = 1
+    wyslane = []
+    monkeypatch.setattr(pipeline, "tekst_skanu", lambda pdf, strony, ust: wyslane.extend(strony) or ["" for _ in strony])
+
+    pipeline.tekst_pdf(skan, ust)
+
+    assert wyslane == [0, len(PdfReader(skan).pages) - 1]
+
+
+def test_t20_pdf_wielkimi(tmp_path):
+    (tmp_path / "input" / "sprawa").mkdir(parents=True)
+    shutil.copy(DANE / "przyklad_01" / "przelew.pdf", tmp_path / "input" / "sprawa" / "SKAN.PDF")
+
+    run_cli(tmp_path / "input", tmp_path / "output")
+
+    assert json.loads((tmp_path / "output" / "sprawa" / "SKAN.json").read_text(encoding="utf-8")) != {}

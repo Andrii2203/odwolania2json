@@ -257,6 +257,24 @@ CZAS_OCR_S = 0, skan przelewu  ->  {} (bez OCR nie ma tekstu), dziennik: „OCR 
 - Źródło: skan UZP `pelnomocnictwa/0002`: stopka powtarza NIP z myślnikami. Powtórzenie rozpoznajemy po wartości po `format` (`9995090281` = `999-509-02-81`), nie po zapisie w tekście. Stałe z `wartosc` (np. `typ: osoba_fizyczna`) dalej po zapisie: dwóch mocodawców może mieć ten sam typ.
 - Test: `tests/test_pola.py::test_t18_ta_sama_wartosc`
 
+## T19. Długi skan: OCR tylko pierwszych stron i ostatniej
+
+```
+skan 5 stron, STRONY_OCR = 1  ->  OCR stron 1 i 5 (numeracja od 1), strony 2-4 pominięte
+```
+
+- Źródło: README UZP: kluczowe informacje „z reguły na pierwszych trzech stronach”; ostatnia strona ma podpisy. Skan odwołania z uzasadnieniem na 20 stron to na 2 vCPU minuty OCR bez żadnego pola. PDF cyfrowy bez zmian (tekst jest od razu).
+- Test: `tests/test_e2e.py::test_t19_strony_ocr`
+
+## T20. Rozszerzenie `.PDF` wielkimi literami
+
+```
+input/sprawa/SKAN.PDF  ->  output/sprawa/SKAN.json
+```
+
+- Źródło: maszyna UZP to Linux (ADR-0017): tam `*.pdf` nie pasuje do `.PDF`, a skanery często tak zapisują pliki.
+- Test: `tests/test_e2e.py::test_t20_pdf_wielkimi`
+
 ## Pomiar jakości (to nie jest test)
 
 `tools/ocena_f1.py` przepuszcza wszystkie 60 spraw treningowych przez CLI i liczy F1 według ADR-0003. Przykładowy wynik:

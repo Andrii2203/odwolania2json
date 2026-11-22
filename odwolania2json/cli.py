@@ -48,7 +48,7 @@ def main(argv: list[str] | None = None) -> int:
         dane = wynik[1] if wynik else {}
         cel.write_text(json.dumps(dane, ensure_ascii=False, indent=ust["liczby"]["WCIECIE_JSON"]), encoding="utf-8")
 
-    for pdf, wynik, blad in przetworz_wszystkie(sorted(args.input.rglob("*.pdf")), typy, ust, dzienniki, zapisz):
+    for pdf, wynik, blad in przetworz_wszystkie(sorted(args.input.rglob("*.pdf", case_sensitive=False)), typy, ust, dzienniki, zapisz):
         wzgledna = pdf.relative_to(args.input)
         typ, dane = wynik or (None, {})
         if blad is not None:

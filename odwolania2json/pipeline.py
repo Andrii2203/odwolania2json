@@ -36,7 +36,9 @@ def wczytaj_typy(config: Path = KONFIG) -> list[dict]:
 
 def tekst_pdf(pdf: Path, ust: dict, ocr: bool = True, dziennik: list | None = None) -> str:
     strony = [strona.extract_text() or "" for strona in PdfReader(pdf).pages]
-    skany = [nr for nr, tekst in enumerate(strony) if len(tekst.strip()) < ust["liczby"]["MIN_ZNAKOW_STRONY"]]
+    ostatnia, pierwsze = len(strony) - 1, ust["liczby"]["STRONY_OCR"]
+    skany = [nr for nr, tekst in enumerate(strony) if len(tekst.strip()) < ust["liczby"]["MIN_ZNAKOW_STRONY"]
+             and (nr < pierwsze or nr == ostatnia)]
     if skany and not ocr:
         if dziennik is not None:
             dziennik.append({"pole": "-", "wartosc": None, "regula": "OCR pominięty: limit czasu", "fragment": ""})

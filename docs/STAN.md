@@ -51,7 +51,7 @@ UZP ocenia na swojej maszynie wirtualnej: Ubuntu 24.04, 2 vCPU, 16 GB, bez GPU, 
 | # | Kto | Co | Dlaczego |
 |---|---|---|---|
 | 1 | Użytkownik | **zrobione** Formularz VM (jeden na zespół), od razu | bez maszyny nie ma oceny; czekamy na login i IP |
-| 2 | Claude | **zrobione** (CI Ubuntu zielone; na VM czeka na użytkownika) Linux: Python 3.13 przez `uv` (na VM jest 3.12, UZP wymaga 3.13+), `RUN.md`, skrypt instalacji, modele OCR pobrane przy instalacji, test po `sudo reboot` | komenda musi działać bez nas |
+| 2 | Claude | **zrobione** (VM: zainstalowane w `/opt/solution` z `main`, 22.11 01:50; 226 PDF UZP w 5 min 36 s na 2 vCPU, 226/226 JSON, F1 treningowe 0.9990 jak lokalnie; `input/` i `output/` puste) Linux: Python 3.13 przez `uv` (na VM jest 3.12, UZP wymaga 3.13+), `RUN.md`, skrypt instalacji, modele OCR pobrane przy instalacji, test po `sudo reboot` | komenda musi działać bez nas |
 | 3 | Claude | **zrobione** (ADR-0018, T16, T17, T19) Czas na 2 vCPU: pomiar skanów; straż czasu (liczba w `ustawienia.yaml`): po przekroczeniu reszta bez OCR; ewentualnie OCR tylko pierwszych stron, DPI (`tools/przeglad.py`) | 45 min na 150 PDF, nie wiemy, ile skanów |
 | 4 | Claude | **zrobione** (T15) Rachunek z dowolnym kodem kraju (IBAN), bez spacji (Discord) | F1 |
 | 5 | Claude | **częściowo** (NIP: ADR-0019, T18, skany 0.9508) Ten sam NIP z myślnikami i bez: jeden mocodawca; inne znane błędy skanów („Otwarte pytania” 5) | F1; skany najbliżej zbioru testowego |
@@ -59,7 +59,7 @@ UZP ocenia na swojej maszynie wirtualnej: Ubuntu 24.04, 2 vCPU, 16 GB, bez GPU, 
 | 7 | Claude | **zrobione** (ADR-0006) GUI: pliki jako jedna sprawa (kontekst), cache, edycja JSON, pobieranie JSON i ZIP | prezentacja, przejrzystość |
 | 8 | [Argon] | Prezentacja PDF <= 10 MB wg ADR-0006 | |
 | 9 | Użytkownik | Repozytorium publiczne, `.env` poza git, nazwa zespołu jak w drafcie (Discord) | |
-| 10 | Claude + Użytkownik | Końcowy test na VM dokładnie jak UZP (czyste `output/`, komenda z `RUN.md`, po restarcie), STAN | |
+| 10 | Claude + Użytkownik | Po każdej zmianie w `main`: na VM `git pull` i test (Claude ma dostęp kluczem `~/.ssh/hacknation_vm`, bez hasła `sudo`); próba z `sudo sh uruchom.sh` i po `sudo reboot` robi użytkownik. Końcowy test na VM dokładnie jak UZP (czyste `output/`, komenda z `RUN.md`, po restarcie), STAN | |
 
 Uwagi 22.11 w nocy: na 2 rdzeniach z 2 wątkami OCR odwołanie (5 stron) 23 s, pełnomocnictwo i przelew ok. 4 s; z 16 wątkami na 2 rdzeniach 3 min (stąd wątki = rdzenie). CI Ubuntu 4 vCPU: 226 PDF UZP w 3 min 56 s. `.PDF` wielkimi (T20). Analiza Argona: `docs/badania/braki-i-ryzyka.md` (dalej do rozważenia: etykieta „w dniu” dla `data_operacji`, GUI na VM jako usługa na porcie 8080).
 

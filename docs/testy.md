@@ -226,6 +226,26 @@ pelnomocnictwo.pdf:  "Belmoria Rozwiązania S.A., numer identyfikacji podatkowej
 - Słowo za numerem („Kwota”) nie jest częścią numeru.
 - Test: `tests/test_pola.py::test_t15_rachunek_iban`
 
+## T16. JSON zapisany zaraz po dokumencie, nie dopiero po całej sprawie
+
+```
+input/odwolanie.pdf, input/pelnomocnictwo.pdf, input/przelew.pdf   (płaskie input/: jedna sprawa)
+kolejność: tekst odwolanie -> zapis odwolanie -> tekst pelnomocnictwo -> zapis pelnomocnictwo -> tekst przelew -> zapis przelew
+           -> kontekst sprawy -> zapis wszystkich trzech jeszcze raz (wynik końcowy)
+```
+
+- Źródło: maszyna UZP (ADR-0017): jeśli wszystkie PDF są w `input/` bez podkatalogów, cały zbiór to jedna sprawa; bez zapisu po każdym dokumencie przerwanie w 45. minucie zostawia pusty `output/`.
+- Test: `tests/test_e2e.py::test_t16_zapis_zaraz`
+
+## T17. Limit czasu: po przekroczeniu reszta bez OCR
+
+```
+CZAS_OCR_S = 0, skan przelewu  ->  {} (bez OCR nie ma tekstu), dziennik: „OCR pominięty: limit czasu”
+```
+
+- Źródło: README UZP: 150 PDF w 45 min na maszynie z 2 vCPU. Skan odwołania (5 stron) to dziesiątki sekund; bez limitu wiele skanów może przekroczyć czas całego zbioru. PDF cyfrowe i tak zdążą (setne części sekundy).
+- Test: `tests/test_e2e.py::test_t17_limit_czasu`
+
 ## Pomiar jakości (to nie jest test)
 
 `tools/ocena_f1.py` przepuszcza wszystkie 60 spraw treningowych przez CLI i liczy F1 według ADR-0003. Przykładowy wynik:

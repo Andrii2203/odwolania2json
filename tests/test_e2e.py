@@ -7,7 +7,8 @@ from pathlib import Path
 import pytest
 import yaml
 
-from odwolania2json.pipeline import KONFIG, ROOT, ustawienia, wczytaj_typy
+from odwolania2json import pipeline
+from odwolania2json.pipeline import KONFIG, ROOT, przetworz_wszystkie, ustawienia, wczytaj_typy
 from tools.ocena_f1 import DANE, UZP, ocena
 
 pytestmark = pytest.mark.skipif(not UZP.exists(), reason="brak data/uzp — zob. AGENTS.md")
@@ -98,3 +99,29 @@ def test_t12_wyjasnij(tmp_path):
     sciezka = Path("przyklad_01") / "przelew.json"
     assert (tmp_path / "output" / sciezka).read_text(encoding="utf-8") == (tmp_path / "zwykly" / sciezka).read_text(encoding="utf-8")
     assert zwykly.returncode == 0
+
+
+def test_t16_zapis_zaraz(tmp_path, monkeypatch):
+    for pdf in sorted((DANE / "przyklad_01").glob("*.pdf")):
+        shutil.copy(pdf, tmp_path)
+    zdarzenia, tekst_pdf = [], pipeline.tekst_pdf
+    monkeypatch.setattr(pipeline, "tekst_pdf", lambda pdf, *a, **k: zdarzenia.append(("tekst", pdf.stem)) or tekst_pdf(pdf, *a, **k))
+    zaraz = lambda pdf, wynik, blad: zdarzenia.append(("zapis", pdf.stem))
+
+    for pdf, _, _ in przetworz_wszystkie(sorted(tmp_path.glob("*.pdf")), wczytaj_typy(), ustawienia(), zaraz=zaraz):
+        zdarzenia.append(("wynik", pdf.stem))
+
+    nazwy = ["odwolanie", "pelnomocnictwo", "przelew"]
+    assert zdarzenia == [z for n in nazwy for z in (("tekst", n), ("zapis", n))] + [("wynik", n) for n in nazwy]
+
+
+def test_t17_limit_czasu(tmp_path):
+    shutil.copy(DANE / "skany" / "potwierdzenia" / "0001" / "0001.pdf", tmp_path)
+    ust = ustawienia()
+    ust["liczby"]["CZAS_OCR_S"] = 0
+    dzienniki = {}
+
+    [(pdf, wynik, blad)] = przetworz_wszystkie([tmp_path / "0001.pdf"], wczytaj_typy(), ust, dzienniki)
+
+    assert (wynik, blad) == (None, None)
+    assert "OCR pominięty: limit czasu" in [w["regula"] for w in dzienniki[pdf]]

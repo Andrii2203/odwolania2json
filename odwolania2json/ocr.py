@@ -1,3 +1,4 @@
+import os
 import re
 from functools import cache
 from math import atan2, tan
@@ -10,7 +11,9 @@ import pypdfium2 as pdfium
 @cache
 def _silnik():
     from rapidocr import RapidOCR
-    return RapidOCR(params={"Global.log_level": "error"})
+    # tyle wątków, ile procesor daje temu procesowi: więcej wątków niż rdzeni wielokrotnie spowalnia OCR
+    watki = os.process_cpu_count() or os.cpu_count()
+    return RapidOCR(params={"Global.log_level": "error", "EngineConfig.onnxruntime.intra_op_num_threads": watki})
 
 
 def _srodek(ramka) -> tuple[float, float]:

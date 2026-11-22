@@ -25,6 +25,9 @@ liczby:
   # Rozdzielczość renderowania strony do OCR: najlepsze F1 na skanach UZP (tools/przeglad.py OCR_DPI 150 200 300
   # --dane data/uzp/dane/skany/*). Czas podobny, bo RapidOCR i tak zmniejsza obraz do wykrywania tekstu.
   OCR_DPI: 150
+  # Po tylu sekundach od startu nowe strony bez tekstu nie idą do OCR (T17): limit UZP to 45 min na 150 PDF (README),
+  # minus zapas na skan, który właśnie jest w OCR, i na zapis (5 min).
+  CZAS_OCR_S: 2400
   # Standard PDF: 1 punkt = 1/72 cala (rozmiar strony w PDF jest w punktach).
   PUNKTY_NA_CAL: 72
   # Ramki OCR w jednym wierszu: środki różnią się o mniej niż tyle wysokości ramki. Środek zakresu z najlepszym F1

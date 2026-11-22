@@ -1,5 +1,6 @@
 import re
-from collections.abc import Iterable, Iterator
+import time
+from collections.abc import Callable, Iterable, Iterator
 from pathlib import Path
 
 import yaml
@@ -33,9 +34,13 @@ def wczytaj_typy(config: Path = KONFIG) -> list[dict]:
     return typy
 
 
-def tekst_pdf(pdf: Path, ust: dict) -> str:
+def tekst_pdf(pdf: Path, ust: dict, ocr: bool = True, dziennik: list | None = None) -> str:
     strony = [strona.extract_text() or "" for strona in PdfReader(pdf).pages]
     skany = [nr for nr, tekst in enumerate(strony) if len(tekst.strip()) < ust["liczby"]["MIN_ZNAKOW_STRONY"]]
+    if skany and not ocr:
+        if dziennik is not None:
+            dziennik.append({"pole": "-", "wartosc": None, "regula": "OCR pominięty: limit czasu", "fragment": ""})
+        skany = []
     for nr, tekst in zip(skany, tekst_skanu(pdf, skany, ust) if skany else []):
         strony[nr] = tekst
     return "\n".join(strony)
@@ -83,9 +88,9 @@ def przetworz(pdf: Path, typy: list[dict], ust: dict) -> tuple[str, dict] | None
     return (d["typ"], d["dane"]) if d["typ"] else None
 
 
-def _dokument(pdf: Path, typy: list[dict], ust: dict, dziennik: list) -> dict:
+def _dokument(pdf: Path, typy: list[dict], ust: dict, dziennik: list, ocr: bool) -> dict:
     try:
-        return {"pdf": pdf, "blad": None, **dokument_z_tekstu(tekst_pdf(pdf, ust), typy, ust, dziennik)}
+        return {"pdf": pdf, "blad": None, **dokument_z_tekstu(tekst_pdf(pdf, ust, ocr, dziennik), typy, ust, dziennik)}
     except Exception as blad:
         return {"pdf": pdf, "typ": None, "tekst": "", "dane": None, "dziennik": dziennik, "blad": blad}
 
@@ -100,14 +105,26 @@ def kontekst_sprawy(dokumenty: list[dict], po_typie: dict[str, dict], ust: dict)
             d["dziennik"].append({"pole": "-", "wartosc": None, "regula": f"kontekst sprawy: błąd {blad!r}", "fragment": ""})
 
 
-def przetworz_wszystkie(pdfy: Iterable[Path], typy: list[dict], ust: dict,
-                        dzienniki: dict | None = None) -> Iterator[tuple[Path, tuple[str, dict] | None, Exception | None]]:
+Wynik = tuple[Path, tuple[str, dict] | None, Exception | None]
+
+
+def _wynik(d: dict) -> Wynik:
+    return d["pdf"], (d["typ"], d["dane"]) if d["typ"] else None, d["blad"]
+
+
+def przetworz_wszystkie(pdfy: Iterable[Path], typy: list[dict], ust: dict, dzienniki: dict | None = None,
+                        zaraz: Callable[..., None] | None = None) -> Iterator[Wynik]:
+    koniec_ocr = time.monotonic() + ust["liczby"]["CZAS_OCR_S"]
     sprawy: dict[Path, list[Path]] = {}
     for pdf in pdfy:
         sprawy.setdefault(pdf.parent, []).append(pdf)
     po_typie = {t["typ"]: t for t in typy}
     for pliki in sprawy.values():
-        dokumenty = [_dokument(pdf, typy, ust, dzienniki.setdefault(pdf, []) if dzienniki is not None else []) for pdf in pliki]
+        dokumenty = []
+        for pdf in pliki:
+            dziennik = dzienniki.setdefault(pdf, []) if dzienniki is not None else []
+            dokumenty.append(_dokument(pdf, typy, ust, dziennik, time.monotonic() < koniec_ocr))
+            if zaraz:
+                zaraz(*_wynik(dokumenty[-1]))
         kontekst_sprawy(dokumenty, po_typie, ust)
-        for d in dokumenty:
-            yield d["pdf"], (d["typ"], d["dane"]) if d["typ"] else None, d["blad"]
+        yield from map(_wynik, dokumenty)

@@ -1,6 +1,6 @@
 # Stan
 
-Aktualizacja: 2026-11-22 01:30, Claude (plan VM: 2-7 zrobione, czeka instalacja na VM). Następny czat zaczyna od „Plan” niżej.
+Aktualizacja: 2026-11-22 03:00, Claude (VM, TED jako nowy typ, kreator typu w GUI). Następny czat zaczyna od „Plan” niżej.
 
 ## Zrobione
 
@@ -56,7 +56,7 @@ UZP ocenia na swojej maszynie wirtualnej: Ubuntu 24.04, 2 vCPU, 16 GB, bez GPU, 
 | 4 | Claude | **zrobione** (T15) Rachunek z dowolnym kodem kraju (IBAN), bez spacji (Discord) | F1 |
 | 5 | Claude | **częściowo** (NIP: ADR-0019, T18, skany 0.9508) Ten sam NIP z myślnikami i bez: jeden mocodawca; inne znane błędy skanów („Otwarte pytania” 5) | F1; skany najbliżej zbioru testowego |
 | 6 | Claude | **zrobione** (T21, ADR-0020: prawdziwe ogłoszenie TED zamiast wymyślonego wezwania, F1 0.9902 na 188 niewidzianych; przełącznik w GUI) `README.md`, „jak dodać nowy typ” | finał: 50% za konfigurację nowych typów |
-| 7 | Claude | **zrobione** (ADR-0006) GUI: pliki jako jedna sprawa (kontekst), cache, edycja JSON, pobieranie JSON i ZIP | prezentacja, przejrzystość |
+| 7 | Claude | **zrobione** (ADR-0006; na VM: http://20.215.209.150:8080, `gui.sh`, `@reboot` w crontab; kreator nowego typu, ADR-0021, T22) GUI: pliki jako jedna sprawa (kontekst), cache, edycja JSON, pobieranie JSON i ZIP | prezentacja, przejrzystość |
 | 8 | [Argon] | Prezentacja PDF <= 10 MB wg ADR-0006 | |
 | 9 | Użytkownik | Repozytorium publiczne, `.env` poza git, nazwa zespołu jak w drafcie (Discord) | |
 | 10 | Claude + Użytkownik | Maszynę aktualizuje `tools/zapisz.sh` po każdym push (zgoda użytkownika 22.11; bez ręcznych testów, sprawdza CI); `sudo sh uruchom.sh` sprawdził użytkownik 22.11 (OK). Końcowy test na VM dokładnie jak UZP (czyste `output/`, komenda z `RUN.md`, po restarcie), STAN | |

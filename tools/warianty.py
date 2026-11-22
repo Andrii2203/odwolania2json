@@ -2,6 +2,7 @@ import argparse
 import json
 import random
 import re
+import string
 import sys
 from collections import Counter
 from datetime import date, timedelta
@@ -49,7 +50,7 @@ def _przebiegi(tekst: str, wzor, w: dict, ust: dict) -> list[str]:
 def wartosci(tekst, wzor, rng, w, ust):
     zamiana = {}
     for r in _przebiegi(tekst, wzor, w, ust):
-        nowy = "".join(rng.choice("0123456789") for _ in r)
+        nowy = "".join(rng.choice(string.digits) for _ in r)
         zamiana[r] = nowy
         tekst = _cyfry_w_tekscie(r, ust).sub(lambda m: _podmien_cyfry(m[0], nowy), tekst)
     return tekst, _mapuj(wzor, lambda s: re.sub(r"\d+", lambda m: zamiana.get(m[0], m[0]), s))

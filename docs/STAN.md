@@ -60,8 +60,9 @@ Plan od 22.11 03:30 (połączony nocny plan etapów z planem VM; punkty nocnego 
 | 3 | Claude | **zrobione** (T24, ADR-0024: `format: mianownik`, Morfeusz2 BSD; „adwokatowi”, „radcy prawnemu”; F1 bez zmian) Mianownik imion i nazwisk (nocny plan, pkt 7): reguły albo Morfeusz2 | wymaganie UZP; w danych treningowych odmian nie ma, F1 tego nie pokazuje |
 | 4 | Claude | **zrobione** (T25, ADR-0025: podpisujący i nagłówki stron w sklejonych liniach, `nowa_linia`; warianty 0.9798 -> 0.9870, treningowe 0.9990 i skany 0.9508 bez zmian) Bramka w środku linii (nocny plan, pkt 3): adres, „KRS:”, e-mail za wartością | `laczenie_linii` 0.851, najsłabszy wariant |
 | 5 | Claude | **zrobione** Dokumenty zgodne ze stanem (`docs/kryteria.md`: nieaktualne „brak instrukcji dla jury”, „plan, pkt 7”), STAN | porządek |
-| 6 | Claude | GUI przyjazne dla użytkownika (na końcu) | prezentacja |
-| 7 | [Argon] | Prezentacja PDF <= 10 MB wg ADR-0006 | |
+| 6 | Claude | GUI przyjazne dla użytkownika (na końcu; użytkownik 22.11 05:50: nie robić przed jego decyzją). Co przeszkadza (użytkownik): nie wiadomo, od czego zacząć (brak krótkiej instrukcji 1–2–3); kreator typu trudny (co wpisać w tabeli, „wspólne wykluczenia” to żargon, puste wiersze bez przykładu); za dużo naraz na ekranie (dziennik, edycja JSON i YAML: schować w rozwijane bloki); napisy i przyciski techniczne, potrzebne prostsze | prezentacja |
+| 7 | [Argon] | Prezentacja PDF <= 10 MB wg ADR-0006; Regulamin: wskazać rozwiązania zewnętrzne (RapidOCR, pypdfium2, pypdf, Morfeusz2, Streamlit, PyYAML, uv) | |
+| 8 | Claude | Ostatni test na VM jak UZP po ostatniej zmianie kodu (pkt 1), `input/` i `output/` puste; dostęp do VM do 11:00 | |
 
 Uwagi 22.11 w nocy: na 2 rdzeniach z 2 wątkami OCR odwołanie (5 stron) 23 s, pełnomocnictwo i przelew ok. 4 s; z 16 wątkami na 2 rdzeniach 3 min (stąd wątki = rdzenie). CI Ubuntu 4 vCPU: 226 PDF UZP w 3 min 56 s. `.PDF` wielkimi (T20). Analiza Argona: `docs/badania/braki-i-ryzyka.md` (dalej do rozważenia: etykieta „w dniu” dla `data_operacji`, GUI na VM jako usługa na porcie 8080).
 

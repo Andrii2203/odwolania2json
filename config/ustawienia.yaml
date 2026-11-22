@@ -31,6 +31,8 @@ liczby:
   # Ile pierwszych stron skanu idzie do OCR (plus zawsze ostatnia, z podpisami), T19: README UZP: kluczowe informacje
   # „z reguły na pierwszych trzech stronach”. Sprawdzenie: tools/przeglad.py STRONY_OCR 1 2 3 --dane data/uzp/dane/skany/*
   STRONY_OCR: 3
+  # Port GUI na maszynie UZP (gui.sh): jeden z portów otwartych z internetu według data/uzp/VM.md (80, 443, 8000, 8080).
+  PORT_GUI: 8080
   # Standard PDF: 1 punkt = 1/72 cala (rozmiar strony w PDF jest w punktach).
   PUNKTY_NA_CAL: 72
   # Ramki OCR w jednym wierszu: środki różnią się o mniej niż tyle wysokości ramki. Środek zakresu z najlepszym F1

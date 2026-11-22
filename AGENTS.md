@@ -36,7 +36,7 @@ Obcy, pusty albo uszkodzony dokument (np. ogłoszenie TED) daje plik z `{}` (ADR
 5. Oszczędzamy tokeny: czytamy tylko potrzebne pliki i fragmenty, bez subagentów, krótkie odpowiedzi.
 6. Na koniec sesji aktualizujemy `docs/STAN.md` (zrobione, dalej, pytania).
 7. W kodzie bez komentarzy; jeśli komentarz jest konieczny, po polsku. Komunikaty CLI po polsku.
-8. Małe commity z krótkim opisem po polsku: `sh tools/zapisz.sh "opis" pliki...` (commit i push).
+8. Małe commity z krótkim opisem po polsku: `sh tools/zapisz.sh "opis" pliki...` (commit, push i aktualizacja maszyny UZP, jeśli w `.env` są `VM_SSH` i `VM_KLUCZ`).
 9. Wszystkie liczby (progi, limity, okna, czasy, DPI) tylko w `config/ustawienia.yaml`, każda z komentarzem, skąd się wzięła: standard albo reguła wyboru z poleceniem `tools/przeglad.py` (bez wyników pomiaru, bo się starzeją). W plikach typów i w kodzie liczb nie ma (test T5, ADR-0009).
 
 ## Automatyczne straże

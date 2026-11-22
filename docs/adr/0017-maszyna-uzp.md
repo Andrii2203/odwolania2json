@@ -17,3 +17,8 @@ UZP ocenia na swojej maszynie wirtualnej (`data/uzp/VM.md`): Ubuntu 24.04, 2 vCP
 
 - Na maszynie: `git clone`, `sh instaluj.sh`, próba jak u UZP (czyste `output/`, komenda z `RUN.md`, także po `sudo reboot`).
 - Bez Dockera: mniej warstw, ale Python zależy od pobrania `uv` i Pythona przy instalacji (internet jest).
+
+## Aktualizacja 2026-11-22
+
+- Wdrożenie: `tools/zapisz.sh` po push robi na maszynie `git pull --ff-only` i `sh instaluj.sh` (adres i klucz w `.env`: `VM_SSH`, `VM_KLUCZ`; bez nich krok pomijany). Bez crona na maszynie: po 11:00 nic się tam nie zmienia.
+- GUI na maszynie: `gui.sh` (port `PORT_GUI`), start po restarcie przez `@reboot` w crontab konta zespołu (bez `sudo`).

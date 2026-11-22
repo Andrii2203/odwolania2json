@@ -141,7 +141,7 @@ def analiza() -> None:
         with kolumna.container(border=True):
             st.markdown(f"**{tytul}**  \n{opis}")
     nowe_typy = wybor_typow()
-    pliki = st.file_uploader("Wgraj pliki jednej sprawy: tylko PDF (z tekstem albo skan)", type=["pdf"],
+    pliki = st.file_uploader("Wgraj pliki jednej sprawy: tylko .pdf (skan też jako .pdf; .png i .jpg nie są czytane)", type=["pdf"],
                              accept_multiple_files=True)
     if pliki:
         wejscie = [(p.name, p.getvalue()) for p in pliki]
@@ -255,7 +255,7 @@ def kreator() -> None:
     st.button("Pokaż na przykładzie (faktura)", on_click=wczytaj_przyklad_kreatora)
 
     st.subheader("1. Wgraj przykładowy dokument")
-    pdf = st.file_uploader("Jeden plik PDF nowego typu (z tekstem albo skan)", type=["pdf"], key="kreator_pdf")
+    pdf = st.file_uploader("Jeden plik .pdf nowego typu (skan też jako .pdf)", type=["pdf"], key="kreator_pdf")
     if pdf:
         zrodlo = (pdf.name, pdf.getvalue())
     elif przyklad := st.session_state.get("kreator_przyklad_pdf"):
@@ -326,7 +326,7 @@ def kreator() -> None:
 def main() -> None:
     st.set_page_config(page_title="Odwołania2JSON", page_icon=":material/description:", layout="wide")
     st.title("Odwołania2JSON")
-    st.caption("Zamienia dokumenty sprawy odwoławczej do KIO (PDF, także skany) na dane JSON.")
+    st.caption("Zamienia dokumenty sprawy odwoławczej do KIO (pliki .pdf, także zeskanowane do .pdf) na dane JSON.")
     zakladka_analizy, zakladka_kreatora = st.tabs([":material/description: Zamień PDF na JSON",
                                                        ":material/add_circle: Dodaj nowy typ dokumentu"])
     with zakladka_analizy:

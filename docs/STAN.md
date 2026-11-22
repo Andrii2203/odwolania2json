@@ -1,6 +1,6 @@
 # Stan
 
-Aktualizacja: 2026-11-22 06:45, Claude (pkt 6: GUI i kreator z przykładu, zakreślacz w podglądzie, faktura jako przykład, ikony Material; T26, T27, ADR-0026). Dalej: pkt 8 (ostatni test na VM) najpóźniej o 10:00. Następny czat zaczyna od „Plan” niżej.
+Aktualizacja: 2026-11-22 09:05, Claude (pkt 8: ostatni test na VM, F1 0.9887, obce `{}`; liczby i duble: w kodzie brak, `gui.bat` bierze `PORT_GUI`; krótka prezentacja `docs/prezentacja_krotka.pdf`, 9 slajdów, do zgłoszenia w HackTribe; GUI na VM: cron co 5 min uruchamia je ponownie, jeśli padło; w GUI i README „tylko .pdf, skan też jako .pdf”; zgłoszenie: użytkownik sam uzupełnia formularz HackTribe „Edit” -> „Save” do 11:00); wcześniej 07:55 Argon (pkt 7: `docs/prezentacja.pdf` 530 KB i `docs/prezentacja.html`, podglądy z zakreślaczem, rozwiązania zewnętrzne wg Regulaminu); wcześniej 06:45 Claude (pkt 6: GUI i kreator z przykładu, zakreślacz w podglądzie, faktura jako przykład, ikony Material; T26, T27, ADR-0026). Dalej: plan zrobiony; po zmianie kodu powtórzyć pkt 8 przed 10:00. Następny czat zaczyna od „Plan” niżej.
 
 ## Zrobione
 
@@ -62,8 +62,8 @@ Plan od 22.11 03:30 (połączony nocny plan etapów z planem VM; punkty nocnego 
 | 4 | Claude | **zrobione** (T25, ADR-0025: podpisujący i nagłówki stron w sklejonych liniach, `nowa_linia`; warianty 0.9798 -> 0.9870, treningowe 0.9990 i skany 0.9508 bez zmian) Bramka w środku linii (nocny plan, pkt 3): adres, „KRS:”, e-mail za wartością | `laczenie_linii` 0.851, najsłabszy wariant |
 | 5 | Claude | **zrobione** Dokumenty zgodne ze stanem (`docs/kryteria.md`: nieaktualne „brak instrukcji dla jury”, „plan, pkt 7”), STAN | porządek |
 | 6 | Claude | **zrobione 22.11 05:30, czeka na uwagi użytkownika** (T26, ADR-0026: trzy kroki, przyciski „Pokaż na przykładzie”, nazwa typu i status zwykłymi słowami, szczegóły w zwiniętych blokach; kreator: nazwa pola + wartość z dokumentu, etykietę i rodzaj znajduje sam i sprawdza na przykładzie; typ z kreatora od razu w pierwszej zakładce; GUI na VM uruchomione ponownie) GUI przyjazne dla użytkownika. Przykład sprawy tylko, gdy jest `data/uzp` (na VM nie ma) | prezentacja |
-| 7 | [Argon] | Prezentacja PDF <= 10 MB wg ADR-0006; Regulamin: wskazać rozwiązania zewnętrzne (RapidOCR, pypdfium2, pypdf, Morfeusz2, Streamlit, PyYAML, uv) | |
-| 8 | Claude | Ostatni test na VM jak UZP po ostatniej zmianie kodu (pkt 1), `input/` i `output/` puste; dostęp do VM do 11:00 | |
+| 7 | [Argon], Claude | **zrobione 22.11 09:10** (wersja Argona 07:55, 6 slajdów, ok. 2900 słów, poza repozytorium: za dużo tekstu, nieaktualne liczby, np. 200 DPI zamiast `OCR_DPI` 150; w zgłoszeniu `docs/prezentacja_krotka.pdf`, 9 slajdów, obrazy z wersji Argona w `docs/obrazy/`) Prezentacja PDF <= 10 MB wg ADR-0006; Regulamin: wskazać rozwiązania zewnętrzne (RapidOCR, pypdfium2, pypdf, Morfeusz2, Streamlit, PyYAML, uv) | |
+| 8 | Claude | **zrobione 22.11 08:10** (kod `a828173`; 50 PDF: 10 spraw, 6 skanów, 12 obcych z `negatywne/`, pusty, uszkodzony; z `sudo`: 50/50 JSON w 1 min 48 s, obce `{}` 14/14, F1 0.9887; błędy: `tytul` w 3 przelewach, podpisujący w skanie pełnomocnictwa 0008; JSON identyczne z uruchomieniem lokalnym; `input/` i `output/` puste) Ostatni test na VM jak UZP po ostatniej zmianie kodu (pkt 1), `input/` i `output/` puste; dostęp do VM do 11:00. Po każdej zmianie kodu powtórzyć | |
 
 Uwagi 22.11 w nocy: na 2 rdzeniach z 2 wątkami OCR odwołanie (5 stron) 23 s, pełnomocnictwo i przelew ok. 4 s; z 16 wątkami na 2 rdzeniach 3 min (stąd wątki = rdzenie). CI Ubuntu 4 vCPU: 226 PDF UZP w 3 min 56 s. `.PDF` wielkimi (T20). Analiza Argona: `docs/badania/braki-i-ryzyka.md` (dalej do rozważenia: etykieta „w dniu” dla `data_operacji`, GUI na VM jako usługa na porcie 8080).
 

@@ -3,6 +3,7 @@
 !/docs/adr/
 !/docs/badania/
 !/docs/przyklady/
+!/docs/obrazy/
 /data/
 /input/*
 !/input/.gitkeep

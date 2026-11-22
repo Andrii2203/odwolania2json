@@ -1,6 +1,6 @@
 # Odwołania2JSON
 
-HackNation 2026, zadanie Urzędu Zamówień Publicznych. Program czyta dokumenty PDF sprawy odwoławczej do KIO i dla każdego zapisuje plik JSON.
+HackNation 2026, zadanie Urzędu Zamówień Publicznych. Program czyta dokumenty PDF sprawy odwoławczej do KIO i dla każdego zapisuje plik JSON. Prezentacja: [docs/prezentacja_krotka.pdf](docs/prezentacja_krotka.pdf).
 
 ```
 input/sprawa1/odwolanie.pdf        ->  output/sprawa1/odwolanie.json
@@ -19,7 +19,8 @@ Typy: odwołanie, pełnomocnictwo, potwierdzenie przelewu. Brak wartości w doku
 | Windows | `start.bat` instaluje sam | `start.bat` |
 | Podgląd (GUI) | `gui.bat` (Linux: `sh gui.sh`) | przeglądarka: PDF obok JSON, odczytane wartości podświetlone w dokumencie, skąd każda wartość; kreator nowego typu |
 
-- Wejście: wszystkie PDF z `input/` (także w podkatalogach, także `.PDF`). Wynik: `output/` z tym samym drzewem katalogów.
+- Maszyna UZP: projekt zainstalowany w `/opt/solution`. PDF do `/opt/solution/input`, potem `cd /opt/solution && sudo sh uruchom.sh`. GUI: <http://20.215.209.150:8080>.
+- Wejście: wszystkie pliki `.pdf` z `input/` (także w podkatalogach, także `.PDF`). Skan musi być zapisany jako `.pdf`; obrazy (`.png`, `.jpg`) nie są czytane. Wynik: `output/` z tym samym drzewem katalogów.
 - `--wyjasnij`: dla każdego pola reguła z konfiguracji i fragment tekstu, z którego pochodzi wartość.
 - Python 3.13+. Zależności: `requirements.txt` (pypdf, pypdfium2, RapidOCR, onnxruntime, PyYAML, Morfeusz2 ze słownikiem SGJP; licencje BSD, Apache, MIT).
 

@@ -1,6 +1,6 @@
 # Stan
 
-Aktualizacja: 2026-11-22 03:00, Claude (VM, TED jako nowy typ, kreator typu w GUI). Następny czat zaczyna od „Plan” niżej.
+Aktualizacja: 2026-11-22 03:30, Claude (nowy plan: test VM, obce poza TED, mianownik, bramka). Następny czat zaczyna od „Plan” niżej.
 
 ## Zrobione
 
@@ -44,22 +44,23 @@ Aktualizacja: 2026-11-22 03:00, Claude (VM, TED jako nowy typ, kreator typu w GU
   - Ocena na PDF cyfrowych i na skanach.
   - LLM tylko u firmy z polityką prywatności; hosting LLM przez osobę prywatną (własny komputer) wykluczony. Nie wiadomo, czy dotyczy to małego modelu nie-LLM (GLiNER2, ok. 0,2 mld parametrów) uruchamianego lokalnie jak OCR: zapytać.
 
-## Plan (22.11 od 00:45): ocena na maszynie UZP (`data/uzp/VM.md`)
+## Plan (22.11 od 03:30): ocena na maszynie UZP (`data/uzp/VM.md`)
 
 UZP ocenia na swojej maszynie wirtualnej: Ubuntu 24.04, 2 vCPU, 16 GB, bez GPU, Python 3.12, internet jest. Oceniający wgrywa PDF do `/opt/solution/input`, uruchamia komendę z `/opt/solution/RUN.md` (z `sudo`, bez interakcji), zabiera `/opt/solution/output`. Dostęp zespołów odcięty 22.11 o 11:00. README UZP: 150 PDF w 45 min (18 s na PDF). Lokalne modele, które mieszczą się w czasie: 20 pkt.
 
+Wcześniej (do 22.11 03:30) zrobione: formularz VM, instalacja w `/opt/solution` (Python 3.13 przez `uv`, `RUN.md`, `instaluj.sh`, `uruchom.sh`, ADR-0017), straż czasu OCR (ADR-0018, T16, T17, T19), rachunek z kodem kraju (T15), NIP z myślnikami (ADR-0019, T18), TED jako nowy typ i README „jak dodać nowy typ” (T21, ADR-0020), GUI na VM http://20.215.209.150:8080 i kreator typu (ADR-0021, T22), repozytorium publiczne, bez LLM (ADR-0022).
+
+Plan od 22.11 03:30 (połączony nocny plan etapów z planem VM; punkty nocnego planu, które wypadły przy przejściu na VM, wróciły jako 2–4):
+
 | # | Kto | Co | Dlaczego |
 |---|---|---|---|
-| 1 | Użytkownik | **zrobione** Formularz VM (jeden na zespół), od razu | bez maszyny nie ma oceny; czekamy na login i IP |
-| 2 | Claude | **zrobione** (VM: zainstalowane w `/opt/solution` z `main`, 22.11 01:50; 226 PDF UZP w 5 min 36 s na 2 vCPU, 226/226 JSON, F1 treningowe 0.9990 jak lokalnie; `input/` i `output/` puste) Linux: Python 3.13 przez `uv` (na VM jest 3.12, UZP wymaga 3.13+), `RUN.md`, skrypt instalacji, modele OCR pobrane przy instalacji, test po `sudo reboot` | komenda musi działać bez nas |
-| 3 | Claude | **zrobione** (ADR-0018, T16, T17, T19) Czas na 2 vCPU: pomiar skanów; straż czasu (liczba w `ustawienia.yaml`): po przekroczeniu reszta bez OCR; ewentualnie OCR tylko pierwszych stron, DPI (`tools/przeglad.py`) | 45 min na 150 PDF, nie wiemy, ile skanów |
-| 4 | Claude | **zrobione** (T15) Rachunek z dowolnym kodem kraju (IBAN), bez spacji (Discord) | F1 |
-| 5 | Claude | **częściowo** (NIP: ADR-0019, T18, skany 0.9508) Ten sam NIP z myślnikami i bez: jeden mocodawca; inne znane błędy skanów („Otwarte pytania” 5) | F1; skany najbliżej zbioru testowego |
-| 6 | Claude | **zrobione** (T21, ADR-0020: prawdziwe ogłoszenie TED zamiast wymyślonego wezwania, F1 0.9902 na 188 niewidzianych; przełącznik w GUI) `README.md`, „jak dodać nowy typ” | finał: 50% za konfigurację nowych typów |
-| 7 | Claude | **zrobione** (ADR-0006; na VM: http://20.215.209.150:8080, `gui.sh`, `@reboot` w crontab; kreator nowego typu, ADR-0021, T22) GUI: pliki jako jedna sprawa (kontekst), cache, edycja JSON, pobieranie JSON i ZIP | prezentacja, przejrzystość |
-| 8 | [Argon] | Prezentacja PDF <= 10 MB wg ADR-0006 | |
-| 9 | Użytkownik | Repozytorium publiczne, `.env` poza git, nazwa zespołu jak w drafcie (Discord) | |
-| 10 | Claude + Użytkownik | Maszynę aktualizuje `tools/zapisz.sh` po każdym push (zgoda użytkownika 22.11; bez ręcznych testów, sprawdza CI); `sudo sh uruchom.sh` sprawdził użytkownik 22.11 (OK). Końcowy test na VM dokładnie jak UZP (czyste `output/`, komenda z `RUN.md`, po restarcie), STAN | |
+| 1 | Claude + Użytkownik | Test na VM dokładnie jak UZP (`data/uzp/VM.md`, wymaganie 4): kilka PDF w `input/`, czyste `output/`, komenda z `RUN.md` z `sudo` (użytkownik), sprawdzenie JSON, to samo po `sudo reboot`; na koniec `input/` i `output/` puste. Powtórzyć po ostatniej zmianie | bez tego nie ma oceny |
+| 2 | Claude | Obce dokumenty poza TED (nocny plan, pkt 9): wyroki KIO, faktury, ogłoszenia BZP -> `{}` | wyrok KIO ma „Odwołujący”, „Zamawiający”, „odwołanie”: ryzyko JSON zamiast `{}` |
+| 3 | Claude | Mianownik imion i nazwisk (nocny plan, pkt 7): reguły albo Morfeusz2 | wymaganie UZP; w danych treningowych odmian nie ma, F1 tego nie pokazuje |
+| 4 | Claude | Bramka w środku linii (nocny plan, pkt 3): adres, „KRS:”, e-mail za wartością | `laczenie_linii` 0.851, najsłabszy wariant |
+| 5 | Claude | Dokumenty zgodne ze stanem (`docs/kryteria.md`: nieaktualne „brak instrukcji dla jury”, „plan, pkt 7”), STAN | porządek |
+| 6 | Claude | GUI przyjazne dla użytkownika (na końcu) | prezentacja |
+| 7 | [Argon] | Prezentacja PDF <= 10 MB wg ADR-0006 | |
 
 Uwagi 22.11 w nocy: na 2 rdzeniach z 2 wątkami OCR odwołanie (5 stron) 23 s, pełnomocnictwo i przelew ok. 4 s; z 16 wątkami na 2 rdzeniach 3 min (stąd wątki = rdzenie). CI Ubuntu 4 vCPU: 226 PDF UZP w 3 min 56 s. `.PDF` wielkimi (T20). Analiza Argona: `docs/badania/braki-i-ryzyka.md` (dalej do rozważenia: etykieta „w dniu” dla `data_operacji`, GUI na VM jako usługa na porcie 8080).
 

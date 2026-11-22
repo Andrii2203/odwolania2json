@@ -275,6 +275,20 @@ input/sprawa/SKAN.PDF  ->  output/sprawa/SKAN.json
 - Źródło: maszyna UZP to Linux (ADR-0017): tam `*.pdf` nie pasuje do `.PDF`, a skanery często tak zapisują pliki.
 - Test: `tests/test_e2e.py::test_t20_pdf_wielkimi`
 
+## T21. Nowy typ dokumentu: tylko plik YAML, bez zmiany kodu
+
+```
+docs/przyklady/wezwanie.yaml -> config/typy/wezwanie.yaml
+"Gdańsk, dnia 12 maja 2026 r. / Znak sprawy: ZP.271.4.2026 / Wykonawca: Budex Serwis sp. z o.o., ul. Długa 5 … / NIP: 999-123-45-67
+ / WEZWANIE DO UZUPEŁNIENIA DOKUMENTÓW … w terminie do dnia 19 maja 2026 r."
+  -> typ wezwanie
+     {"Wezwanie": {"data": "2026-05-12", "miejscowosc": "Gdańsk", "numer_postepowania": "ZP.271.4.2026", "termin": "2026-05-19"},
+      "Wykonawca": {"nazwa": "Budex Serwis sp. z o.o.", "nip": "9991234567"}}
+```
+
+- Źródło: README i Discord UZP: nowa klasa dokumentu tylko przez plik konfiguracyjny (finał: 50% oceny). Przykład leży poza `config/typy/`, żeby nie zmieniał wyników na zbiorze testowym; instrukcja w `README.md`.
+- Test: `tests/test_konfiguracja.py::test_t21_nowy_typ_z_yaml`
+
 ## Pomiar jakości (to nie jest test)
 
 `tools/ocena_f1.py` przepuszcza wszystkie 60 spraw treningowych przez CLI i liczy F1 według ADR-0003. Przykładowy wynik:

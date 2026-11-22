@@ -1,0 +1,42 @@
+# Przykład nowego typu dokumentu (README, „Jak dodać nowy typ”). Skopiuj do config/typy/: kod się nie zmienia.
+# Wspólne fragmenty ({DATA}, {MIEJSCOWOSC}, {SYGNATURA}, {FIRMA}, {NIP_Z_ETYKIETA}, {KONIEC_NAZWY}) są w config/ustawienia.yaml.
+typ: wezwanie
+opis: Wezwanie wykonawcy do uzupełnienia dokumentów
+
+# Klasyfikacja: część znaczników (próg PROG w ustawieniach) musi być w tekście; lista = wystarczy jeden z wariantów.
+znaczniki:
+- wezwanie
+- uzupełnieni
+- wykonawc
+- [postępowani, zamówieni]
+
+# Kształt JSON: dokładnie te klucze trafią do output/, brak wartości = null.
+szablon:
+  Wezwanie: {data: null, miejscowosc: null, numer_postepowania: null, termin: null}
+  Wykonawca: {nazwa: null, nip: null}
+
+# Fragmenty tylko tego typu.
+wzorce:
+  PRZED_DATA: ',?\s+(?:dnia\s+)?'
+
+# Pola: etykiety (dowolna wielkość liter i odstępy), wzorzec wartości (grupa w nawiasie), format, bramka (utnij).
+pola:
+  Wezwanie.data:
+    wzorce: ['{POCZATEK_LINII}{MIEJSCOWOSC}{PRZED_DATA}({DATA})']
+    format: data
+  Wezwanie.miejscowosc:
+    wzorce: ['{POCZATEK_LINII}({MIEJSCOWOSC}){PRZED_DATA}{DATA}']
+  Wezwanie.numer_postepowania:
+    etykiety: [znak sprawy, numer postępowania, nr postępowania]
+    wzorce: ['({SYGNATURA})']
+  Wezwanie.termin:
+    etykiety: [w terminie do dnia, w terminie do]
+    wzorce: ['({DATA})']
+    format: data
+  Wykonawca.nazwa:
+    etykiety: [wykonawca]
+    wzorce: ['({FIRMA})']
+    utnij: ['{KONIEC_NAZWY}']
+  Wykonawca.nip:
+    wzorce: ['{NIP_Z_ETYKIETA}']
+    format: cyfry

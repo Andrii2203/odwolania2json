@@ -1,7 +1,9 @@
 import ast
 import re
 
-from odwolania2json.pipeline import KONFIG, ROOT, USTAWIENIA
+import shutil
+
+from odwolania2json.pipeline import KONFIG, ROOT, USTAWIENIA, dokument_z_tekstu, ustawienia, wczytaj_typy
 
 KWANTYFIKATOR = re.compile(r"\{\d+(?:,\d*)?\}")
 
@@ -28,3 +30,19 @@ def test_t5_liczby_w_jednym_pliku():
                        and not (i and linie[i - 1].lstrip().startswith("#"))]
 
     assert (typy_z_cyframi, liczby_w_kodzie, bez_pochodzenia) == ([], [], [])
+
+
+def test_t21_nowy_typ_z_yaml(tmp_path):
+    config = tmp_path / "config"
+    shutil.copytree(KONFIG, config)
+    shutil.copy(ROOT / "docs" / "przyklady" / "wezwanie.yaml", config / "typy")
+    tekst = ("Gdańsk, dnia 12 maja 2026 r.\nZnak sprawy: ZP.271.4.2026\nWykonawca:\n"
+             "Budex Serwis sp. z o.o., ul. Długa 5, 80-001 Gdańsk\nNIP: 999-123-45-67\n"
+             "WEZWANIE DO UZUPEŁNIENIA DOKUMENTÓW\nZamawiający wzywa Wykonawcę do uzupełnienia dokumentów w postępowaniu "
+             "o udzielenie zamówienia publicznego w terminie do dnia 19 maja 2026 r.\n")
+
+    d = dokument_z_tekstu(tekst, wczytaj_typy(config), ustawienia(config), [])
+
+    assert (d["typ"], d["dane"]) == ("wezwanie", {
+        "Wezwanie": {"data": "2026-05-12", "miejscowosc": "Gdańsk", "numer_postepowania": "ZP.271.4.2026", "termin": "2026-05-19"},
+        "Wykonawca": {"nazwa": "Budex Serwis sp. z o.o.", "nip": "9991234567"}})

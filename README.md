@@ -42,7 +42,7 @@ Wszystkie reguły są w `config/`: `config/typy/*.yaml` (jeden plik na typ dokum
 
 Nowy typ to jeden plik YAML. Kod się nie zmienia. Pliku nie trzeba pisać ręcznie:
 
-**Kreator w GUI** (zakładka „Kreator nowego typu”): wgraj przykładowy PDF, wpisz nazwę typu i słowa, po których go rozpoznać, a w tabeli pola: nazwę pola JSON (np. `Nabywca.nazwa`), etykietę z dokumentu (np. „Oficjalna nazwa”) i rodzaj z listy (data, kwota, NIP, rachunek, nazwa firmy, tekst do końca linii, ...). Kreator od razu pokazuje JSON z przykładu i skąd każda wartość, a plik typu daje do pobrania: wystarczy zapisać go w `config/typy/`. Lista rodzajów jest w `config/ustawienia.yaml` (`kreator.rodzaje`).
+**Kreator w GUI** (zakładka „Dodaj nowy typ dokumentu”, przycisk „Pokaż na przykładzie”): wgraj przykładowy PDF, wpisz nazwę typu i słowa, po których go rozpoznać, a w tabeli nazwę pola JSON (np. `Nabywca.nazwa`) i wartość skopiowaną z dokumentu. Etykietę przed wartością i rodzaj (data, kwota, NIP, rachunek, nazwa firmy, tekst do końca linii, ...) kreator znajduje sam i sprawdza na przykładzie; obie można poprawić. Kreator od razu pokazuje JSON z przykładu i skąd każda wartość, a plik typu daje do pobrania: wystarczy zapisać go w `config/typy/` (albo od razu użyć w zakładce „Zamień PDF na JSON”). Lista rodzajów jest w `config/ustawienia.yaml` (`kreator.rodzaje`).
 
 **Ręcznie**, gdy potrzeba więcej (pole bez etykiety, sekcja dokumentu, lista): gotowy przykład na prawdziwych dokumentach: [`docs/przyklady/ogloszenie_ted.yaml`](docs/przyklady/ogloszenie_ted.yaml), ogłoszenie w Dzienniku Urzędowym UE (TED).
 

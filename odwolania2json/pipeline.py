@@ -23,17 +23,21 @@ def ustawienia(config: Path = KONFIG) -> dict:
     return _yaml(config / USTAWIENIA)
 
 
-def wczytaj_typy(config: Path = KONFIG) -> list[dict]:
+def przygotuj_typ(t: dict, ust: dict) -> dict:
+    t["prog"] = ust["liczby"]["PROG"]
+    t["rozdzielnik_cyfr"] = ust["wzorce"]["ROZDZIELNIK_CYFR"]
+    wspolne = ust["wykluczenia"] if t.get("wspolne_wykluczenia", True) else []
+    t["wykluczenia"] = wspolne + t.get("wykluczenia", [])
+    kompiluj = przygotuj(t.setdefault("pola", {}), ust, t.get("wzorce", {}))
+    t["_nowa_linia"] = [kompiluj(w) for w in t.get("nowa_linia", [])]
+    return t
+
+
+def wczytaj_typy(config: Path = KONFIG, dodatkowe: Iterable[str] = ()) -> list[dict]:
+    # dodatkowe: teksty YAML nowych typów (GUI, kreator), jak pliki dorzucone do config/typy/
     ust = ustawienia(config)
-    typy = [_yaml(p) for p in sorted((config / "typy").glob("*.yaml"))]
-    for t in typy:
-        t["prog"] = ust["liczby"]["PROG"]
-        t["rozdzielnik_cyfr"] = ust["wzorce"]["ROZDZIELNIK_CYFR"]
-        wspolne = ust["wykluczenia"] if t.get("wspolne_wykluczenia", True) else []
-        t["wykluczenia"] = wspolne + t.get("wykluczenia", [])
-        kompiluj = przygotuj(t.setdefault("pola", {}), ust, t.get("wzorce", {}))
-        t["_nowa_linia"] = [kompiluj(w) for w in t.get("nowa_linia", [])]
-    return typy
+    typy = {t["typ"]: t for t in [_yaml(p) for p in (config / "typy").glob("*.yaml")] + [yaml.safe_load(d) for d in dodatkowe]}
+    return [przygotuj_typ(typy[nazwa], ust) for nazwa in sorted(typy)]
 
 
 def tekst_pdf(pdf: Path, ust: dict, ocr: bool = True, dziennik: list | None = None) -> str:

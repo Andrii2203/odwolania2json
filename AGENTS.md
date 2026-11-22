@@ -56,7 +56,7 @@ Obcy, pusty albo uszkodzony dokument (np. ogłoszenie TED) daje plik z `{}` (ADR
 | `config/typy/*.yaml` | typ dokumentu: `znaczniki` (klasyfikacja), `szablon` (kształt JSON), `pola` (`etykiety`, `wzorce` z opcjonalnymi `wartosc` i `sekcja`, `format`, `sekcja`, `slownik`, `podzial`, `utnij`), `wzorce` (fragmenty typu), `nowa_linia` (nowa linia przed nagłówkiem w środku linii), `kontekst` (pole z innego dokumentu sprawy). Nowy typ to nowy plik YAML |
 | `docs/przyklady/` | przykład nowego typu na prawdziwych dokumentach (`ogloszenie_ted.yaml`, T21, ADR-0020); poza `config/typy/`, bo w ocenie UZP TED to `{}`. Dane: `tools/pobierz_obce.py` -> `data/przyklad_ted/{rozwoj,pomiar}` |
 | `config/ustawienia.yaml` | wszystkie liczby, wspólne wzorce, słowniki; dla OCR `warianty_liter` (ł pasuje też do l) i `poprawki_ocr` |
-| `odwolania2json/kreator.py` | kreator nowego typu (GUI): tabela pól -> YAML; rodzaje pól w `config/ustawienia.yaml` (`kreator.rodzaje`), T22, ADR-0021 |
+| `odwolania2json/kreator.py` | kreator nowego typu (GUI): nazwa pola i wartość z przykładu -> etykieta, rodzaj i YAML; rodzaje pól w `config/ustawienia.yaml` (`kreator.rodzaje`), T22, T26, ADR-0021, ADR-0026 |
 | `odwolania2json/ocr.py` | strona bez tekstu: render (`pypdfium2`), RapidOCR, ramki w wiersze (ADR-0007) |
 | `tests/` | testy z `docs/testy.md` |
 | `tools/ocena_f1.py` | F1 na 60 sprawach treningowych (ADR-0003) |

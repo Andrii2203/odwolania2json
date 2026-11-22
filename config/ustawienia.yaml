@@ -250,18 +250,25 @@ slowniki:
 # Kreator nowego typu w GUI (T22): rodzaj pola -> wzorce, format i bramka. Użytkownik podaje tylko pole JSON,
 # etykietę z dokumentu i rodzaj z tej listy; wzorce to fragmenty z sekcji wzorce.
 kreator:
+  # Etykieta pola z przykładu (T26): tekst przed wartością po ostatnim dwukropku, przecinku albo średniku w linii,
+  # bez dwukropka, myślnika i odstępów na końcu („…, KRS 9999405188, NIP ” -> „NIP”; użytkownik może poprawić).
+  etykieta_przed: '([^:,;\n]*?)[\s:–-]*$'
+  # Dopisek bez cyfr na końcu skopiowanej wartości (waluta „PLN”, „zł”, „r.” po dacie): data i kwota bez niego.
+  dopisek_po_wartosci: '\s+[^\d\s]+$'
+  # Kolejność = kolejność prób przy wartości z przykładu (T26): najpierw wąskie wzorce, na końcu dowolny tekst,
+  # który pasuje prawie zawsze.
   rodzaje:
-    tekst do końca linii: {wzorce: ['{DO_KONCA_LINII}']}
-    tekst w kilku liniach: {wzorce: ['{WIERSZE_WARTOSCI}']}
     data: {wzorce: ['({DATA})'], format: data}
     kwota: {wzorce: ['({KWOTA})'], format: liczba}
-    numer / identyfikator: {wzorce: ['({IDENTYFIKATOR})']}
-    sygnatura / znak sprawy: {wzorce: ['({SYGNATURA})']}
+    rachunek bankowy: {wzorce: ['({RACHUNEK})'], format: bez_spacji}
     NIP: {wzorce: ['({NIP})'], format: cyfry}
     REGON: {wzorce: ['({REGON})'], format: cyfry}
     KRS: {wzorce: ['({KRS})'], format: cyfry}
     PESEL: {wzorce: ['({PESEL})'], format: cyfry}
-    rachunek bankowy: {wzorce: ['({RACHUNEK})'], format: bez_spacji}
-    nazwa firmy: {wzorce: ['({FIRMA})'], utnij: ['{KONIEC_NAZWY}']}
-    imię i nazwisko: {wzorce: ['({OSOBA})']}
     e-mail: {wzorce: ['({EMAIL})']}
+    sygnatura / znak sprawy: {wzorce: ['({SYGNATURA})']}
+    numer / identyfikator: {wzorce: ['({IDENTYFIKATOR})']}
+    imię i nazwisko: {wzorce: ['({OSOBA})']}
+    nazwa firmy: {wzorce: ['({FIRMA})'], utnij: ['{KONIEC_NAZWY}']}
+    tekst do końca linii: {wzorce: ['{DO_KONCA_LINII}']}
+    tekst w kilku liniach: {wzorce: ['{WIERSZE_WARTOSCI}']}

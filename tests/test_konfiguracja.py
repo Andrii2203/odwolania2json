@@ -5,7 +5,7 @@ import shutil
 
 import yaml
 
-from odwolania2json.kreator import jako_yaml, sprobuj, typ_z_formularza
+from odwolania2json.kreator import jako_yaml, pole_z_przykladu, sprobuj, typ_z_formularza
 from odwolania2json.pipeline import KONFIG, ROOT, USTAWIENIA, klasyfikuj, przetworz_wszystkie, tekst_pdf, ustawienia, wczytaj_typy
 
 KWANTYFIKATOR = re.compile(r"\{\d+(?:,\d*)?\}")
@@ -63,6 +63,20 @@ def test_t22_kreator_typu():
     assert yaml.safe_load(tekst_yaml) == typ
     assert (wynik["rozpoznany"], wynik["dane"]) == ("ogloszenie", {
         "OgloszenieTED": {"cpv": wzor["OgloszenieTED"]["cpv"]}, "Nabywca": {"nazwa": wzor["Nabywca"]["nazwa"]}})
+
+
+def test_t26_pole_z_przykladu():
+    tekst, ust = tekst_pdf(ROOT / "tests" / "dane" / "ted" / "ogloszenie.pdf", ustawienia()), ustawienia()
+    rodzaje = ust["kreator"]["rodzaje"]
+    nazwa = "Miejskie Przedsiębiorstwo Wodociągów i Kanalizacji w m. st. Warszawie S.A."
+
+    znalezione = [pole_z_przykladu(pole, wartosc, tekst, rodzaje, ust) for pole, wartosc in
+                  [("OgloszenieTED.cpv", "24111900"), ("Nabywca.nazwa", nazwa), ("Nabywca.nip", "1234567890")]]
+
+    assert znalezione == [
+        {"pole": "OgloszenieTED.cpv", "etykiety": ["Główna klasyfikacja (cpv)"], "rodzaj": "numer / identyfikator"},
+        {"pole": "Nabywca.nazwa", "etykiety": ["Oficjalna nazwa"], "rodzaj": "tekst do końca linii"},
+        None]
 
 
 def test_t23_inne_pisma_z_akt():

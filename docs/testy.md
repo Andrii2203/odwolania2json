@@ -348,6 +348,23 @@ przyklad_01/odwolanie.pdf, linie sklejone przed nagłówkami (dwie kolumny, inny
 - `nowa_linia` w pliku typu: wzorce miejsc, w których przed wyciąganiem pól wstawiana jest nowa linia.
 - Test: `tests/test_pola.py::test_t25_naglowek_w_srodku_linii`
 
+## T26. Kreator: pole z przykładu (wartość skopiowana z dokumentu)
+
+```
+tests/dane/ted/ogloszenie.pdf, użytkownik podaje tylko pole JSON i wartość skopiowaną z dokumentu:
+| pole               | wartość z dokumentu                                                        |
+| OgloszenieTED.cpv  | 24111900                                                                   |
+| Nabywca.nazwa      | Miejskie Przedsiębiorstwo Wodociągów i Kanalizacji w m. st. Warszawie S.A. |
+| Nabywca.nip        | 1234567890                                                                 |
+  -> etykieta: słowa przed wartością w tej samej linii („Główna klasyfikacja (cpv)”, „Oficjalna nazwa”)
+  -> rodzaj: pierwszy z kreator.rodzaje, z którym plik typu odtwarza tę wartość na przykładzie
+     (numer / identyfikator, tekst do końca linii); rodzaj z nazwą w etykiecie najpierw („NIP:” -> NIP, nie KRS)
+  -> Nabywca.nip: wartości nie ma w dokumencie -> None (GUI: „nie znaleziono”, etykietę wpisać ręcznie)
+```
+
+- Źródło: użytkownik nie wie, co wpisać w kolumnach „etykieta” i „rodzaj” (uwaga użytkownika 22.11). Wartość widać w dokumencie; etykietę i rodzaj program znajduje sam i sprawdza na przykładzie.
+- Test: `tests/test_konfiguracja.py::test_t26_pole_z_przykladu`
+
 ## Pomiar jakości (to nie jest test)
 
 `tools/ocena_f1.py` przepuszcza wszystkie 60 spraw treningowych przez CLI i liczy F1 według ADR-0003. Przykładowy wynik:

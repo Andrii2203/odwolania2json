@@ -20,6 +20,8 @@ PRZYKLAD_SPRAWY = ROOT / "data" / "uzp" / "dane" / "przyklad_01"
 KROKI = [("1. Wgraj", "PDF jednej sprawy: odwołanie, pełnomocnictwo, potwierdzenie przelewu. Można kilka naraz."),
          ("2. Sprawdź", "Odczytane dane są podświetlone w dokumencie, a obok jest ich lista."),
          ("3. Pobierz", "JSON dla każdego pliku albo wszystkie naraz w ZIP.")]
+OK, BRAK, UWAGA, WPISZ = (":green[:material/check_circle:]", ":red[:material/cancel:]", ":orange[:material/warning:]",
+                          ":blue[:material/edit:]")
 LEGENDA = ("Na żółto etykieta, na pomarańczowo odczytana wartość. Numer to wiersz w „Skąd te wartości”. "
            "Skan (PDF bez tekstu) jest bez podświetlenia.")
 
@@ -105,7 +107,7 @@ def dokument(w: dict, wciecie: int, gotowe: dict) -> None:
         elif w["typ"] is None:
             st.warning(f"**{w['nazwa']}**: to nie jest żaden z rozpoznawanych dokumentów. Zapisany będzie pusty JSON: {{}}")
         else:
-            st.markdown(f"### {w['nazwa']}  \n✅ {w['typ']}")
+            st.markdown(f"### {w['nazwa']}  \n{OK} {w['typ']}")
         lewa, prawa = st.columns([1, 1])
         with lewa:
             strony(w["obrazy"])
@@ -194,18 +196,18 @@ def pole_z_wiersza(i: int, tekst: str, rodzaje: dict, ust: dict) -> tuple[dict |
     if not (pole or wartosc):
         return None, "", ""
     if not pole:
-        return None, "✏️ wpisz nazwę pola", "Nazwa pola to klucz w JSON, np. numer_faktury."
+        return None, f"{WPISZ} wpisz nazwę pola", "Nazwa pola to klucz w JSON, np. numer_faktury."
     if not wartosc:
         if etykieta and rodzaj:
-            return {"pole": pole, "etykiety": [etykieta], "rodzaj": rodzaj}, "✅ ręcznie", "Etykieta i rodzaj ustawione ręcznie."
-        return None, "✏️ wklej wartość", "Skopiuj wartość z tekstu dokumentu (pod podglądem)."
+            return {"pole": pole, "etykiety": [etykieta], "rodzaj": rodzaj}, f"{OK} ręcznie", "Etykieta i rodzaj ustawione ręcznie."
+        return None, f"{WPISZ} wklej wartość", "Skopiuj wartość z tekstu dokumentu (pod podglądem)."
     znalezione = pole_z_przykladu(pole, wartosc, tekst, rodzaje, ust, etykieta, rodzaj)
     if znalezione is None:
-        return None, "❌ brak w dokumencie", "Tej wartości nie ma w tekście dokumentu. Skopiuj ją z tekstu pod podglądem."
+        return None, f"{BRAK} brak w dokumencie", "Tej wartości nie ma w tekście dokumentu. Skopiuj ją z tekstu pod podglądem."
     opis = f"Etykieta: „{'; '.join(znalezione['etykiety']) or 'brak'}”."
     if znalezione["rodzaj"] is None:
-        return None, "⚠️ wybierz rodzaj", f"{opis} Żaden rodzaj nie odczytuje tej wartości: wybierz rodzaj albo zmień etykietę."
-    return {**znalezione, "przyklad": wartosc}, f"✅ {znalezione['rodzaj']}", f"{opis} Rodzaj: {znalezione['rodzaj']}."
+        return None, f"{UWAGA} wybierz rodzaj", f"{opis} Żaden rodzaj nie odczytuje tej wartości: wybierz rodzaj albo zmień etykietę."
+    return {**znalezione, "przyklad": wartosc}, f"{OK} {znalezione['rodzaj']}", f"{opis} Rodzaj: {znalezione['rodzaj']}."
 
 
 def wiersze_pol(tekst: str, rodzaje: dict, ust: dict) -> list[dict]:
@@ -226,11 +228,24 @@ def wiersze_pol(tekst: str, rodzaje: dict, ust: dict) -> list[dict]:
                           help="Puste: program znajdzie sam.")
             st.selectbox("Rodzaj wartości", [None, *rodzaje], key=f"rodzaj_{i}",
                          format_func=lambda r: "program wybierze sam" if r is None else r)
-        k_usun.button("🗑", key=f"usun_{i}", on_click=usun_wiersz, args=(i,), help="Usuń to pole")
+        k_usun.button(":material/delete:",key=f"usun_{i}", on_click=usun_wiersz, args=(i,), help="Usuń to pole")
         if pole:
             pola.append(pole)
-    st.button("➕ Dodaj pole", on_click=dodaj_wiersz)
+    st.button("Dodaj pole", icon=":material/add:",on_click=dodaj_wiersz)
     return pola
+
+
+def typ_dla_przykladu(typ_id: str, nazwa: str, znaczniki: list[str], pola: list[dict], rodzaje: dict,
+                      tekst: str) -> tuple[str, dict]:
+    # wspólne wykluczenia (wyrok KIO, TED, inne pisma z akt) zostają, chyba że przez nie typ nie rozpoznaje
+    # własnego przykładu: wtedy nowy typ to jeden z tych dokumentów
+    proby = []
+    for wspolne in (True, False):
+        tekst_yaml = jako_yaml(typ_z_formularza(typ_id, nazwa, znaczniki, pola, rodzaje, wspolne))
+        proby.append((tekst_yaml, sprobuj(tekst_yaml, tekst)))
+        if proby[-1][-1]["rozpoznany"] == typ_id:
+            return proby[-1]
+    return proby[0]
 
 
 def kreator() -> None:
@@ -281,14 +296,9 @@ def kreator() -> None:
         if not (nazwa and znaczniki and pola):
             st.info("Uzupełnij krok 2 (nazwa i słowa rozpoznające) i co najmniej jedno pole w kroku 3.")
             return
-        st.session_state.setdefault("kreator_wykluczenia", True)
-        with st.expander("Ustawienia zaawansowane"):
-            wspolne = st.checkbox("Nie rozpoznawaj jako ten typ wyroków KIO, ogłoszeń TED i innych pism z akt (zalecane)",
-                                  key="kreator_wykluczenia")
         typ_id = re.sub(r"\W+", "_", nazwa.lower()).strip("_")
-        tekst_yaml = jako_yaml(typ_z_formularza(typ_id, nazwa, znaczniki, pola, rodzaje, wspolne))
         try:
-            wynik = sprobuj(tekst_yaml, tekst)
+            tekst_yaml, wynik = typ_dla_przykladu(typ_id, nazwa, znaczniki, pola, rodzaje, tekst)
         except Exception as blad:
             st.error(f"Błąd typu: {type(blad).__name__}: {blad}")
             return
@@ -314,10 +324,11 @@ def kreator() -> None:
 
 
 def main() -> None:
-    st.set_page_config(page_title="Odwołania2JSON", page_icon="📄", layout="wide")
+    st.set_page_config(page_title="Odwołania2JSON", page_icon=":material/description:", layout="wide")
     st.title("Odwołania2JSON")
     st.caption("Zamienia dokumenty sprawy odwoławczej do KIO (PDF, także skany) na dane JSON.")
-    zakladka_analizy, zakladka_kreatora = st.tabs(["📄 Zamień PDF na JSON", "➕ Dodaj nowy typ dokumentu"])
+    zakladka_analizy, zakladka_kreatora = st.tabs([":material/description: Zamień PDF na JSON",
+                                                       ":material/add_circle: Dodaj nowy typ dokumentu"])
     with zakladka_analizy:
         analiza()
     with zakladka_kreatora:

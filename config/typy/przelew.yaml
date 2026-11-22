@@ -1,8 +1,10 @@
 typ: przelew
 opis: Potwierdzenie przelewu
+# Potwierdzenie przelewu zawsze podaje nadawcę; SWZ, umowa, faktura i wezwanie do wpisu mówią o przelewie bez nadawcy.
+# Nadawca: te same etykiety co pole z_rachunku niżej (kotwica &nadawca).
 znaczniki:
 - przelew
-- [rachun, kwota, tytuł, operacji, bank, transakcj]
+- &nadawca [rachunek obciążany, z rachunku, rachunek zleceniodawcy, rachunek nadawcy, rachunek płatnika, rachunek źródłowy, zleceniodawca, płatnik, nadawca, dane nadawcy, dane zleceniodawcy]
 szablon:
   przelew_bankowy: {data_operacji: null, kwota: null, na_rachunek: null, numer_transakcji: null,
     tytul: null, z_rachunku: null}
@@ -16,7 +18,7 @@ pola:
     wzorce: ['({KWOTA})']
     format: liczba
   przelew_bankowy.z_rachunku:
-    etykiety: [rachunek obciążany, z rachunku, rachunek zleceniodawcy, rachunek nadawcy, rachunek płatnika, rachunek źródłowy, zleceniodawca, płatnik, nadawca, dane nadawcy, dane zleceniodawcy]
+    etykiety: *nadawca
     wzorce: ['({RACHUNEK})']
     format: bez_spacji
   przelew_bankowy.na_rachunek:

@@ -1,7 +1,8 @@
 typ: odwolanie
 opis: Odwołanie do KIO
 znaczniki: [odwołujący, zarzut, wnoszę, zamawiający]
-wykluczenia: [przewodniczący]
+# Wyrok KIO (przewodniczący); pismo strony, która przystąpiła do postępowania.
+wykluczenia: [przewodniczący, przystępując]
 szablon:
   OdwolanieKIO: {data: null, czynnosc_dzien: null, czynnosc_powod_id: null, czynnosc_opis: null,
     miejscowosc: null}

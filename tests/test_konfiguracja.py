@@ -6,7 +6,7 @@ import shutil
 import yaml
 
 from odwolania2json.kreator import jako_yaml, sprobuj, typ_z_formularza
-from odwolania2json.pipeline import KONFIG, ROOT, USTAWIENIA, przetworz_wszystkie, tekst_pdf, ustawienia, wczytaj_typy
+from odwolania2json.pipeline import KONFIG, ROOT, USTAWIENIA, klasyfikuj, przetworz_wszystkie, tekst_pdf, ustawienia, wczytaj_typy
 
 KWANTYFIKATOR = re.compile(r"\{\d+(?:,\d*)?\}")
 
@@ -63,3 +63,11 @@ def test_t22_kreator_typu():
     assert yaml.safe_load(tekst_yaml) == typ
     assert (wynik["rozpoznany"], wynik["dane"]) == ("ogloszenie", {
         "OgloszenieTED": {"cpv": wzor["OgloszenieTED"]["cpv"]}, "Nabywca": {"nazwa": wzor["Nabywca"]["nazwa"]}})
+
+
+def test_t23_inne_pisma_z_akt():
+    typy, ust = wczytaj_typy(), ustawienia()
+    rozpoznane = {p.stem: (klasyfikuj(p.read_text(encoding="utf-8"), typy, ust) or {}).get("typ")
+                  for p in sorted((ROOT / "tests" / "dane" / "pisma").glob("*.txt"))}
+
+    assert rozpoznane and rozpoznane == dict.fromkeys(rozpoznane)

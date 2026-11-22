@@ -55,7 +55,7 @@ Plan od 22.11 03:30 (połączony nocny plan etapów z planem VM; punkty nocnego 
 | # | Kto | Co | Dlaczego |
 |---|---|---|---|
 | 1 | Claude + Użytkownik | **zrobione 22.11 03:55** (52 PDF: 10 spraw, 6 skanów, 14 obcych z pustym i uszkodzonym; po `sudo reboot`, z `sudo`: 52/52 JSON, obce `{}`, F1 0.9974, 104 s; GUI wstaje samo; poprawiony kod wyjścia, T7) Test na VM dokładnie jak UZP (`data/uzp/VM.md`, wymaganie 4): kilka PDF w `input/`, czyste `output/`, komenda z `RUN.md` z `sudo` (użytkownik), sprawdzenie JSON, to samo po `sudo reboot`; na koniec `input/` i `output/` puste. Powtórzyć po ostatniej zmianie | bez tego nie ma oceny |
-| 2 | Claude | Obce dokumenty poza TED (nocny plan, pkt 9): wyroki KIO, faktury, ogłoszenia BZP -> `{}` | wyrok KIO ma „Odwołujący”, „Zamawiający”, „odwołanie”: ryzyko JSON zamiast `{}` |
+| 2 | Claude | **zrobione** (T23, ADR-0023: odpowiedź na odwołanie, przystąpienie, SWZ, umowa, faktura, wezwanie -> `{}`; 476 prawdziwych bez zmian) Obce dokumenty poza TED (nocny plan, pkt 9): wyroki KIO, faktury, ogłoszenia BZP -> `{}` | wyrok KIO ma „Odwołujący”, „Zamawiający”, „odwołanie”: ryzyko JSON zamiast `{}` |
 | 3 | Claude | Mianownik imion i nazwisk (nocny plan, pkt 7): reguły albo Morfeusz2 | wymaganie UZP; w danych treningowych odmian nie ma, F1 tego nie pokazuje |
 | 4 | Claude | Bramka w środku linii (nocny plan, pkt 3): adres, „KRS:”, e-mail za wartością | `laczenie_linii` 0.851, najsłabszy wariant |
 | 5 | Claude | Dokumenty zgodne ze stanem (`docs/kryteria.md`: nieaktualne „brak instrukcji dla jury”, „plan, pkt 7”), STAN | porządek |

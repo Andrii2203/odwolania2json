@@ -1,0 +1,9 @@
+FAKTURA VAT nr FV/2026/05/123
+Data wystawienia: 15.05.2026 Data sprzedaży: 15.05.2026
+Sprzedawca: ABC Budownictwo Sp. z o.o., ul. Polna 3, 00-001 Warszawa, NIP 5252248481
+Nabywca: Gmina Miasto Kraków, ul. Wielicka 28a, 30-552 Kraków, NIP 6761013717
+Lp. Nazwa towaru lub usługi Ilość Cena netto Wartość netto VAT Wartość brutto
+1 Roboty budowlane 1 100 000,00 100 000,00 23% 123 000,00
+Sposób płatności: przelew Termin płatności: 30 dni
+Bank: Santander Bank Polska S.A. Nr rachunku: PL61 1090 1014 0000 0712 1981 2874
+Do zapłaty: 123 000,00 zł

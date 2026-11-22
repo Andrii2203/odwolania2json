@@ -308,6 +308,22 @@ nazwa: ogloszenie, znaczniki: see the notice, oficjalna nazwa, nabywca; wspólne
 - Źródło: nowy typ ma dodać osoba bez programowania (finał: 50% oceny); pisanie wyrażeń regularnych to bariera. Użytkownik podaje pole JSON, etykietę z dokumentu i rodzaj z listy; GUI pokazuje wynik na przykładowym PDF i daje plik do `config/typy/`.
 - Test: `tests/test_konfiguracja.py::test_t22_kreator_typu`
 
+## T23. Inne pisma z akt sprawy nie są odwołaniem ani przelewem
+
+```
+tests/dane/pisma/odpowiedz_na_odwolanie.txt  („wnoszę o oddalenie odwołania”, Zamawiający, Odwołujący, zarzut) -> {}
+tests/dane/pisma/przystapienie.txt           („zgłaszam przystąpienie do postępowania odwoławczego”)        -> {}
+tests/dane/pisma/swz.txt                     („wadium wpłaca się przelewem na rachunek bankowy”)             -> {}
+tests/dane/pisma/umowa.txt                   („zapłata nastąpi przelewem na rachunek bankowy Wykonawcy”)     -> {}
+tests/dane/pisma/faktura.txt                 („Sposób płatności: przelew”, „Nr rachunku”)                    -> {}
+tests/dane/pisma/wezwanie_kio.txt            („wzywa Odwołującego do uzupełnienia wpisu … przelewem”)        -> {}
+```
+
+- Źródło: zbiór testowy to „realne sprawy odwoławcze”; w aktach sprawy są też pisma, których nie ma w danych treningowych. Przed zmianą 6 z tych 6 pism dostawało typ (odwołanie albo przelew), więc JSON z wartościami zamiast `{}`.
+- Reguły według treści, nie według tych plików: odwołanie nie wnosi o oddalenie odwołania i nie jest przystąpieniem; potwierdzenie przelewu zawsze podaje nadawcę (etykiety pola `z_rachunku`). Dokumenty UZP bez zmian (T1, T2, T8, T9).
+- Teksty pism napisane na wzór prawdziwych (krótkie fragmenty), bo prawdziwych pism z akt KIO nie ma w danych.
+- Test: `tests/test_konfiguracja.py::test_t23_inne_pisma_z_akt`
+
 ## Pomiar jakości (to nie jest test)
 
 `tools/ocena_f1.py` przepuszcza wszystkie 60 spraw treningowych przez CLI i liczy F1 według ADR-0003. Przykładowy wynik:

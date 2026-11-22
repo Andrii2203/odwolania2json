@@ -118,7 +118,9 @@ narzedzia:
 etapy: {kontekst_sprawy: true}
 
 # Słowa, po których dokument nie jest żadnym z typów (wyrok KIO, ogłoszenie TED). ADR-0002.
-wykluczenia: [orzeka, oficjalna nazwa, see the notice]
+# Pisma z akt sprawy (T23): odwołanie nie wnosi o oddalenie odwołania; odpowiedź na odwołanie; przystąpienie
+# („zgłaszam przystąpienie do postępowania”; pełnomocnictwo pisze „zgłoszenia przystąpienia”, więc go nie wyklucza).
+wykluczenia: [orzeka, oficjalna nazwa, see the notice, o oddalenie odwołania, odpowiedź na odwołanie, przystąpienie do postępowania]
 
 # Nazwy miesięcy w dopełniaczu, w kolejności od stycznia.
 miesiace: [stycznia, lutego, marca, kwietnia, maja, czerwca, lipca, sierpnia, września, października, listopada, grudnia]

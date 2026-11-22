@@ -1,6 +1,6 @@
 # Stan
 
-Aktualizacja: 2026-11-22 03:30, Claude (nowy plan: test VM, obce poza TED, mianownik, bramka). Następny czat zaczyna od „Plan” niżej.
+Aktualizacja: 2026-11-22 05:45, Claude (plan 1–5 zrobione: test VM, inne pisma z akt, mianownik, sklejone linie, dokumenty). Następny czat zaczyna od „Plan” niżej.
 
 ## Zrobione
 
@@ -21,6 +21,7 @@ Aktualizacja: 2026-11-22 03:30, Claude (nowy plan: test VM, obce poza TED, miano
 - Pomiar na nowych dokumentach (ADR-0011, 21.11 noc): `tools/warianty.py` 4673 warianty dokumentów treningowych, **F1 0.9559**; najsłabsze: etykieta „Odwołujący:” zapisana inaczej (0.755, także „ODWOŁUJĄCY:”), `laczenie_linii` (0.834), „Tytuł przelewu” -> „Tytuł operacji” (0.833), „Zamawiający:” inaczej (0.890), „Data operacji” -> „Data” (0.902). Obce: `tools/pobierz_obce.py` 160 ogłoszeń TED, **0/160 z JSON**.
 - Noc 21/22.11: obcy, pusty, uszkodzony PDF -> `{}` (ADR-0013); rachunek z „PL” jak w dokumencie (ADR-0014, 48/60 przelewów ma „PL”); nagłówki stron bez wielkości liter („ODWOŁUJĄCY:” 0.755 -> 1.000); dziennik `--wyjasnij` i tabela w GUI (T12); bramka `utnij` dla nazw (ADR-0015); etykiety banków dla tytułu przelewu („Tytuł operacji” 0.833 -> 0.995); kontekst sprawy (ADR-0016). Warianty **F1 0.9798** (było 0.9559), skany **0.9462** (było 0.9396), treningowe 0.9990 bez zmian.
 - Porządki 21.11 (ADR-0009 pkt 9): znaki-reguły z kodu do `ustawienia.yaml` (`obcinane_po_bramce`, `separatory_dziesietne`, `ROZDZIELNIK_CYFR`); bez dubli: `dokument_z_tekstu` i `kontekst_sprawy` w `pipeline.py` wspólne dla CLI, GUI i `tools/warianty.py`; `miara_f1`, `typy_wzorow`, `pole_ogolne` raz, w `tools/ocena_f1.py`. Wyniki bez zmian (treningowe 0.9990, warianty 0.9798, obce 0/160).
+- 22.11 rano: test na VM jak UZP i kod wyjścia 0 (T7); inne pisma z akt -> `{}` (T23, ADR-0023); mianownik przez Morfeusz2 (T24, ADR-0024); sklejone linie (T25, ADR-0025). Wyniki: treningowe 0.9990, skany 0.9508, warianty **0.9870**.
 - GLiNER2 sprawdzony i odrzucony: F1 0.551 wobec 0.999 reguł, odwołanie 14,8 s (`docs/badania/gliner2.md`).
 - Wektory etykiet (etap 6) zmierzone w ślepym teście poza repozytorium (`docs/badania/wektory-etykiet.md`): Test 1 (1 etykieta/pole w `przelew.yaml`, wycięte 46 synonimów) F1 **0.3900 -> 0.6486** (`multilingual-e5-small` CPU ONNX, 0,45 s) i **0.7132** (OVHcloud `bge-m3`); Test 2 (100 nowych ślepych wariantów etykiet, 5 210 dokumentów, zamrożony YAML) F1 **0.9270 -> 0.9624** (`multilingual-e5-small`, czysty czas ONNX 0,98 s) i **0.9634** (OVHcloud `bge-m3`).
 - Czas (ten komputer, 16 wątków): cyfrowa sprawa 3 dokumenty 0,4 s; skany ok. 4 s na stronę (odwołanie 5 stron ok. 20 s). JSON zapisywany zaraz po każdym dokumencie. Ryzyko: wiele skanów na słabym komputerze.
@@ -58,7 +59,7 @@ Plan od 22.11 03:30 (połączony nocny plan etapów z planem VM; punkty nocnego 
 | 2 | Claude | **zrobione** (T23, ADR-0023: odpowiedź na odwołanie, przystąpienie, SWZ, umowa, faktura, wezwanie -> `{}`; 476 prawdziwych bez zmian) Obce dokumenty poza TED (nocny plan, pkt 9): wyroki KIO, faktury, ogłoszenia BZP -> `{}` | wyrok KIO ma „Odwołujący”, „Zamawiający”, „odwołanie”: ryzyko JSON zamiast `{}` |
 | 3 | Claude | **zrobione** (T24, ADR-0024: `format: mianownik`, Morfeusz2 BSD; „adwokatowi”, „radcy prawnemu”; F1 bez zmian) Mianownik imion i nazwisk (nocny plan, pkt 7): reguły albo Morfeusz2 | wymaganie UZP; w danych treningowych odmian nie ma, F1 tego nie pokazuje |
 | 4 | Claude | **zrobione** (T25, ADR-0025: podpisujący i nagłówki stron w sklejonych liniach, `nowa_linia`; warianty 0.9798 -> 0.9870, treningowe 0.9990 i skany 0.9508 bez zmian) Bramka w środku linii (nocny plan, pkt 3): adres, „KRS:”, e-mail za wartością | `laczenie_linii` 0.851, najsłabszy wariant |
-| 5 | Claude | Dokumenty zgodne ze stanem (`docs/kryteria.md`: nieaktualne „brak instrukcji dla jury”, „plan, pkt 7”), STAN | porządek |
+| 5 | Claude | **zrobione** Dokumenty zgodne ze stanem (`docs/kryteria.md`: nieaktualne „brak instrukcji dla jury”, „plan, pkt 7”), STAN | porządek |
 | 6 | Claude | GUI przyjazne dla użytkownika (na końcu) | prezentacja |
 | 7 | [Argon] | Prezentacja PDF <= 10 MB wg ADR-0006 | |
 

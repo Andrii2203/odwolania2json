@@ -96,7 +96,7 @@ Miara: F1 po polach JSON, tak jak u UZP (`tools/ocena_f1.py`, `docs/testy.md`).
 |---|---|
 | 60 spraw treningowych UZP (180 dokumentów) | 0.9990 |
 | 30 skanów UZP | 0.9508 |
-| 4673 warianty dokumentów treningowych (inne wartości, daty, etykiety, łamanie linii; `tools/warianty.py`) | 0.9798 |
+| 4673 warianty dokumentów treningowych (inne wartości, daty, etykiety, łamanie i sklejanie linii; `tools/warianty.py`) | 0.9870 |
 | Nowy typ z samego YAML: 188 ogłoszeń TED, których reguły nie widziały | 0.9902 |
 | 250 obcych dokumentów (ogłoszenia TED) | wszystkie dają `{}` |
 

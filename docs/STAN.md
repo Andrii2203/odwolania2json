@@ -1,6 +1,6 @@
 # Stan
 
-Aktualizacja: 2026-11-22 09:05, Claude (pkt 8: ostatni test na VM, F1 0.9887, obce `{}`; liczby i duble: w kodzie brak, `gui.bat` bierze `PORT_GUI`; krótka prezentacja `docs/prezentacja_krotka.pdf`, 9 slajdów, do zgłoszenia w HackTribe; GUI na VM: cron co 5 min uruchamia je ponownie, jeśli padło; w GUI i README „tylko .pdf, skan też jako .pdf”; zgłoszenie: użytkownik sam uzupełnia formularz HackTribe „Edit” -> „Save” do 11:00); wcześniej 07:55 Argon (pkt 7: `docs/prezentacja.pdf` 530 KB i `docs/prezentacja.html`, podglądy z zakreślaczem, rozwiązania zewnętrzne wg Regulaminu); wcześniej 06:45 Claude (pkt 6: GUI i kreator z przykładu, zakreślacz w podglądzie, faktura jako przykład, ikony Material; T26, T27, ADR-0026). Dalej: plan zrobiony; po zmianie kodu powtórzyć pkt 8 przed 10:00. Następny czat zaczyna od „Plan” niżej.
+Aktualizacja: 2026-11-22 09:45, Claude (limit UZP 60 min na 150 PDF: `CZAS_OCR_S` 3300, ADR-0018; README, kryteria, ADR-0006 zgodne ze stanem; pkt 8: ostatni test na VM, F1 0.9887, obce `{}`; liczby i duble: w kodzie brak, `gui.bat` bierze `PORT_GUI`; krótka prezentacja `docs/prezentacja_krotka.pdf`, 9 slajdów, do zgłoszenia w HackTribe; GUI na VM: cron co 5 min uruchamia je ponownie, jeśli padło; w GUI i README „tylko .pdf, skan też jako .pdf”; zgłoszenie: użytkownik sam uzupełnia formularz HackTribe „Edit” -> „Save” do 11:00); wcześniej 07:55 Argon (pkt 7: `docs/prezentacja.pdf` 530 KB i `docs/prezentacja.html`, podglądy z zakreślaczem, rozwiązania zewnętrzne wg Regulaminu); wcześniej 06:45 Claude (pkt 6: GUI i kreator z przykładu, zakreślacz w podglądzie, faktura jako przykład, ikony Material; T26, T27, ADR-0026). Dalej: plan zrobiony; po zmianie kodu powtórzyć pkt 8 przed 10:00. Następny czat zaczyna od „Plan” niżej.
 
 ## Zrobione
 
@@ -69,7 +69,7 @@ Uwagi 22.11 w nocy: na 2 rdzeniach z 2 wątkami OCR odwołanie (5 stron) 23 s, p
 
 Decyzje użytkownika 22.11 w nocy: kreatora typu nie rozbudowujemy (kilka przykładów, wykrywanie etykiet z dokumentu, podpowiedzi w polach); znane słabe strony: puste pola bez przykładów, „wspólne wykluczenia” to żargon, nie wiadomo, co wpisać w tabeli. LLM nie używamy (ADR-0022).
 
-Odłożone: wektory etykiet (etap 6, `docs/badania/wektory-etykiet.md`): na 2 vCPU z limitem czasu i bez zysku na znanych etykietach ryzyko większe niż zysk; opis w prezentacji. Słownik sjp.pl, Morfeusz. Przybliżone dopasowanie etykiet OCR (`RapidFuzz`, hipoteza 7 w `docs/badania/hipotezy-70-podejsc.md`, plik poza git): zmienia ekstrakcję tuż przed oddaniem, ryzyko dla F1.
+Odłożone: wektory etykiet (etap 6, `docs/badania/wektory-etykiet.md`): na 2 vCPU z limitem czasu i bez zysku na znanych etykietach ryzyko większe niż zysk; opis w `docs/badania/wektory-etykiet.md` (w krótkiej prezentacji go nie ma). Słownik sjp.pl, Morfeusz. Przybliżone dopasowanie etykiet OCR (`RapidFuzz`, hipoteza 7 w `docs/badania/hipotezy-70-podejsc.md`, plik poza git): zmienia ekstrakcję tuż przed oddaniem, ryzyko dla F1.
 
 ## Otwarte pytania
 

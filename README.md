@@ -100,8 +100,9 @@ Miara: F1 po polach JSON, tak jak u UZP (`tools/ocena_f1.py`, `docs/testy.md`).
 | 4673 warianty dokumentów treningowych (inne wartości, daty, etykiety, łamanie i sklejanie linii; `tools/warianty.py`) | 0.9870 |
 | Nowy typ z samego YAML: 188 ogłoszeń TED, których reguły nie widziały | 0.9902 |
 | 250 obcych dokumentów (ogłoszenia TED) | wszystkie dają `{}` |
+| 12 negatywnych przykładów UZP (`dane/negatywne`) | wszystkie dają `{}` |
 
-Czas: 226 PDF z danych UZP (w tym 30 skanów) w ok. 4 min na Ubuntu 24.04 z 4 vCPU (CI). Dokument cyfrowy to ułamek sekundy, strona skanu kilka sekund.
+Czas: 226 PDF z danych UZP (w tym 30 skanów) w ok. 4 min na Ubuntu 24.04 z 4 vCPU (CI); na maszynie UZP (2 vCPU) 50 PDF (w tym 6 skanów) w 1 min 48 s. Dokument cyfrowy to ułamek sekundy, strona skanu kilka sekund.
 
 ## Dla zespołu
 

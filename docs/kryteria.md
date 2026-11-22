@@ -1,8 +1,8 @@
-# Za co są punkty i co mamy (2026-11-22, 05:40)
+# Za co są punkty i co mamy (2026-11-22, 09:45)
 
 Źródła: `data/uzp/README.md` (UZP), Regulamin i „Pełna treść zadania” (`docs/UZP/`), FAQ 1.0, Discord.
 
-Dokumenty UZP różnią się w finale: Regulamin (§ 2) i README: F1 50%, elastyczność 50%; „Pełna treść zadania” (pkt 8): F1 50%, elastyczność 30%, architektura i jakość techniczna 20% (przejrzystość, modułowość, utrzymanie, dokumentacja). Regulamin: ocena finału na podstawie opisu architektury, kodu i prezentacji; rozwiązania zewnętrzne trzeba wskazać w prezentacji.
+Dokumenty UZP różnią się w finale: Regulamin (§ 2) i README: F1 50%, elastyczność 50%; „Pełna treść zadania” (pkt 8): F1 50%, elastyczność 30%, architektura i jakość techniczna 20% (przejrzystość, modułowość, utrzymanie, dokumentacja). Regulamin: ocena finału na podstawie opisu architektury, kodu i prezentacji; rozwiązania zewnętrzne trzeba wskazać w prezentacji (mamy: slajd 8 w `docs/prezentacja_krotka.pdf`).
 
 ## Ocena
 
@@ -30,7 +30,7 @@ Dokumenty UZP różnią się w finale: Regulamin (§ 2) i README: F1 50%, elasty
 | Obcy dokument: plik JSON z `{}` (Discord UZP) | tak, także pusty i uszkodzony PDF (T2, T7, ADR-0013) oraz inne pisma z akt: odpowiedź na odwołanie, przystąpienie, SWZ, umowa, faktura (T23, ADR-0023) |
 | LLM tylko przez API firmy z polityką prywatności, serwer w UE/EOG; klucz w zgłoszeniu | nie używamy LLM (ADR-0022) |
 | Rachunek jak w dokumencie, z kodem kraju, bez spacji (Discord UZP) | tak (T11, T15, ADR-0014) |
-| 150 PDF w 60 min (22.11 wydłużone z 45) na maszynie UZP (2 vCPU, `data/uzp/VM.md`) | na maszynie UZP 226 PDF (w tym 30 skanów) w 5 min 36 s; test jak UZP (z `sudo`, po restarcie): 52 PDF w 104 s, kod wyjścia 0; JSON zaraz po każdym dokumencie, limit OCR, 3 pierwsze strony skanu i ostatnia (ADR-0018) |
+| 150 PDF w 60 min (22.11 wydłużone z 45) na maszynie UZP (2 vCPU, `data/uzp/VM.md`) | na maszynie UZP 226 PDF (w tym 30 skanów) w 5 min 36 s; test jak UZP (z `sudo`, po restarcie): 52 PDF w 104 s, kod wyjścia 0; ostatni test 22.11 08:10: 50 PDF (w tym 6 skanów) w 1 min 48 s; JSON zaraz po każdym dokumencie, limit OCR, 3 pierwsze strony skanu i ostatnia (ADR-0018) |
 
 ## Zgłoszenie
 
@@ -40,6 +40,7 @@ Dokumenty UZP różnią się w finale: Regulamin (§ 2) i README: F1 50%, elasty
 | Link do GitHub (działający prototyp) | repozytorium publiczne; rozwiązanie zainstalowane na maszynie UZP (`/opt/solution`, ADR-0017) |
 | Opcjonalnie: dokumentacja techniczna z opisem LLM | `README.md` (bez LLM; OCR lokalnie), ADR, `docs/` |
 | Opcjonalnie: wyniki własnych testów jakości | tabela „Jakość” w `README.md`; `tools/ocena_f1.py`, `tools/warianty.py`; obce TED: 250/250 dają `{}` |
+| Prezentacja (HackTribe: PDF do 10 MB) | `docs/prezentacja_krotka.pdf`, 9 slajdów; formularz HackTribe uzupełniony i zapisany 22.11 przed 10:00 |
 
 ## Po wygranej (Regulamin § 3)
 

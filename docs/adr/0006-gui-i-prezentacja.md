@@ -17,7 +17,7 @@ Oba punkty są w planie z wykonawcą i terminem (`docs/STAN.md`), a nie „jeśl
    - GUI wywołuje tę samą funkcję `przetworz()` z `odwolania2json/pipeline.py` co CLI; logika jest jedna.
    - Przykład ekranu: po lewej strona `pelnomocnictwo.pdf`, po prawej `{"pelnomocnicy": [{"imie_nazwisko": "Krystyna Mazowiecka", …}]}`.
    - Później: przy każdym polu fragment tekstu, z którego pochodzi wartość.
-2. Prezentacja (PDF do 10 MB): problem, jak działa (na przykładzie), F1 na danych treningowych, jak dodać nowy typ przez YAML, technologie.
+2. Prezentacja (PDF do 10 MB): problem, jak działa (na przykładzie), F1 na danych treningowych, jak dodać nowy typ przez YAML, technologie. Zrobione: `docs/prezentacja_krotka.pdf` (9 slajdów, jedna myśl na slajd; źródło `docs/prezentacja_krotka.html`).
 
 ## Konsekwencje
 

@@ -31,7 +31,8 @@ def wczytaj_typy(config: Path = KONFIG) -> list[dict]:
         t["rozdzielnik_cyfr"] = ust["wzorce"]["ROZDZIELNIK_CYFR"]
         wspolne = ust["wykluczenia"] if t.get("wspolne_wykluczenia", True) else []
         t["wykluczenia"] = wspolne + t.get("wykluczenia", [])
-        przygotuj(t.setdefault("pola", {}), ust, t.get("wzorce", {}))
+        kompiluj = przygotuj(t.setdefault("pola", {}), ust, t.get("wzorce", {}))
+        t["_nowa_linia"] = [kompiluj(w) for w in t.get("nowa_linia", [])]
     return typy
 
 
@@ -75,6 +76,8 @@ def klasyfikuj(tekst: str, typy: list[dict], ust: dict) -> dict | None:
 
 def wyciagnij(tekst: str, typ: dict, dziennik: list | None = None) -> dict:
     wynik, zamkniete = pusty(typ["szablon"]), set()
+    for wzorzec in typ["_nowa_linia"]:
+        tekst = wzorzec.sub("\n", tekst)
     for sciezka, spec in typ["pola"].items():
         wypelnij(wynik, typ["szablon"], sciezka, spec, tekst, zamkniete, dziennik)
     return wynik

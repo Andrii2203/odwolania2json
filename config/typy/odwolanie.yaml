@@ -3,6 +3,9 @@ opis: Odwołanie do KIO
 znaczniki: [odwołujący, zarzut, wnoszę, zamawiający]
 # Wyrok KIO (przewodniczący); pismo strony, która przystąpiła do postępowania.
 wykluczenia: [przewodniczący, przystępując]
+# Nagłówek strony albo początek treści w środku linii (dwie kolumny, sklejone linie) idzie do nowej linii,
+# żeby sekcje stron działały jak zwykle. W znanych odwołaniach te słowa w środku linii nie występują.
+nowa_linia: ['(?<=\S)[ \t]+(?=(?:Odwołujący|ODWOŁUJĄCY|Zamawiający|ZAMAWIAJĄCY)(?:[ \t]*\([^)\n]*\))?:|Działając\s+w\s+imieniu|ODWOŁANIE|Wykonawca\s+wybrany)']
 szablon:
   OdwolanieKIO: {data: null, czynnosc_dzien: null, czynnosc_powod_id: null, czynnosc_opis: null,
     miejscowosc: null}

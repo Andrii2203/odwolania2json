@@ -1,7 +1,8 @@
 import json
+import re
 import pytest
 
-from odwolania2json.pipeline import przetworz, uzupelnij_sprawe, ustawienia, wczytaj_typy, wyciagnij
+from odwolania2json.pipeline import przetworz, tekst_pdf, uzupelnij_sprawe, ustawienia, wczytaj_typy, wyciagnij
 from tools.ocena_f1 import DANE, bez_prefiksu
 
 pytestmark = pytest.mark.skipif(not DANE.exists(), reason="brak data/uzp — zob. AGENTS.md")
@@ -102,3 +103,15 @@ def test_t24_mianownik():
     dane = wyciagnij(tekst, typ)
 
     assert [p["imie_nazwisko"] for p in dane["pelnomocnicy"]] == ["Paweł Wróbel", "Anna Nowak-Kowalska"]
+
+
+def test_t25_naglowek_w_srodku_linii():
+    typ = next(t for t in wczytaj_typy() if t["typ"] == "odwolanie")
+    tekst = tekst_pdf(DANE / "przyklad_01" / "odwolanie.pdf", ustawienia())
+    sklejony = re.sub(r"\n(?=Odwołujący:|Zamawiający:|Działając w imieniu)", " ", tekst)
+    wzor = json.loads((DANE / "przyklad_01" / "odwolanie.json").read_text(encoding="utf-8"))
+
+    dane = wyciagnij(sklejony, typ)
+
+    assert sklejony != tekst
+    assert (dane["Odwolujacy"], dane["Zamawiajacy"]) == (wzor["Odwolujacy"], wzor["Zamawiajacy"])

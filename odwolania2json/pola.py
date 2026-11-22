@@ -91,7 +91,7 @@ def _wartosc(format_, slownik: dict | None, m: re.Match, surowe: str, stala: str
     return wartosc if slownik is None else slownik.get(wartosc)
 
 
-def przygotuj(pola: dict, ust: dict, fragmenty_typu: dict) -> None:
+def przygotuj(pola: dict, ust: dict, fragmenty_typu: dict):
     wspolne = {**{k: str(v) for k, v in ust["liczby"].items()}, **ust["wzorce"], **fragmenty_typu,
                "MIESIAC": "|".join(ust["miesiace"])}
     warianty = {**ust["warianty_liter"], **{k.upper(): v.upper() for k, v in ust["warianty_liter"].items()}}
@@ -112,6 +112,7 @@ def przygotuj(pola: dict, ust: dict, fragmenty_typu: dict) -> None:
         spec["_obcinane_po_bramce"] = ust["obcinane_po_bramce"]
         format_ = partial(FORMATY[spec["format"]], ust) if "format" in spec else str
         spec["_wartosc"] = partial(_wartosc, format_, ust["slowniki"][spec["slownik"]] if "slownik" in spec else None)
+    return partial(_rozwin, fragmenty=wspolne, warianty=warianty)
 
 
 def pusty(ksztalt):

@@ -43,8 +43,7 @@ pola:
     format: mianownik
     podzial: '{POCZATEK_LINII}W imieniu'
     wzorce:
-    - '{POCZATEK_LINII}({OSOBA})[ \t]*\n[ \t]*{FUNKCJA}'
-    - '({OSOBA})\s*[-–]\s*{FUNKCJA}'
+    - '({OSOBA})(?:\s*[-–]\s*|\s+){FUNKCJA}'
     - *podpisany
   pelnomocnicy[].imie_nazwisko:
     format: mianownik

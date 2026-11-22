@@ -52,7 +52,8 @@ Nowy typ to jeden plik YAML. Kod się nie zmienia. Pliku nie trzeba pisać ręcz
 4. Dla każdego pola z szablonu w `pola`:
    - `etykiety`: jak pole jest podpisane w dokumencie (wielkość liter i odstępy bez znaczenia);
    - `wzorce`: jak wygląda wartość; gotowe fragmenty z `config/ustawienia.yaml`: `{DATA}`, `{KWOTA}`, `{RACHUNEK}`, `{NIP_Z_ETYKIETA}`, `{FIRMA}`, `{OSOBA}`, `{SYGNATURA}`, `{TEKST}`; własne fragmenty typu w `wzorce` pliku typu;
-   - opcjonalnie: `format` (`data`, `liczba`, `cyfry`, `tekst`, `bez_spacji`), `sekcja` (w której części dokumentu szukać), `utnij` (gdzie wartość się kończy), `slownik`, `kontekst` (pole z innego dokumentu sprawy).
+   - opcjonalnie: `format` (`data`, `liczba`, `cyfry`, `tekst`, `bez_spacji`, `mianownik`), `sekcja` (w której części dokumentu szukać), `utnij` (gdzie wartość się kończy), `slownik`, `kontekst` (pole z innego dokumentu sprawy).
+   - w typie opcjonalnie `nowa_linia`: wzorce miejsc, w których przed wyciąganiem pól wstawiana jest nowa linia (nagłówek w środku linii, ADR-0025).
 5. Uruchom i sprawdź, skąd wzięła się każda wartość: `--wyjasnij` w CLI albo tabela w GUI. W GUI przykład TED włącza się przełącznikiem w panelu bocznym.
 
 Fragment przykładu:

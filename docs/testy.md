@@ -336,6 +336,18 @@ tests/dane/pisma/wezwanie_kio.txt            („wzywa Odwołującego do uzupeł
 - `format: mianownik` w polach z imieniem i nazwiskiem: Morfeusz2 (słownik SGJP) podaje formę podstawową; rodzaj i przypadek wspólne dla wszystkich słów („Aleksandrze Marciniak” -> „Aleksandra Marciniak”). Słowo spoza słownika zostaje bez zmian. Tytuł pełnomocnika także w celowniku („adwokatowi”, „radcy prawnemu”).
 - Test: `tests/test_pola.py::test_t24_mianownik`
 
+## T25. Nagłówek strony w środku linii
+
+```
+przyklad_01/odwolanie.pdf, linie sklejone przed nagłówkami (dwie kolumny, inny PDF):
+„… 2026 r. Odwołujący: Belmoria … Zamawiający: Aurelink Automatyka S.A. … Działając w imieniu …”
+  -> Odwolujacy i Zamawiajacy jak we wzorcu (przyklad_01/odwolanie.json)
+```
+
+- Źródło: sekcje stron zaczynają się od nagłówka na początku linii. Pomiar `tools/warianty.py` (sklejone linie) gubił całe sekcje Zamawiającego i Odwołującego. W danych UZP „Odwołujący:”, „Zamawiający:”, „Działając w imieniu”, „ODWOŁANIE”, „Wykonawca wybrany” nie występują w środku linii (0 na 70 odwołań), więc nowa linia przed nimi nie zmienia znanych dokumentów.
+- `nowa_linia` w pliku typu: wzorce miejsc, w których przed wyciąganiem pól wstawiana jest nowa linia.
+- Test: `tests/test_pola.py::test_t25_naglowek_w_srodku_linii`
+
 ## Pomiar jakości (to nie jest test)
 
 `tools/ocena_f1.py` przepuszcza wszystkie 60 spraw treningowych przez CLI i liczy F1 według ADR-0003. Przykładowy wynik:

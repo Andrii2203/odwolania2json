@@ -120,6 +120,10 @@ def trafienia(tekst: str, spec: dict) -> list[tuple[int, object, str, str]]:
             surowe = surowe[:stop.start()].rstrip(spec["_obcinane_po_bramce"])
             opis = f"{opis}; bramka: ucięte przed „{stop[0].strip()}”"
         wartosc = spec["_wartosc"](m, surowe, stala)
+        # ta sama wartość innym zapisem („999-509-02-81” = „9995090281”); stała może się powtarzać (T18)
+        if stala is None and (wartosc,) in widziane:
+            continue
+        widziane.add((wartosc,))
         if wartosc not in (None, "") and str(wartosc).lower() not in spec["_stopy"]:
             wyniki.append((m.start(), wartosc, opis, " ".join(m[0].split())))
     return wyniki

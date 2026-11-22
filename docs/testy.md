@@ -246,6 +246,17 @@ CZAS_OCR_S = 0, skan przelewu  ->  {} (bez OCR nie ma tekstu), dziennik: „OCR 
 - Źródło: README UZP: 150 PDF w 45 min na maszynie z 2 vCPU. Skan odwołania (5 stron) to dziesiątki sekund; bez limitu wiele skanów może przekroczyć czas całego zbioru. PDF cyfrowe i tak zdążą (setne części sekundy).
 - Test: `tests/test_e2e.py::test_t17_limit_czasu`
 
+## T18. Ta sama wartość zapisana inaczej nie tworzy drugiego elementu listy
+
+```
+"Medicor Infrastruktura S.A. …, KRS: 9994354396, NIP: 9995090281 … udziela pełnomocnictwa …
+ Za Mocodawcę: … Medicor Infrastruktura S.A. … NIP 999-509-02-81"
+  -> mocodawca = [{… nip: "9995090281" …}]   (jeden, nie dwóch)
+```
+
+- Źródło: skan UZP `pelnomocnictwa/0002`: stopka powtarza NIP z myślnikami. Powtórzenie rozpoznajemy po wartości po `format` (`9995090281` = `999-509-02-81`), nie po zapisie w tekście. Stałe z `wartosc` (np. `typ: osoba_fizyczna`) dalej po zapisie: dwóch mocodawców może mieć ten sam typ.
+- Test: `tests/test_pola.py::test_t18_ta_sama_wartosc`
+
 ## Pomiar jakości (to nie jest test)
 
 `tools/ocena_f1.py` przepuszcza wszystkie 60 spraw treningowych przez CLI i liczy F1 według ADR-0003. Przykładowy wynik:

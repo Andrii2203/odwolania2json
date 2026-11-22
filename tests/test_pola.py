@@ -81,3 +81,14 @@ def test_t14_kontekst_sprawy():
     mocodawca = dokumenty[-1]["dane"]["mocodawca"][0]["data"]
     assert (mocodawca["nip"], mocodawca["krs"]) == ("9999284065", None)
     assert any("kontekst sprawy" in w["regula"] for w in dokumenty[-1]["dziennik"])
+
+
+def test_t18_ta_sama_wartosc():
+    typ = next(t for t in wczytaj_typy() if t["typ"] == "pelnomocnictwo")
+    tekst = ("PEŁNOMOCNICTWO\nMedicor Infrastruktura S.A. z siedzibą w Olsztynie, KRS: 9994354396, NIP: 9995090281, "
+             "REGON: 999368597,\nudziela pełnomocnictwa:\n1. Mateusz Wierzbicki – adwokat\nZa Mocodawcę:\n"
+             "Grzegorz Jaworski - Członek Zarządu\nMedicor Infrastruktura S.A.\nNIP 999-509-02-81\n")
+
+    dane = wyciagnij(tekst, typ)
+
+    assert [m["data"]["nip"] for m in dane["mocodawca"]] == ["9995090281"]

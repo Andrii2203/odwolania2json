@@ -8,7 +8,7 @@ Aktualizacja: 2026-11-22 01:30, Claude (plan VM: 2-7 zrobione, czeka instalacja 
 - `AGENTS.md` (+ `CLAUDE.md`, `GEMINI.md`), ADR-0001..0010, `docs/testy.md` (T1–T10).
 - Potok: CLI `input/ -> output/`, klasyfikacja z YAML (`znaczniki`, `wykluczenia`), pola z YAML (`etykiety`, `wzorce`, `format`, `sekcja`, `slownik`, `podzial`), `przetworz_wszystkie()` wspólne dla CLI, GUI i `tools/ocena_f1.py`.
 - Klasyfikacja: 180/180 dokumentów treningowych poprawnie, 13/13 obcych dokumentów UZP bez JSON.
-- Wynik: dane treningowe (60 spraw) **F1 0.9990**; skany UZP (30) **F1 0.9396** (rano 0.8696). Uwaga: reguły są dopasowane do obu zbiorów, więc to nie jest ocena na nowych dokumentach (zob. „Otwarte pytania”).
+- Wynik: dane treningowe (60 spraw) **F1 0.9990**; skany UZP (30) **F1 0.9508** (21.11 rano 0.8696). Uwaga: reguły są dopasowane do obu zbiorów, więc to nie jest ocena na nowych dokumentach (zob. „Otwarte pytania”).
 - ADR-0009: jeden mechanizm pól, wszystkie liczby w `config/ustawienia.yaml`; komentarz podaje regułę wyboru i polecenie pomiaru, bez wyników (pkt 8). Pilnuje T5. Ponowny pomiar 21.11 wieczorem: wszystkie 7 liczb z pomiaru (`PROG`, `OKNO_WARTOSCI`, `OKNO_TEKSTU`, `ODSTEP_ETYKIETY`, `DLUGOSC_ID`, `OCR_DPI`, `TOLERANCJA_WIERSZA`) nadal spełnia swoją regułę.
 - Progi testów: `MIN_F1 = 0.9985` (T8: przepuszcza jedno błędne pole, blokuje dwa), `MIN_F1_SKANY = 0.96` (T9: obecnie 0.9677 na 3 skanach).
 - Porządki: wspólne fragmenty `NIP_Z_ETYKIETA`, `KRS_Z_ETYKIETA`, `REGON_Z_ETYKIETA`, `PESEL_Z_ETYKIETA`, `PRAWNIK`, `PUNKT_ZAMAWIAJACEGO`, `NAGLOWEK_ODWOLUJACEGO`; ścieżki `UZP`, `DANE` tylko w `tools/ocena_f1.py`; `start.bat`/`gui.bat` najpierw Python 3.13.
@@ -55,11 +55,11 @@ UZP ocenia na swojej maszynie wirtualnej: Ubuntu 24.04, 2 vCPU, 16 GB, bez GPU, 
 | 3 | Claude | **zrobione** (ADR-0018, T16, T17, T19) Czas na 2 vCPU: pomiar skanów; straż czasu (liczba w `ustawienia.yaml`): po przekroczeniu reszta bez OCR; ewentualnie OCR tylko pierwszych stron, DPI (`tools/przeglad.py`) | 45 min na 150 PDF, nie wiemy, ile skanów |
 | 4 | Claude | **zrobione** (T15) Rachunek z dowolnym kodem kraju (IBAN), bez spacji (Discord) | F1 |
 | 5 | Claude | **częściowo** (NIP: ADR-0019, T18, skany 0.9508) Ten sam NIP z myślnikami i bez: jeden mocodawca; inne znane błędy skanów („Otwarte pytania” 5) | F1; skany najbliżej zbioru testowego |
-| 6 | Claude | **zrobione** (T21, `docs/przyklady/wezwanie.yaml`) `README.md`, „jak dodać nowy typ” | finał: 50% za konfigurację nowych typów |
+| 6 | Claude | **zrobione** (T21, ADR-0020: prawdziwe ogłoszenie TED zamiast wymyślonego wezwania, F1 0.9902 na 188 niewidzianych; przełącznik w GUI) `README.md`, „jak dodać nowy typ” | finał: 50% za konfigurację nowych typów |
 | 7 | Claude | **zrobione** (ADR-0006) GUI: pliki jako jedna sprawa (kontekst), cache, edycja JSON, pobieranie JSON i ZIP | prezentacja, przejrzystość |
 | 8 | [Argon] | Prezentacja PDF <= 10 MB wg ADR-0006 | |
 | 9 | Użytkownik | Repozytorium publiczne, `.env` poza git, nazwa zespołu jak w drafcie (Discord) | |
-| 10 | Claude + Użytkownik | Po każdej zmianie w `main`: na VM `git pull` i test (Claude ma dostęp kluczem `~/.ssh/hacknation_vm`, bez hasła `sudo`); próba z `sudo sh uruchom.sh` i po `sudo reboot` robi użytkownik. Końcowy test na VM dokładnie jak UZP (czyste `output/`, komenda z `RUN.md`, po restarcie), STAN | |
+| 10 | Claude + Użytkownik | Maszynę aktualizuje `tools/zapisz.sh` po każdym push (zgoda użytkownika 22.11; bez ręcznych testów, sprawdza CI); `sudo sh uruchom.sh` sprawdził użytkownik 22.11 (OK). Końcowy test na VM dokładnie jak UZP (czyste `output/`, komenda z `RUN.md`, po restarcie), STAN | |
 
 Uwagi 22.11 w nocy: na 2 rdzeniach z 2 wątkami OCR odwołanie (5 stron) 23 s, pełnomocnictwo i przelew ok. 4 s; z 16 wątkami na 2 rdzeniach 3 min (stąd wątki = rdzenie). CI Ubuntu 4 vCPU: 226 PDF UZP w 3 min 56 s. `.PDF` wielkimi (T20). Analiza Argona: `docs/badania/braki-i-ryzyka.md` (dalej do rozważenia: etykieta „w dniu” dla `data_operacji`, GUI na VM jako usługa na porcie 8080).
 

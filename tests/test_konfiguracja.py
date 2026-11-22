@@ -3,7 +3,10 @@ import json
 import re
 import shutil
 
-from odwolania2json.pipeline import KONFIG, ROOT, USTAWIENIA, przetworz_wszystkie, ustawienia, wczytaj_typy
+import yaml
+
+from odwolania2json.kreator import jako_yaml, sprobuj, typ_z_formularza
+from odwolania2json.pipeline import KONFIG, ROOT, USTAWIENIA, przetworz_wszystkie, tekst_pdf, ustawienia, wczytaj_typy
 
 KWANTYFIKATOR = re.compile(r"\{\d+(?:,\d*)?\}")
 
@@ -44,3 +47,19 @@ def test_t21_nowy_typ_z_yaml(tmp_path):
 
     assert z_nowym_typem == ("ogloszenie_ted", wzor)
     assert bez_nowego_typu is None
+
+
+def test_t22_kreator_typu():
+    pdf = ROOT / "tests" / "dane" / "ted" / "ogloszenie.pdf"
+    wzor = json.loads(pdf.with_suffix(".json").read_text(encoding="utf-8"))
+    pola = [{"pole": "OgloszenieTED.cpv", "etykiety": ["Główna klasyfikacja (cpv)"], "rodzaj": "numer / identyfikator"},
+            {"pole": "Nabywca.nazwa", "etykiety": ["Oficjalna nazwa"], "rodzaj": "tekst do końca linii"}]
+    typ = typ_z_formularza("ogloszenie", "Ogłoszenie TED", ["see the notice", "oficjalna nazwa", "nabywca"], pola,
+                           ustawienia()["kreator"]["rodzaje"], wspolne_wykluczenia=False)
+
+    tekst_yaml = jako_yaml(typ)
+    wynik = sprobuj(tekst_yaml, tekst_pdf(pdf, ustawienia()))
+
+    assert yaml.safe_load(tekst_yaml) == typ
+    assert (wynik["rozpoznany"], wynik["dane"]) == ("ogloszenie", {
+        "OgloszenieTED": {"cpv": wzor["OgloszenieTED"]["cpv"]}, "Nabywca": {"nazwa": wzor["Nabywca"]["nazwa"]}})

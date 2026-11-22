@@ -21,9 +21,6 @@ szablon:
 
 # Fragmenty tylko tego typu.
 wzorce:
-  # Wartość za „Etykieta:” do końca linii, z liniami dalej bez dwukropka (długa nazwa łamie się w PDF);
-  # nagłówek strony („100-2026 Page 2/8”) nie jest dalszą częścią wartości.
-  WARTOSC: '[ \t]*([^\n]+(?:\n(?![^\n]*:)(?![^\n]*\sPage\s)[^\n]+)*)'
   # Blok organizacji („ORG-0001”) z rolą „Nabywca” (pierwsza na liście bywa KIO).
   ORGANIZACJA_NABYWCY: 'ORG-\d+[ \t]*\n(?:(?!\S*ORG-\d+[ \t]*\n)[\s\S])*?Role\s+tej\s+organizacji:\s*Nabywca'
 
@@ -39,12 +36,12 @@ pola:
     wzorce: [':[ \t]*(\d+)']
   Nabywca.nazwa:
     etykiety: [oficjalna nazwa]
-    wzorce: [':{WARTOSC}']
+    wzorce: ['{WIERSZE_WARTOSCI}']
   Nabywca.numer_rejestracyjny:
     etykiety: [numer rejestracyjny]
-    wzorce: [':{WARTOSC}']
+    wzorce: ['{WIERSZE_WARTOSCI}']
     sekcja: '{ORGANIZACJA_NABYWCY}'
   Nabywca.miejscowosc:
     etykiety: [miejscowość]
-    wzorce: [':{WARTOSC}']
+    wzorce: ['{WIERSZE_WARTOSCI}']
     sekcja: '{ORGANIZACJA_NABYWCY}'

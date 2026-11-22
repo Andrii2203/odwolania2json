@@ -222,6 +222,11 @@ wzorce:
   # REGON: 9 cyfr albo 14 cyfr (jednostka lokalna), standard GUS.
   REGON: '\d{9}(?:\d{5})?(?!\d)'
   EMAIL: '[\w.+-]+@[\w-]+(?:\.[\w-]+)+'
+  # Wartość za etykietą do końca linii; dwukropek i odstępy przed nią pomijane (kreator typu).
+  DO_KONCA_LINII: '[ \t]*:?[ \t]*([^\n]+)'
+  # Jak DO_KONCA_LINII, z kolejnymi liniami bez dwukropka (długa nazwa łamie się w PDF);
+  # nagłówek strony („100-2026 Page 2/8”) nie jest dalszą częścią wartości.
+  WIERSZE_WARTOSCI: '[ \t]*:?[ \t]*([^\n]+(?:\n(?![^\n]*:)(?![^\n]*\sPage\s)[^\n]+)*)'
   # Sygnatura postępowania: od wielkiej litery, kończy się cyfrą (ZP.431.2026, MCLM/ZP/07/2026)
   # albo cyfrą i członem z wielkich liter (PN/58/2026/DOS, skany UZP).
   # Zawsze z separatorem „.”, „/” albo „-”: bez niego to śmieć OCR spod pieczęci („Z2”).
@@ -239,3 +244,22 @@ slowniki:
   tak_nie: {tak: 1, nie: 0}
   # data/uzp/oczekiwane-json/czynnosc_powod_id_dict.md.
   czynnosc_powod: {Decyzja o odrzuceniu oferty: 1, Ogłoszenie wyboru oferty: 2, Decyzja o wykluczeniu wykonawcy: 3, Publikacja specyfikacji warunków zamówienia (SWZ): 4, Modyfikacja treści SWZ: 5, Odpowiedzi/wyjaśnienia do SWZ: 6, Zaniechanie odrzucenia oferty: 7, Zaniechanie wykluczenia wykonawcy: 8, Decyzja o unieważnieniu postępowania: 9, Zaniechanie unieważnienia postępowania: 10, Opis przedmiotu zamówienia (OPZ): 11, Projektowane postanowienia umowy: 12}
+
+# Kreator nowego typu w GUI (T22): rodzaj pola -> wzorce, format i bramka. Użytkownik podaje tylko pole JSON,
+# etykietę z dokumentu i rodzaj z tej listy; wzorce to fragmenty z sekcji wzorce.
+kreator:
+  rodzaje:
+    tekst do końca linii: {wzorce: ['{DO_KONCA_LINII}']}
+    tekst w kilku liniach: {wzorce: ['{WIERSZE_WARTOSCI}']}
+    data: {wzorce: ['({DATA})'], format: data}
+    kwota: {wzorce: ['({KWOTA})'], format: liczba}
+    numer / identyfikator: {wzorce: ['({IDENTYFIKATOR})']}
+    sygnatura / znak sprawy: {wzorce: ['({SYGNATURA})']}
+    NIP: {wzorce: ['({NIP})'], format: cyfry}
+    REGON: {wzorce: ['({REGON})'], format: cyfry}
+    KRS: {wzorce: ['({KRS})'], format: cyfry}
+    PESEL: {wzorce: ['({PESEL})'], format: cyfry}
+    rachunek bankowy: {wzorce: ['({RACHUNEK})'], format: bez_spacji}
+    nazwa firmy: {wzorce: ['({FIRMA})'], utnij: ['{KONIEC_NAZWY}']}
+    imię i nazwisko: {wzorce: ['({OSOBA})']}
+    e-mail: {wzorce: ['({EMAIL})']}

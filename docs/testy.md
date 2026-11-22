@@ -293,6 +293,21 @@ tests/dane/ted/ogloszenie.pdf (ogłoszenie TED 100-2026, api.ted.europa.eu)
 - Pomiar (nie test): `tools/pobierz_obce.py`, potem `tools/ocena_f1.py --dane data/przyklad_ted/pomiar --config <config z przykładem>` (ADR-0020).
 - Test: `tests/test_konfiguracja.py::test_t21_nowy_typ_z_yaml`
 
+## T22. Kreator typu: tabela pól -> plik YAML, który działa
+
+```
+nazwa: ogloszenie, znaczniki: see the notice, oficjalna nazwa, nabywca; wspólne wykluczenia: nie
+| pole                  | etykieta                  | rodzaj                 |
+| OgloszenieTED.cpv     | Główna klasyfikacja (cpv) | numer / identyfikator  |
+| Nabywca.nazwa         | Oficjalna nazwa           | tekst do końca linii   |
+  -> YAML (bez wyrażeń regularnych: rodzaje z config/ustawienia.yaml, kreator.rodzaje)
+  -> na tests/dane/ted/ogloszenie.pdf: typ ogloszenie,
+     {"OgloszenieTED": {"cpv": "24111900"}, "Nabywca": {"nazwa": "Miejskie Przedsiębiorstwo Wodociągów i Kanalizacji w m. st. Warszawie S.A."}}
+```
+
+- Źródło: nowy typ ma dodać osoba bez programowania (finał: 50% oceny); pisanie wyrażeń regularnych to bariera. Użytkownik podaje pole JSON, etykietę z dokumentu i rodzaj z listy; GUI pokazuje wynik na przykładowym PDF i daje plik do `config/typy/`.
+- Test: `tests/test_konfiguracja.py::test_t22_kreator_typu`
+
 ## Pomiar jakości (to nie jest test)
 
 `tools/ocena_f1.py` przepuszcza wszystkie 60 spraw treningowych przez CLI i liczy F1 według ADR-0003. Przykładowy wynik:

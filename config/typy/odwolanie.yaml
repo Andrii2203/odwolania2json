@@ -111,14 +111,14 @@ pola:
   Odwolujacy[].pelnomocnik.imie_nazwisko:
     format: mianownik
     sekcja: *odwolujacy
-    wzorce: ['{PRAWNIK}']
+    wzorce: ['{PRAWNIK}', 'reprezentowan\w*\s+przez:?\s+({OSOBA})']
   Odwolujacy[].pelnomocnik.nazwa:
     utnij: ['{KONIEC_NAZWY}']
     sekcja: *odwolujacy
     wzorce: ['korespondenc\w*\s*:\s*([^,]+?)(?=\s*,|\s*\n\s*(?:ul|al|pl|os)\.)']
   Odwolujacy[].pelnomocnik.mail:
     sekcja: *odwolujacy
-    wzorce: ['korespondenc\w*[\s\S]*?({EMAIL})']
+    wzorce: ['korespondenc\w*[\s\S]*?({EMAIL})', '(?:doręczeń|reprezentowan\w*\s+przez)[\s\S]*?({EMAIL})']
 
   Zamawiajacy[].nazwa:
     utnij: ['{KONIEC_NAZWY}']
@@ -148,9 +148,11 @@ pola:
 
   ZamowieniePubliczne.tytul:
     # OCR czyta „ jako przecinek („pn. , Budowa sali …”, skany UZP).
-    wzorce: ['pn\.\s*[„,]?\s*([^”"]+)[”"]']
+    wzorce: ['pn\.\s*[„,]?\s*([^”"]+)[”"]', 'przedmiotem\s+jest:?\s*[„"]([^”"]+)[”"]', 'bpt\.\s+([^„”"]+?)\.\s']
   ZamowieniePubliczne.numer_postepowania:
-    wzorce: ['(?i:nr|numer)\s+referencyjn\w*(?:\s+sprawy)?\s*:?\s*({SYGNATURA})']
+    wzorce: ['(?i:nr|numer)\s+referencyjn\w*(?:\s+sprawy)?\s*:?\s*({SYGNATURA})',
+             '(?i:nr|znak)\s+postępowania(?:\s+u\s+Zamawiającego)?\s*:?\s*({SYGNATURA})',
+             '(?i:numer)\s+referencyjn\w*\s*:?\s*Postępowanie\s+nr\s+(\d+/\d+)']
   ZamowieniePubliczne.numer_bzp:
     wzorce: [{wzorzec: '{ETYKIETA_BZP}{BZP}', wartosc: '{rok}/BZP{nr}{korekta}'}]
   ZamowieniePubliczne.numer_ted:

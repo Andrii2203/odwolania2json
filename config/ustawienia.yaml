@@ -183,7 +183,7 @@ wzorce:
   POCZATEK_LINII: '^[ \t]*'
   # Bramka (etap 5, ADR-0015): tu kończy się nazwa, gdy dane strony są w jednej linii: adres (ul., al., pl., os.),
   # kod pocztowy NN-NNN (standard Poczty Polskiej), numer z etykietą, e-mail, telefon, reprezentacja, „(dalej”.
-  KONIEC_NAZWY: ',?\s+(?:ul|al|pl|os)\.\s|(?<!\d)\d\d-\d\d\d(?!\d)|,?\s+(?:KRS|NIP|REGON|PESEL)\b|\S+@\S+|,?\s+tel\.|,?\s+reprezentowan|\s\(dalej'
+  KONIEC_NAZWY: ',?\s+(?:ul|al|pl|os)\.\s|(?<!\d)\d\d-\d\d\d(?!\d)|,?\s+(?:KRS|NIP|REGON|PESEL)\b|\S+@\S+|,?\s+tel\.|,?\s+reprezentowan|\s\(dalej|,$'
   # Numer rachunku NRB: 26 cyfr (2 cyfry kontrolne + 24), drukowany w grupach po 4; przed nim kod kraju PL,
   # jeśli jest (IBAN). UZP: numer jak w dokumencie, z „PL” (ADR-0014). Albo IBAN innego kraju (ISO 13616):
   # kod kraju, 2 cyfry kontrolne, 11-30 znaków w grupach po 4, czyli 2-7 pełnych grup i reszta 1-3 znaki (T15).
@@ -222,7 +222,7 @@ wzorce:
   FORMA_PRAWNA: '(?i:S\.\s?A\.|sp\.\s?z\s?o\.\s?o\.|sp\.\s?k\.|sp\.\s?j\.|sp\.\s?p\.|S\.K\.A\.|spółka z ograniczoną odpowiedzialnością|spółka akcyjna|spółka jawna|spółka komandytowa)'
   FIRMA: '{SLOWO_FIRMY}(?:\s+{DALSZE_SLOWO_FIRMY})*\s+{FORMA_PRAWNA}(?:\s+{FORMA_PRAWNA})?'
   # Tytuł zawodowy pełnomocnika przed imieniem i nazwiskiem, także w celowniku („udzielam … adwokatowi”, T24).
-  TYTUL_PRAWNIKA: '(?:r\.\s?pr\.|adw\.|apl\.\s?adw\.|apl\.\s?radc\.|radca\s+prawny|radcy\s+prawnego|radcy\s+prawnemu|adwokat|adwokata|adwokatowi)'
+  TYTUL_PRAWNIKA: '(?:r\.\s?pr\.|adw\.|apl\.\s?adw\.|apl\.\s?radc\.|radca\s+prawny|radcy\s+prawnego|radcę\s+prawnego|radcy\s+prawnemu|adwokat|adwokata|adwokatowi)'
   # Pełnomocnik z tytułem („radca prawny Jan Kowalski”); grupa 1 to imię i nazwisko.
   PRAWNIK: '{TYTUL_PRAWNIKA}\s+({OSOBA})'
   # Nazwa miejscowości, także wieloczłonowa (Grabów Nadrzeczny, Bielsko-Biała).

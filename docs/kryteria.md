@@ -26,7 +26,7 @@
 | Brak wartości: `null`, niczego nie wymyślamy | tak |
 | Imiona i nazwiska w mianowniku | tak w danych treningowych; odmiany (np. „Mateuszowi Szymańskiemu”) nie zamieniamy jeszcze na mianownik: plan, pkt 7 w `STAN.md` |
 | Obcy dokument: plik JSON z `{}` (Discord UZP) | tak, także pusty i uszkodzony PDF (T2, T7, ADR-0013) |
-| LLM tylko przez API firmy z polityką prywatności, serwer w UE/EOG; klucz w zgłoszeniu | nie używamy LLM |
+| LLM tylko przez API firmy z polityką prywatności, serwer w UE/EOG; klucz w zgłoszeniu | nie używamy LLM (ADR-0022) |
 | Rachunek jak w dokumencie, z kodem kraju, bez spacji (Discord UZP) | tak (T11, T15, ADR-0014) |
 | 150 PDF w 45 min na maszynie UZP (2 vCPU, `data/uzp/VM.md`) | na maszynie UZP 226 PDF (w tym 30 skanów) w 5 min 36 s; JSON zaraz po każdym dokumencie, limit OCR, 3 pierwsze strony skanu i ostatnia (ADR-0018) |
 

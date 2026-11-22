@@ -16,7 +16,7 @@ Aktualizacja: 2026-11-22 03:00, Claude (VM, TED jako nowy typ, kreator typu w GU
 - Skany (21.11 noc), reguły ogólne (nowe układy, prawdopodobnie też w ukrytych PDF cyfrowych): konsorcjum z „(Lider Konsorcjum)” / „(Partner Konsorcjum)” za nazwą; osoba fizyczna „pod firmą”; stopka i pieczęć między „wobec:” a punktem; nazwa w dwóch liniach po „w”; „Szczegóły płatności”; etykieta w dwóch liniach komórki; data „20 04 2026”; `FIRMA` ze skrótem wielkimi („IT”) i „i”; funkcja podpisującego nie jest częścią nazwy; T10: etykieta innego pola nie jest wartością (nagłówek tabeli).
 - Skany, łatki OCR (tylko wpisane słowa, nie przyczyna): „odwolania”, „oplata”, „pelnomocnictwa”, „postepowania” bez polskich znaków, „Lódź”, „o” zamiast „0” w BZP, „Ñ”, „·” (`poprawki_ocr`).
 - Straże: pre-commit (testy, język polski), hooki Claude (TDD, stop), CI na Windows. Opis w `AGENTS.md`.
-- Klucz OVHcloud działa (`chat/completions`). LLM w programie nie jest używany.
+- Klucz OVHcloud działa (`chat/completions`). LLM w programie nie jest używany (ADR-0022).
 - Badania: `docs/badania/` (`llm-ue.md`, `ocr.md`, `ovh-limity.md`, `podobne-rozwiazania.md`, `gliner2.md`, `wektory-etykiet.md`, `braki-i-ryzyka.md`); kryteria oceny i nasz stan: `docs/kryteria.md`.
 - Pomiar na nowych dokumentach (ADR-0011, 21.11 noc): `tools/warianty.py` 4673 warianty dokumentów treningowych, **F1 0.9559**; najsłabsze: etykieta „Odwołujący:” zapisana inaczej (0.755, także „ODWOŁUJĄCY:”), `laczenie_linii` (0.834), „Tytuł przelewu” -> „Tytuł operacji” (0.833), „Zamawiający:” inaczej (0.890), „Data operacji” -> „Data” (0.902). Obce: `tools/pobierz_obce.py` 160 ogłoszeń TED, **0/160 z JSON**.
 - Noc 21/22.11: obcy, pusty, uszkodzony PDF -> `{}` (ADR-0013); rachunek z „PL” jak w dokumencie (ADR-0014, 48/60 przelewów ma „PL”); nagłówki stron bez wielkości liter („ODWOŁUJĄCY:” 0.755 -> 1.000); dziennik `--wyjasnij` i tabela w GUI (T12); bramka `utnij` dla nazw (ADR-0015); etykiety banków dla tytułu przelewu („Tytuł operacji” 0.833 -> 0.995); kontekst sprawy (ADR-0016). Warianty **F1 0.9798** (było 0.9559), skany **0.9462** (było 0.9396), treningowe 0.9990 bez zmian.
@@ -62,6 +62,8 @@ UZP ocenia na swojej maszynie wirtualnej: Ubuntu 24.04, 2 vCPU, 16 GB, bez GPU, 
 | 10 | Claude + Użytkownik | Maszynę aktualizuje `tools/zapisz.sh` po każdym push (zgoda użytkownika 22.11; bez ręcznych testów, sprawdza CI); `sudo sh uruchom.sh` sprawdził użytkownik 22.11 (OK). Końcowy test na VM dokładnie jak UZP (czyste `output/`, komenda z `RUN.md`, po restarcie), STAN | |
 
 Uwagi 22.11 w nocy: na 2 rdzeniach z 2 wątkami OCR odwołanie (5 stron) 23 s, pełnomocnictwo i przelew ok. 4 s; z 16 wątkami na 2 rdzeniach 3 min (stąd wątki = rdzenie). CI Ubuntu 4 vCPU: 226 PDF UZP w 3 min 56 s. `.PDF` wielkimi (T20). Analiza Argona: `docs/badania/braki-i-ryzyka.md` (dalej do rozważenia: etykieta „w dniu” dla `data_operacji`, GUI na VM jako usługa na porcie 8080).
+
+Decyzje użytkownika 22.11 w nocy: kreatora typu nie rozbudowujemy (kilka przykładów, wykrywanie etykiet z dokumentu, podpowiedzi w polach); znane słabe strony: puste pola bez przykładów, „wspólne wykluczenia” to żargon, nie wiadomo, co wpisać w tabeli. LLM nie używamy (ADR-0022).
 
 Odłożone: wektory etykiet (etap 6, `docs/badania/wektory-etykiet.md`): na 2 vCPU z limitem czasu i bez zysku na znanych etykietach ryzyko większe niż zysk; opis w prezentacji. Słownik sjp.pl, Morfeusz.
 

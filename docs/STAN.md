@@ -26,6 +26,7 @@ Aktualizacja: 2026-11-22 06:45, Claude (pkt 6: GUI i kreator z przykładu, zakre
 - Wektory etykiet (etap 6) zmierzone w ślepym teście poza repozytorium (`docs/badania/wektory-etykiet.md`): Test 1 (1 etykieta/pole w `przelew.yaml`, wycięte 46 synonimów) F1 **0.3900 -> 0.6486** (`multilingual-e5-small` CPU ONNX, 0,45 s) i **0.7132** (OVHcloud `bge-m3`); Test 2 (100 nowych ślepych wariantów etykiet, 5 210 dokumentów, zamrożony YAML) F1 **0.9270 -> 0.9624** (`multilingual-e5-small`, czysty czas ONNX 0,98 s) i **0.9634** (OVHcloud `bge-m3`).
 - Czas (ten komputer, 16 wątków): cyfrowa sprawa 3 dokumenty 0,4 s; skany ok. 4 s na stronę (odwołanie 5 stron ok. 20 s). JSON zapisywany zaraz po każdym dokumencie. Ryzyko: wiele skanów na słabym komputerze.
 - GUI (ADR-0006): `odwolania2json/gui.py`, `gui.bat` (Streamlit, PDF obok JSON).
+- 22.11 rano, GUI dla osoby bez przygotowania (ADR-0026): trzy kroki, przyciski „Pokaż na przykładzie” (sprawa UZP, faktura), wartości podświetlone w dokumencie (T27), kreator: nazwa pola i wartość z dokumentu, etykieta i rodzaj same (T26), ikony Material. Dokumenty (README, kryteria, potok, ADR-0006, ADR-0021, AGENTS) zgodne z GUI. Znany błąd kreatora: wartość po przecinku w linii („31-001 Kraków”) i etykieta powtórzona w dwóch sekcjach („Adres:” sprzedawcy i nabywcy) -> „wybierz rodzaj”, a ręczny wybór rodzaju i tak nie dodaje pola.
 
 ## Nowe od UZP (2026-11-21)
 

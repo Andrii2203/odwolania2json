@@ -54,7 +54,7 @@ Obcy, pusty albo uszkodzony dokument (np. ogłoszenie TED) daje plik z `{}` (ADR
 |---|---|
 | `odwolania2json/` | kod; CLI: `python -m odwolania2json` |
 | `config/typy/*.yaml` | typ dokumentu: `znaczniki` (klasyfikacja), `szablon` (kształt JSON), `pola` (`etykiety`, `wzorce` z opcjonalnymi `wartosc` i `sekcja`, `format`, `sekcja`, `slownik`, `podzial`, `utnij`), `wzorce` (fragmenty typu), `nowa_linia` (nowa linia przed nagłówkiem w środku linii), `kontekst` (pole z innego dokumentu sprawy). Nowy typ to nowy plik YAML |
-| `docs/przyklady/` | przykład nowego typu na prawdziwych dokumentach (`ogloszenie_ted.yaml`, T21, ADR-0020); poza `config/typy/`, bo w ocenie UZP TED to `{}`. Dane: `tools/pobierz_obce.py` -> `data/przyklad_ted/{rozwoj,pomiar}` |
+| `docs/przyklady/` | przykład nowego typu na prawdziwych dokumentach (`ogloszenie_ted.yaml`, T21, ADR-0020); poza `config/typy/`, bo w ocenie UZP TED to `{}`. Dane: `tools/pobierz_obce.py` -> `data/przyklad_ted/{rozwoj,pomiar}`. `kreator/`: przykład dla kreatora w GUI (`faktura.yaml`, `faktura.pdf` z `faktura.html`, dane fikcyjne; ADR-0026) |
 | `config/ustawienia.yaml` | wszystkie liczby, wspólne wzorce, słowniki; dla OCR `warianty_liter` (ł pasuje też do l) i `poprawki_ocr` |
 | `odwolania2json/kreator.py` | kreator nowego typu (GUI): nazwa pola i wartość z przykładu -> etykieta, rodzaj i YAML; rodzaje pól w `config/ustawienia.yaml` (`kreator.rodzaje`), T22, T26, ADR-0021, ADR-0026 |
 | `odwolania2json/podglad.py` | podgląd stron w GUI z zakreślaczem: fragment i wartość z dziennika, numer jak w „Skąd te wartości”; T27, ADR-0026 |

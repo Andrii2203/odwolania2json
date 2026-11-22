@@ -62,7 +62,7 @@ Odwolujacy[0].nazwa = "Belmoria Rozwiązania S.A."
 | 7 | nie ma | klucz OVHcloud działa (ADR-0004) | wywołanie, sprawdzenie „wartość jest w tekście” |
 | 8 | jest | klucz `kontekst` w pliku typu: puste pole z innego dokumentu sprawy, jeśli wartość jest w tekście (T14, ADR-0016) | mianownik z innego dokumentu; wybór między kandydatami |
 | 9 | jest | daty ISO, słownik słowo -> id (ADR-0010), rachunek z kodem kraju (ADR-0014, T15), powtórzenie po wartości po formacie (NIP z myślnikami = bez, ADR-0019), mianownik imion i nazwisk (Morfeusz2, T24, ADR-0024) | nazwisko spoza słownika SGJP |
-| 10 | jest | JSON w `output/`; dziennik: `--wyjasnij` w CLI i tabela „Skąd każda wartość” w GUI (T12) | wpisy bramki (etap 5), gdy powstanie |
+| 10 | jest | JSON w `output/`; dziennik: `--wyjasnij` w CLI; w GUI tabela „Skąd te wartości” i podświetlenie w dokumencie (T12, T27) | wpisy bramki (etap 5), gdy powstanie |
 
 Do oddania (22.11 11:00, ocena na maszynie UZP z 2 vCPU, ADR-0017) robiliśmy z kolumny „dalej” tylko: etap 0 (straż czasu) i etap 9 (rachunek z dowolnym kodem kraju, ten sam NIP z myślnikami i bez); oba zrobione 22.11. Reszta odłożona; etap 7 (LLM) nie: lokalne rozwiązanie ma 20 pkt za model, API dodaje czas. Plan: `docs/STAN.md`.
 

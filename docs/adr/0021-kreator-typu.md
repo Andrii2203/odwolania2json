@@ -1,6 +1,6 @@
 # ADR-0021: Kreator nowego typu w GUI
 
-Status: przyjęte, 2026-11-22
+Status: przyjęte, 2026-11-22; zmienione przez ADR-0026 (zamiast tabeli: nazwa pola i wartość z dokumentu, etykieta i rodzaj znajdowane same; bez kopii `config/`)
 
 ## Kontekst
 

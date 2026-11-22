@@ -17,7 +17,7 @@ Typy: odwołanie, pełnomocnictwo, potwierdzenie przelewu. Brak wartości w doku
 |---|---|---|
 | Linux (maszyna UZP) | `sh instaluj.sh` | `sh uruchom.sh` (komenda z `RUN.md`) |
 | Windows | `start.bat` instaluje sam | `start.bat` |
-| Podgląd (GUI) | `gui.bat` | przeglądarka: PDF obok JSON i skąd każda wartość |
+| Podgląd (GUI) | `gui.bat` (Linux: `sh gui.sh`) | przeglądarka: PDF obok JSON, odczytane wartości podświetlone w dokumencie, skąd każda wartość; kreator nowego typu |
 
 - Wejście: wszystkie PDF z `input/` (także w podkatalogach, także `.PDF`). Wynik: `output/` z tym samym drzewem katalogów.
 - `--wyjasnij`: dla każdego pola reguła z konfiguracji i fragment tekstu, z którego pochodzi wartość.
@@ -54,7 +54,7 @@ Nowy typ to jeden plik YAML. Kod się nie zmienia. Pliku nie trzeba pisać ręcz
    - `wzorce`: jak wygląda wartość; gotowe fragmenty z `config/ustawienia.yaml`: `{DATA}`, `{KWOTA}`, `{RACHUNEK}`, `{NIP_Z_ETYKIETA}`, `{FIRMA}`, `{OSOBA}`, `{SYGNATURA}`, `{TEKST}`; własne fragmenty typu w `wzorce` pliku typu;
    - opcjonalnie: `format` (`data`, `liczba`, `cyfry`, `tekst`, `bez_spacji`, `mianownik`), `sekcja` (w której części dokumentu szukać), `utnij` (gdzie wartość się kończy), `slownik`, `kontekst` (pole z innego dokumentu sprawy).
    - w typie opcjonalnie `nowa_linia`: wzorce miejsc, w których przed wyciąganiem pól wstawiana jest nowa linia (nagłówek w środku linii, ADR-0025).
-5. Uruchom i sprawdź, skąd wzięła się każda wartość: `--wyjasnij` w CLI albo tabela w GUI. W GUI przykład TED włącza się przełącznikiem w panelu bocznym.
+5. Uruchom i sprawdź, skąd wzięła się każda wartość: `--wyjasnij` w CLI albo w GUI (wartości podświetlone w dokumencie, tabela „Skąd te wartości”). W GUI przykład TED włącza przełącznik „Rozpoznawaj też: …” nad polem wyboru plików.
 
 Fragment przykładu:
 

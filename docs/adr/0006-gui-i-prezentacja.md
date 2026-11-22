@@ -27,3 +27,4 @@ Oba punkty są w planie z wykonawcą i terminem (`docs/STAN.md`), a nie „jeśl
 
 GUI: wszystkie wgrane pliki to jedna sprawa (kontekst sprawy jak w CLI); wynik w pamięci podręcznej (edycja nie uruchamia OCR ponownie); JSON można poprawić ręcznie (sprawdzenie składni, znacznik „Zmieniono ręcznie”); pobieranie JSON każdego dokumentu i ZIP wszystkich.
 GUI, 22.11 (2): panel „Typy dokumentów”: przełącznik dla każdego przykładu z `docs/przyklady/` (nowy typ, np. ogłoszenie TED); plik YAML typu widoczny i edytowalny w panelu, wynik od razu (kopia `config/` z dodanym plikiem, kod bez zmian).
+GUI, 22.11 (3): zmienione przez ADR-0026: bez panelu bocznego i edycji YAML w GUI; dodatkowy typ to przełącznik nad polem wyboru plików; wartości podświetlone w dokumencie.

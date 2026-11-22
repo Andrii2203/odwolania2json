@@ -1,9 +1,9 @@
 import ast
+import json
 import re
-
 import shutil
 
-from odwolania2json.pipeline import KONFIG, ROOT, USTAWIENIA, dokument_z_tekstu, ustawienia, wczytaj_typy
+from odwolania2json.pipeline import KONFIG, ROOT, USTAWIENIA, przetworz_wszystkie, ustawienia, wczytaj_typy
 
 KWANTYFIKATOR = re.compile(r"\{\d+(?:,\d*)?\}")
 
@@ -35,14 +35,12 @@ def test_t5_liczby_w_jednym_pliku():
 def test_t21_nowy_typ_z_yaml(tmp_path):
     config = tmp_path / "config"
     shutil.copytree(KONFIG, config)
-    shutil.copy(ROOT / "docs" / "przyklady" / "wezwanie.yaml", config / "typy")
-    tekst = ("Gdańsk, dnia 12 maja 2026 r.\nZnak sprawy: ZP.271.4.2026\nWykonawca:\n"
-             "Budex Serwis sp. z o.o., ul. Długa 5, 80-001 Gdańsk\nNIP: 999-123-45-67\n"
-             "WEZWANIE DO UZUPEŁNIENIA DOKUMENTÓW\nZamawiający wzywa Wykonawcę do uzupełnienia dokumentów w postępowaniu "
-             "o udzielenie zamówienia publicznego w terminie do dnia 19 maja 2026 r.\n")
+    shutil.copy(ROOT / "docs" / "przyklady" / "ogloszenie_ted.yaml", config / "typy")
+    pdf = ROOT / "tests" / "dane" / "ted" / "ogloszenie.pdf"
+    wzor = json.loads(pdf.with_suffix(".json").read_text(encoding="utf-8"))
 
-    d = dokument_z_tekstu(tekst, wczytaj_typy(config), ustawienia(config), [])
+    [(_, z_nowym_typem, _)] = przetworz_wszystkie([pdf], wczytaj_typy(config), ustawienia(config))
+    [(_, bez_nowego_typu, _)] = przetworz_wszystkie([pdf], wczytaj_typy(), ustawienia())
 
-    assert (d["typ"], d["dane"]) == ("wezwanie", {
-        "Wezwanie": {"data": "2026-05-12", "miejscowosc": "Gdańsk", "numer_postepowania": "ZP.271.4.2026", "termin": "2026-05-19"},
-        "Wykonawca": {"nazwa": "Budex Serwis sp. z o.o.", "nip": "9991234567"}})
+    assert z_nowym_typem == ("ogloszenie_ted", wzor)
+    assert bez_nowego_typu is None

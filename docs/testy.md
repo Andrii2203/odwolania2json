@@ -275,18 +275,22 @@ input/sprawa/SKAN.PDF  ->  output/sprawa/SKAN.json
 - Źródło: maszyna UZP to Linux (ADR-0017): tam `*.pdf` nie pasuje do `.PDF`, a skanery często tak zapisują pliki.
 - Test: `tests/test_e2e.py::test_t20_pdf_wielkimi`
 
-## T21. Nowy typ dokumentu: tylko plik YAML, bez zmiany kodu
+## T21. Nowy typ dokumentu: tylko plik YAML, bez zmiany kodu (prawdziwe ogłoszenie TED)
 
 ```
-docs/przyklady/wezwanie.yaml -> config/typy/wezwanie.yaml
-"Gdańsk, dnia 12 maja 2026 r. / Znak sprawy: ZP.271.4.2026 / Wykonawca: Budex Serwis sp. z o.o., ul. Długa 5 … / NIP: 999-123-45-67
- / WEZWANIE DO UZUPEŁNIENIA DOKUMENTÓW … w terminie do dnia 19 maja 2026 r."
-  -> typ wezwanie
-     {"Wezwanie": {"data": "2026-05-12", "miejscowosc": "Gdańsk", "numer_postepowania": "ZP.271.4.2026", "termin": "2026-05-19"},
-      "Wykonawca": {"nazwa": "Budex Serwis sp. z o.o.", "nip": "9991234567"}}
+docs/przyklady/ogloszenie_ted.yaml -> config/typy/
+tests/dane/ted/ogloszenie.pdf (ogłoszenie TED 100-2026, api.ted.europa.eu)
+  z nowym typem -> ogloszenie_ted, JSON = tests/dane/ted/ogloszenie.json (dane z API TED, nie nasz odczyt):
+     {"OgloszenieTED": {"numer": "100-2026", "data_publikacji": "2026-01-02", "cpv": "24111900"},
+      "Nabywca": {"nazwa": "Miejskie Przedsiębiorstwo Wodociągów i Kanalizacji w m. st. Warszawie S.A.",
+                  "numer_rejestracyjny": "5250005662", "miejscowosc": "Warszawa"}}
+  bez nowego typu (konfiguracja do oceny UZP) -> {} (dokument spoza klas)
 ```
 
-- Źródło: README i Discord UZP: nowa klasa dokumentu tylko przez plik konfiguracyjny (finał: 50% oceny). Przykład leży poza `config/typy/`, żeby nie zmieniał wyników na zbiorze testowym; instrukcja w `README.md`.
+- Źródło: README i Discord UZP: nowa klasa dokumentu tylko przez plik konfiguracyjny (finał: 50% oceny). Prawdziwy dokument i poprawne wartości z danych TED, nie wymyślone. Przykład leży poza `config/typy/`: w ocenie UZP ogłoszenie TED ma dać `{}`.
+- `wspolne_wykluczenia: false` w pliku typu: wspólne wykluczenia (wyrok KIO, ogłoszenie TED) tego typu nie dotyczą.
+- Ogłoszenia TED wolno ponownie wykorzystywać z podaniem źródła (decyzja Komisji 2011/833/UE).
+- Pomiar (nie test): `tools/pobierz_obce.py`, potem `tools/ocena_f1.py --dane data/przyklad_ted/pomiar --config <config z przykładem>` (ADR-0020).
 - Test: `tests/test_konfiguracja.py::test_t21_nowy_typ_z_yaml`
 
 ## Pomiar jakości (to nie jest test)

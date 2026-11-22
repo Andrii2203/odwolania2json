@@ -29,7 +29,8 @@ def wczytaj_typy(config: Path = KONFIG) -> list[dict]:
     for t in typy:
         t["prog"] = ust["liczby"]["PROG"]
         t["rozdzielnik_cyfr"] = ust["wzorce"]["ROZDZIELNIK_CYFR"]
-        t["wykluczenia"] = ust["wykluczenia"] + t.get("wykluczenia", [])
+        wspolne = ust["wykluczenia"] if t.get("wspolne_wykluczenia", True) else []
+        t["wykluczenia"] = wspolne + t.get("wykluczenia", [])
         przygotuj(t.setdefault("pola", {}), ust, t.get("wzorce", {}))
     return typy
 

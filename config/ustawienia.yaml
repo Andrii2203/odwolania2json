@@ -59,6 +59,20 @@ narzedzia:
     ILE: 250
     # Kod języka PDF w odpowiedzi API (ISO 639-2/B, jak w polu links.pdf).
     jezyk: POL
+    # Przykład nowego typu (docs/przyklady/ogloszenie_ted.yaml, T21): pole JSON <- pole API TED. Poprawne wartości
+    # pochodzą z danych TED, nie z naszego odczytu PDF; wielu nabywców: bierzemy pierwszego.
+    wzorzec:
+      OgloszenieTED.numer: publication-number
+      OgloszenieTED.data_publikacji: publication-date
+      OgloszenieTED.cpv: classification-cpv
+      Nabywca.nazwa: buyer-name
+      Nabywca.numer_rejestracyjny: organisation-identifier-buyer
+      Nabywca.miejscowosc: buyer-city
+    # Pola API z datą i strefą czasową („2026-01-02+01:00”): zostaje sama data.
+    daty: [publication-date]
+    # Część ogłoszeń do pisania reguł (wolno patrzeć w błędy); reszta tylko do pomiaru: jedna czwarta, reszta to
+    # uczciwa ocena na dokumentach, których reguły nie widziały.
+    CZESC_ROZWOJ: 0.25
   # Warianty dokumentów treningowych (tools/warianty.py, ADR-0011). Poprawny JSON znamy, bo wiemy, co zmieniliśmy.
   warianty:
     # Losowań na dokument dla każdej losowej rodziny: kilka tysięcy wariantów na 180 dokumentach w kilka minut.

@@ -12,7 +12,7 @@ def z_cyrylica(tekst: str) -> bool:
 def main() -> int:
     sys.stderr.reconfigure(encoding="utf-8")
     pliki = git("diff", "--cached", "--name-only", "--diff-filter=ACM").splitlines()
-    bledne = [p for p in pliki if z_cyrylica(git("show", f":{p}"))]
+    bledne = [p for p in pliki if z_cyrylica(git("show", f":{p}") or "")]
     if bledne:
         print("Commit zablokowany: tekst nie po polsku (cyrylica) w: " + ", ".join(bledne), file=sys.stderr)
         return 1

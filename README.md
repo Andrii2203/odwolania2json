@@ -40,44 +40,48 @@ Wszystkie reguły są w `config/`: `config/typy/*.yaml` (jeden plik na typ dokum
 
 ## Jak dodać nowy typ dokumentu
 
-Nowy typ to jeden plik YAML. Kod się nie zmienia. Gotowy przykład: [`docs/przyklady/wezwanie.yaml`](docs/przyklady/wezwanie.yaml) (wezwanie wykonawcy do uzupełnienia dokumentów).
+Nowy typ to jeden plik YAML. Kod się nie zmienia. Gotowy przykład na prawdziwych dokumentach: [`docs/przyklady/ogloszenie_ted.yaml`](docs/przyklady/ogloszenie_ted.yaml), ogłoszenie w Dzienniku Urzędowym UE (TED).
 
-1. Skopiuj przykład do `config/typy/wezwanie.yaml`.
-2. Wpisz `znaczniki`: słowa, po których program pozna typ (lista w nawiasach = wystarczy jeden wariant).
-3. Wpisz `szablon`: kształt JSON, który ma powstać.
-4. Dla każdego pola z szablonu wpisz w `pola`:
+1. Skopiuj plik do `config/typy/` (albo do kopii `config/` i uruchom z `--config <katalog>`).
+2. `znaczniki`: słowa, po których program pozna typ (lista w nawiasach = wystarczy jeden wariant).
+3. `szablon`: kształt JSON, który ma powstać.
+4. Dla każdego pola z szablonu w `pola`:
    - `etykiety`: jak pole jest podpisane w dokumencie (wielkość liter i odstępy bez znaczenia);
-   - `wzorce`: jak wygląda wartość; gotowe fragmenty z `config/ustawienia.yaml`: `{DATA}`, `{KWOTA}`, `{RACHUNEK}`, `{NIP_Z_ETYKIETA}`, `{FIRMA}`, `{OSOBA}`, `{SYGNATURA}`, `{TEKST}`;
-   - opcjonalnie: `format` (`data`, `liczba`, `cyfry`, `tekst`, `bez_spacji`), `utnij` (gdzie wartość się kończy), `sekcja` (w której części dokumentu szukać), `slownik`, `kontekst` (pole z innego dokumentu sprawy).
-5. Uruchom: `start.bat` albo `sh uruchom.sh`. Sprawdź, skąd wzięła się każda wartość: `--wyjasnij` albo GUI.
+   - `wzorce`: jak wygląda wartość; gotowe fragmenty z `config/ustawienia.yaml`: `{DATA}`, `{KWOTA}`, `{RACHUNEK}`, `{NIP_Z_ETYKIETA}`, `{FIRMA}`, `{OSOBA}`, `{SYGNATURA}`, `{TEKST}`; własne fragmenty typu w `wzorce` pliku typu;
+   - opcjonalnie: `format` (`data`, `liczba`, `cyfry`, `tekst`, `bez_spacji`), `sekcja` (w której części dokumentu szukać), `utnij` (gdzie wartość się kończy), `slownik`, `kontekst` (pole z innego dokumentu sprawy).
+5. Uruchom i sprawdź, skąd wzięła się każda wartość: `--wyjasnij` w CLI albo tabela w GUI. W GUI przykład TED włącza się przełącznikiem w panelu bocznym.
+
+Fragment przykładu:
 
 ```yaml
-typ: wezwanie
-znaczniki: [wezwanie, uzupełnieni, wykonawc, [postępowani, zamówieni]]
+typ: ogloszenie_ted
+znaczniki: [see the notice, oficjalna nazwa, nabywca, numer rejestracyjny, role tej organizacji]
+wspolne_wykluczenia: false        # wspólne wykluczenia (wyrok KIO, TED) tego typu nie dotyczą
 szablon:
-  Wezwanie: {data: null, miejscowosc: null, numer_postepowania: null, termin: null}
-  Wykonawca: {nazwa: null, nip: null}
+  OgloszenieTED: {numer: null, data_publikacji: null, cpv: null}
+  Nabywca: {nazwa: null, numer_rejestracyjny: null, miejscowosc: null}
 pola:
-  Wezwanie.numer_postepowania:
-    etykiety: [znak sprawy, numer postępowania, nr postępowania]
-    wzorce: ['({SYGNATURA})']
-  Wezwanie.termin:
-    etykiety: [w terminie do dnia, w terminie do]
-    wzorce: ['({DATA})']
+  OgloszenieTED.data_publikacji:
+    wzorce: ['OJ\s+S\s+\S+\s+({DATA})']
     format: data
-  Wykonawca.nip:
-    wzorce: ['{NIP_Z_ETYKIETA}']
-    format: cyfry
+  OgloszenieTED.cpv:
+    etykiety: [główna klasyfikacja (cpv)]
+    wzorce: [':[ \t]*(\d+)']
+  Nabywca.miejscowosc:
+    etykiety: [miejscowość]
+    wzorce: [':{WARTOSC}']
+    sekcja: '{ORGANIZACJA_NABYWCY}'   # blok organizacji z rolą „Nabywca”
 ```
 
-Wynik dla „Gdańsk, dnia 12 maja 2026 r. … Znak sprawy: ZP.271.4.2026 … w terminie do dnia 19 maja 2026 r.”:
+Wynik dla ogłoszenia 100-2026:
 
 ```json
-{"Wezwanie": {"data": "2026-05-12", "miejscowosc": "Gdańsk", "numer_postepowania": "ZP.271.4.2026", "termin": "2026-05-19"},
- "Wykonawca": {"nazwa": "Budex Serwis sp. z o.o.", "nip": "9991234567"}}
+{"OgloszenieTED": {"numer": "100-2026", "data_publikacji": "2026-01-02", "cpv": "24111900"},
+ "Nabywca": {"nazwa": "Miejskie Przedsiębiorstwo Wodociągów i Kanalizacji w m. st. Warszawie S.A.",
+             "numer_rejestracyjny": "5250005662", "miejscowosc": "Warszawa"}}
 ```
 
-Ten przykład sprawdza test T21 (`tests/test_konfiguracja.py`).
+Jak sprawdziliśmy, że to działa: 250 prawdziwych ogłoszeń z API TED; poprawne wartości z danych TED (nie z naszego odczytu PDF). Reguły pisane na 62 ogłoszeniach, pomiar na pozostałych 188, których reguły nie widziały: typ rozpoznany 188/188, **F1 0.9902**. Przykład nie leży w `config/typy/`, bo w ocenie UZP ogłoszenie TED to dokument spoza klas: z domyślną konfiguracją wszystkie 250 dają `{}`. Test T21 (`tests/test_konfiguracja.py`) sprawdza oba przypadki.
 
 ## Jakość
 
@@ -88,7 +92,8 @@ Miara: F1 po polach JSON, tak jak u UZP (`tools/ocena_f1.py`, `docs/testy.md`).
 | 60 spraw treningowych UZP (180 dokumentów) | 0.9990 |
 | 30 skanów UZP | 0.9508 |
 | 4673 warianty dokumentów treningowych (inne wartości, daty, etykiety, łamanie linii; `tools/warianty.py`) | 0.9798 |
-| 160 obcych dokumentów (ogłoszenia TED) | 0 z 160 dostaje JSON z danymi |
+| Nowy typ z samego YAML: 188 ogłoszeń TED, których reguły nie widziały | 0.9902 |
+| 250 obcych dokumentów (ogłoszenia TED) | wszystkie dają `{}` |
 
 Czas: 226 PDF z danych UZP (w tym 30 skanów) w ok. 4 min na Ubuntu 24.04 z 4 vCPU (CI). Dokument cyfrowy to ułamek sekundy, strona skanu kilka sekund.
 
